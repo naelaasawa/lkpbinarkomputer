@@ -13,8 +13,7 @@ export const metadata: Metadata = {
   description: "Learn computer skills with us.",
 };
 
-import { MobileContainer } from "@/components/MobileContainer";
-import { BottomNavigation } from "@/components/BottomNavigation";
+import { AppLayout } from "@/components/AppLayout";
 
 export default function RootLayout({
   children,
@@ -26,12 +25,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} antialiased bg-slate-50 text-slate-900 font-sans`}
       >
-        <MobileContainer>
-          <main className="flex-1 pb-20">
-            {children}
-          </main>
-          <BottomNavigation />
-        </MobileContainer>
+        <AppLayout>
+          {children}
+        </AppLayout>
       </body>
     </html>
   );

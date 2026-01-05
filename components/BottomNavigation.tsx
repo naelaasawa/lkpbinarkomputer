@@ -8,7 +8,7 @@ export const BottomNavigation = () => {
     const pathname = usePathname();
 
     const navItems = [
-        { label: "Home", href: "/", icon: Home },
+        { label: "Home", href: "/dashboard", icon: Home },
         { label: "Courses", href: "/courses", icon: BookOpen },
         { label: "My Learning", href: "/my-learning", icon: GraduationCap },
         { label: "Profile", href: "/profile", icon: User },
