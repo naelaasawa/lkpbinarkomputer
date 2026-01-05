@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id          String       @id @default(uuid())
+  clerkId     String       @unique
+  email       String       @unique
+  role        String       @default("USER")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
+}
+
+model Category {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  icon    String
+  color   String
+  courses Course[]
+}
+
+model Course {
+  id                 String       @id @default(uuid())
+  title              String
+  description        String       @db.Text
+  price              Decimal      @default(0.00) @db.Decimal(10, 2)
+  level              String
+  imageUrl           String?
+  published          Boolean      @default(false)
+  categoryId         String
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  certificateEnabled Boolean      @default(false)
+  completionRule     String       @default("manual")
+  enrollmentType     String       @default("open")
+  fullDescription    String?      @db.Text
+  language           String?      @default("id")
+  prerequisites      String?      @db.Text
+  shortDescription   String?      @db.VarChar(160)
+  slug               String?      @unique
+  targetAudience     String?      @db.Text
+  visibility         String       @default("draft")
+  whatYouLearn       String?      @db.LongText
+  category           Category     @relation(fields: [categoryId], references: [id])
+  enrollments        Enrollment[]
+  quizAssignments    QuizAssignment[]
+  modules            Module[]
+
+  @@index([categoryId], map: "Course_categoryId_fkey")
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  order       Int
+  courseId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lessons     Lesson[]
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId], map: "Module_courseId_fkey")
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  title       String
+  contentType String
+  content     String?  @db.Text
+  duration    Int?
+  order       Int
+  moduleId    String
+  quizId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quiz        Quiz?    @relation(fields: [quizId], references: [id])
+
+  @@index([moduleId], map: "Lesson_moduleId_fkey")
+  @@index([quizId], map: "Lesson_quizId_fkey")
+}
+
+model Quiz {
+  id           String     @id @default(uuid())
+  title        String
+  description  String?    @db.Text
+  type         String     @default("practice")
+  timeLimit    Int?
+  attemptLimit Int?
+  passingScore Int        @default(70)
+  randomize    Boolean    @default(false)
+  status       String     @default("draft")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  lessons      Lesson[]
+  questions    Question[]
+  assignments  QuizAssignment[]
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  quizId        String
+  type          String
+  question      String   @db.Text
+  options       String?  @db.LongText
+  correctAnswer String   @db.Text
+  explanation   String?  @db.Text
+  score         Int      @default(1)
+  order         Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId], map: "Question_quizId_fkey")
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  progress  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([courseId], map: "Enrollment_courseId_fkey")
+}
+
+model QuizAssignment {
+  id          String    @id @default(uuid())
+  userId      String
+  quizId      String
+  status      String    @default("assigned") // assigned, in_progress, completed
+  score       Int?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id])
+  quiz        Quiz      @relation(fields: [quizId], references: [id])
+
+  @@unique([userId, quizId])
+  @@index([userId], map: "QuizAssignment_userId_fkey")
+  @@index([quizId], map: "QuizAssignment_quizId_fkey")
+}
