@@ -15,6 +15,7 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   enrollments Enrollment[]
+  quizAssignments QuizAssignment[]
 }
 
 model Category {
@@ -49,7 +50,6 @@ model Course {
   whatYouLearn       String?      @db.LongText
   category           Category     @relation(fields: [categoryId], references: [id])
   enrollments        Enrollment[]
-  quizAssignments    QuizAssignment[]
   modules            Module[]
 
   @@index([categoryId], map: "Course_categoryId_fkey")

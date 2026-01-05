@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Monitor, Star, ChevronRight, Clock, Award, BookOpen } from "lucide-react";
+import { Monitor, Star, ChevronRight, Clock, Award, BookOpen, Check } from "lucide-react";
 import Link from "next/link";
 
 interface Enrollment {
@@ -32,11 +32,24 @@ interface Stats {
     xpPoints: number;
 }
 
+interface QuizAssignment {
+    id: string;
+    status: string;
+    quiz: {
+        id: string;
+        title: string;
+        description: string;
+        type: string;
+        timeLimit: number;
+    };
+}
+
 export default function DashboardPage() {
     const { user, isLoaded } = useUser();
     const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
     const [stats, setStats] = useState<Stats | null>(null);
     const [popularCourses, setPopularCourses] = useState<any[]>([]);
+    const [assignments, setAssignments] = useState<QuizAssignment[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -47,11 +60,12 @@ export default function DashboardPage() {
                 // Sync user with database
                 await fetch("/api/user/sync", { method: "POST" });
 
-                // Fetch enrollments, stats, and popular courses in parallel
-                const [enrollmentsRes, statsRes, coursesRes] = await Promise.all([
+                // Fetch enrollments, stats, popular courses, and assignments in parallel
+                const [enrollmentsRes, statsRes, coursesRes, assignmentsRes] = await Promise.all([
                     fetch("/api/my-enrollments"),
                     fetch("/api/my-stats"),
                     fetch("/api/courses"),
+                    fetch("/api/quiz-assignments"),
                 ]);
 
                 if (enrollmentsRes.ok) {
@@ -67,6 +81,11 @@ export default function DashboardPage() {
                 if (coursesRes.ok) {
                     const data = await coursesRes.json();
                     setPopularCourses(data.slice(0, 8)); // Show max 8 popular courses
+                }
+
+                if (assignmentsRes.ok) {
+                    const data = await assignmentsRes.json();
+                    setAssignments(data);
                 }
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
@@ -179,6 +198,51 @@ export default function DashboardPage() {
                     </div>
                 )}
             </div>
+
+            {/* Assigned Quizzes Section */}
+            {assignments.length > 0 && (
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold text-slate-800">Assigned Quizzes</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {assignments.map((assignment) => (
+                            <Link
+                                href={`/quizzes/${assignment.quiz.id}`}
+                                key={assignment.id}
+                                className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition group border-l-4 border-l-blue-500"
+                            >
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded uppercase tracking-wide">
+                                        {assignment.quiz.type}
+                                    </span>
+                                    {assignment.status === 'completed' && (
+                                        <span className="text-xs font-bold text-green-600 flex items-center gap-1">
+                                            <Check size={12} /> Done
+                                        </span>
+                                    )}
+                                </div>
+                                <h3 className="font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">
+                                    {assignment.quiz.title}
+                                </h3>
+                                <p className="text-xs text-slate-500 line-clamp-2 mb-3">
+                                    {assignment.quiz.description || "No description available."}
+                                </p>
+                                <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
+                                    <div className="flex items-center gap-1">
+                                        <Clock size={12} />
+                                        {assignment.quiz.timeLimit ? `${assignment.quiz.timeLimit} mins` : 'No limit'}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Star size={12} />
+                                        Assigned
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Popular Courses Section */}
             <div>

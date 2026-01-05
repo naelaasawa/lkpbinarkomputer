@@ -12,7 +12,9 @@ export default function ShareQuizModal({ quizId, quizTitle, isOpen, onClose }: S
     const [copied, setCopied] = useState(false);
     const [users, setUsers] = useState<any[]>([]);
     const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [assigning, setAssigning] = useState(false);
     // showUserList state is not explicitly used in the provided UI, but keeping it as per instruction if future use is intended.
     const [showUserList, setShowUserList] = useState(false);
 
@@ -63,11 +65,13 @@ export default function ShareQuizModal({ quizId, quizTitle, isOpen, onClose }: S
         }
     };
 
-    const toggleUser = (email: string) => {
-        if (selectedEmails.includes(email)) {
-            setSelectedEmails(selectedEmails.filter(e => e !== email));
+    const toggleUser = (user: any) => {
+        if (selectedEmails.includes(user.email)) {
+            setSelectedEmails(selectedEmails.filter(e => e !== user.email));
+            setSelectedUserIds(selectedUserIds.filter(id => id !== user.id));
         } else {
-            setSelectedEmails([...selectedEmails, email]);
+            setSelectedEmails([...selectedEmails, user.email]);
+            setSelectedUserIds([...selectedUserIds, user.id]);
         }
     };
 
@@ -134,7 +138,7 @@ export default function ShareQuizModal({ quizId, quizTitle, isOpen, onClose }: S
                                             <input
                                                 type="checkbox"
                                                 checked={selectedEmails.includes(user.email)}
-                                                onChange={() => toggleUser(user.email)}
+                                                onChange={() => toggleUser(user)}
                                                 className="rounded text-blue-600 focus:ring-blue-500"
                                             />
                                             <div className="flex-1 min-w-0">
@@ -150,20 +154,46 @@ export default function ShareQuizModal({ quizId, quizTitle, isOpen, onClose }: S
                             </div>
                         </div>
 
-                        <a
-                            href={mailtoLink}
-                            className={`flex items-center justify-center gap-2 w-full px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium ${selectedEmails.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            onClick={(e) => {
+                        <button
+                            onClick={async (e) => {
                                 if (selectedEmails.length === 0) {
-                                    e.preventDefault();
                                     alert("Please select at least one user to email.");
+                                    return;
+                                }
+
+                                try {
+                                    setAssigning(true);
+                                    const res = await fetch("/api/quiz-assignments", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            quizId,
+                                            userIds: selectedUserIds
+                                        })
+                                    });
+
+                                    if (!res.ok) throw new Error("Failed to assign quiz");
+
+                                    // Open mail client
+                                    window.location.href = mailtoLink;
+
+                                    alert(`Quiz assigned to ${selectedEmails.length} users!`);
+                                    onClose();
+                                } catch (error) {
+                                    console.error("Assignment error:", error);
+                                    alert("Failed to assign quiz to users, but opening email client...");
+                                    window.location.href = mailtoLink;
+                                } finally {
+                                    setAssigning(false);
                                 }
                             }}
+                            disabled={assigning || selectedEmails.length === 0}
+                            className={`flex items-center justify-center gap-2 w-full px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium ${selectedEmails.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <Mail size={18} />
-                            Send Email Invitation
-                        </a>
-                        <p className="text-xs text-slate-400 text-center mt-2">Opens your default email client</p>
+                            {assigning ? "Assigning..." : "Send Email & Assign"}
+                        </button>
+                        <p className="text-xs text-slate-400 text-center mt-2">Assigns the quiz to their dashboard and opens your default email client</p>
                     </div>
                 </div>
             </div>

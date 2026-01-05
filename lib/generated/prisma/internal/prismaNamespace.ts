@@ -391,7 +391,8 @@ export const ModelName = {
   Lesson: 'Lesson',
   Quiz: 'Quiz',
   Question: 'Question',
-  Enrollment: 'Enrollment'
+  Enrollment: 'Enrollment',
+  QuizAssignment: 'QuizAssignment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "category" | "course" | "module" | "lesson" | "quiz" | "question" | "enrollment"
+    modelProps: "user" | "category" | "course" | "module" | "lesson" | "quiz" | "question" | "enrollment" | "quizAssignment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -939,6 +940,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    QuizAssignment: {
+      payload: Prisma.$QuizAssignmentPayload<ExtArgs>
+      fields: Prisma.QuizAssignmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.QuizAssignmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.QuizAssignmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>
+        }
+        findFirst: {
+          args: Prisma.QuizAssignmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.QuizAssignmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>
+        }
+        findMany: {
+          args: Prisma.QuizAssignmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>[]
+        }
+        create: {
+          args: Prisma.QuizAssignmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>
+        }
+        createMany: {
+          args: Prisma.QuizAssignmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.QuizAssignmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>
+        }
+        update: {
+          args: Prisma.QuizAssignmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.QuizAssignmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.QuizAssignmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.QuizAssignmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$QuizAssignmentPayload>
+        }
+        aggregate: {
+          args: Prisma.QuizAssignmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuizAssignment>
+        }
+        groupBy: {
+          args: Prisma.QuizAssignmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizAssignmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.QuizAssignmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuizAssignmentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1102,6 +1169,19 @@ export const EnrollmentScalarFieldEnum = {
 export type EnrollmentScalarFieldEnum = (typeof EnrollmentScalarFieldEnum)[keyof typeof EnrollmentScalarFieldEnum]
 
 
+export const QuizAssignmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  quizId: 'quizId',
+  status: 'status',
+  score: 'score',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type QuizAssignmentScalarFieldEnum = (typeof QuizAssignmentScalarFieldEnum)[keyof typeof QuizAssignmentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1213,6 +1293,16 @@ export const EnrollmentOrderByRelevanceFieldEnum = {
 } as const
 
 export type EnrollmentOrderByRelevanceFieldEnum = (typeof EnrollmentOrderByRelevanceFieldEnum)[keyof typeof EnrollmentOrderByRelevanceFieldEnum]
+
+
+export const QuizAssignmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  quizId: 'quizId',
+  status: 'status'
+} as const
+
+export type QuizAssignmentOrderByRelevanceFieldEnum = (typeof QuizAssignmentOrderByRelevanceFieldEnum)[keyof typeof QuizAssignmentOrderByRelevanceFieldEnum]
 
 
 
@@ -1365,6 +1455,7 @@ export type GlobalOmitConfig = {
   quiz?: Prisma.QuizOmit
   question?: Prisma.QuestionOmit
   enrollment?: Prisma.EnrollmentOmit
+  quizAssignment?: Prisma.QuizAssignmentOmit
 }
 
 /* Types for Logging */

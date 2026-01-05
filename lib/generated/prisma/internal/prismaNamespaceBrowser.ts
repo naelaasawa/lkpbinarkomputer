@@ -58,7 +58,8 @@ export const ModelName = {
   Lesson: 'Lesson',
   Quiz: 'Quiz',
   Question: 'Question',
-  Enrollment: 'Enrollment'
+  Enrollment: 'Enrollment',
+  QuizAssignment: 'QuizAssignment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -201,6 +202,19 @@ export const EnrollmentScalarFieldEnum = {
 export type EnrollmentScalarFieldEnum = (typeof EnrollmentScalarFieldEnum)[keyof typeof EnrollmentScalarFieldEnum]
 
 
+export const QuizAssignmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  quizId: 'quizId',
+  status: 'status',
+  score: 'score',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type QuizAssignmentScalarFieldEnum = (typeof QuizAssignmentScalarFieldEnum)[keyof typeof QuizAssignmentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -312,4 +326,14 @@ export const EnrollmentOrderByRelevanceFieldEnum = {
 } as const
 
 export type EnrollmentOrderByRelevanceFieldEnum = (typeof EnrollmentOrderByRelevanceFieldEnum)[keyof typeof EnrollmentOrderByRelevanceFieldEnum]
+
+
+export const QuizAssignmentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  quizId: 'quizId',
+  status: 'status'
+} as const
+
+export type QuizAssignmentOrderByRelevanceFieldEnum = (typeof QuizAssignmentOrderByRelevanceFieldEnum)[keyof typeof QuizAssignmentOrderByRelevanceFieldEnum]
 

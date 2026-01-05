@@ -57,3 +57,8 @@ export type Question = Prisma.QuestionModel
  * 
  */
 export type Enrollment = Prisma.EnrollmentModel
+/**
+ * Model QuizAssignment
+ * 
+ */
+export type QuizAssignment = Prisma.QuizAssignmentModel
