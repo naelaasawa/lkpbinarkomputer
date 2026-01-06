@@ -2,6 +2,12 @@
 
 > Modern Learning Management System (LMS) built with Next.js 16, TypeScript, Prisma, and Clerk Authentication
 
+![LMS Dashboard Preview](https://img.shields.io/badge/Status-Active-success)
+![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Prisma](https://img.shields.io/badge/Prisma-7.2.0-green)
+![License](https://img.shields.io/badge/License-Proprietary-red)
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
@@ -12,10 +18,17 @@
 - [API Documentation](#api-documentation)
 - [Project Structure](#project-structure)
 - [Environment Variables](#environment-variables)
+- [Development](#development)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
 
 ## 🎯 Overview
 
 LKP Binar Komputer is a comprehensive Learning Management System designed for online education. It provides separate interfaces for administrators and students, with features including course management, quiz assignments, progress tracking, and certificate generation.
+
+The system is built with modern web technologies and follows best practices for scalability, security, and user experience.
 
 ## 🛠 Tech Stack
 
@@ -25,605 +38,1432 @@ LKP Binar Komputer is a comprehensive Learning Management System designed for on
 - **Database**: MySQL/MariaDB with Prisma ORM 7.2.0
 - **Authentication**: Clerk 6.36.5
 - **Styling**: Tailwind CSS 4
+- **UI Components**: Custom components with Tailwind
 - **Icons**: Lucide React 0.562.0
+- **Form Handling**: React Hook Form
+- **Validation**: Zod
 
 ### Key Dependencies
 - `@prisma/adapter-mariadb` - MariaDB adapter for Prisma
+- `@prisma/client` - Type-safe database client
 - `csv-parse` - CSV file parsing
 - `dotenv` - Environment variable management
 - `react` 19.2.3 & `react-dom` 19.2.3
+- `date-fns` - Date manipulation
 
 ## ✨ Features
 
 ### Admin Features
-- **Course Management**: Create, edit, and manage courses with modules and lessons
-- **Quiz Management**: Create quizzes with multiple question types
+- **Dashboard Analytics**: Real-time insights on users, courses, and enrollments
+- **Course Management**: Create, edit, publish, and manage courses with modules and lessons
+- **Quiz Management**: Create quizzes with multiple question types (multiple choice, true/false, etc.)
 - **Quiz Assignment**: Share quizzes via email and assign to registered users
-- **User Management**: View and manage registered users
-- **Analytics**: View enrollment statistics and user progress
-- **Backup**: Export data for backup purposes
+- **User Management**: View and manage registered users, roles, and permissions
+- **Category Management**: Organize courses by categories with custom icons and colors
+- **Content Management**: Rich text editor for course content
+- **Progress Tracking**: Monitor student progress and completion rates
+- **Backup System**: Export data for backup purposes
+- **Bulk Operations**: Import/export functionality for course data
 
 ### Student Features
-- **Course Enrollment**: Browse and enroll in available courses
+- **Course Catalog**: Browse and filter available courses by category, level, and price
+- **Course Enrollment**: Enroll in published courses
 - **Learning Dashboard**: Track progress, assigned quizzes, and achievements
-- **Quiz Taking**: Complete assigned quizzes with time limits
-- **Progress Tracking**: Monitor course completion and earned certificates
+- **Interactive Learning**: Mark lessons as complete, track progress
+- **Quiz Taking**: Complete assigned quizzes with time limits and automatic scoring
+- **Progress Tracking**: Visual progress indicators for courses and modules
 - **Profile Management**: Update personal information and settings
-- **Certificate Generation**: Earn certificates upon course completion
+- **Certificate Generation**: Earn and download certificates upon course completion
+- **Achievements**: Earn badges and recognition for milestones
+- **Learning History**: View completed courses and quiz results
+
+### Platform Features
+- **Role-Based Access Control**: Admin, Instructor, and Student roles
+- **Responsive Design**: Mobile-friendly interface
+- **Real-time Updates**: Progress tracking and status updates
+- **Search & Filter**: Advanced search capabilities
+- **Multi-language Support**: Ready for internationalization
+- **Accessibility**: WCAG compliant components
+- **Performance Optimization**: Code splitting, image optimization, caching
 
 ## 📦 Installation
 
 ### Prerequisites
 - Node.js 20+ 
-- MySQL/MariaDB database
+- MySQL/MariaDB 10.5+ database
 - Clerk account for authentication
+- npm or yarn package manager
 
-### Steps
+### Step-by-Step Setup
 
 1. **Clone the repository**
-   \`\`\`bash
-   git clone <repository-url>
+   ```bash
+   git clone https://github.com/naelaasawa/lkpbinarkomputer
    cd lkpbinarkomputer
-   \`\`\`
+   ```
 
 2. **Install dependencies**
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   # or
+   yarn install
+   ```
 
 3. **Set up environment variables**
    
-   Create a \`.env\` file in the root directory:
-   \`\`\`env
-   # Database
+   Create a `.env` file in the root directory:
+   ```env
+   # Database Configuration
    DATABASE_HOST=localhost
    DATABASE_USER=your_db_user
    DATABASE_PASSWORD=your_db_password
    DATABASE_NAME=lkpbinarkomputer
-   DATABASE_URL="mysql://user:password@localhost:3306/lkpbinarkomputer"
+   DATABASE_URL="mysql://user:password@localhost:3306/lkpbinarkomputer?connection_limit=5"
 
    # Clerk Authentication
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
    CLERK_SECRET_KEY=sk_test_...
    NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
    NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 
-   # App
+   # Application
    NODE_ENV=development
-   \`\`\`
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-4. **Generate Prisma Client**
-   \`\`\`bash
+   # Optional: File Upload (for production)
+   # UPLOADTHING_SECRET=your_uploadthing_secret
+   # UPLOADTHING_APP_ID=your_uploadthing_app_id
+   ```
+
+4. **Set up Clerk Dashboard**
+   - Go to [Clerk Dashboard](https://dashboard.clerk.com)
+   - Create a new application
+   - Configure social providers if needed (Google, GitHub, etc.)
+   - Copy the API keys to your `.env` file
+   - Configure webhook for user sync (optional but recommended)
+
+5. **Initialize Database**
+   ```bash
+   # Generate Prisma Client
    npx prisma generate
-   \`\`\`
 
-5. **Run database migrations**
-   \`\`\`bash
+   # Push schema to database
    npx prisma db push
-   \`\`\`
 
-6. **Seed the database (optional)**
-   \`\`\`bash
-   # Add your seed script if available
-   \`\`\`
+   # Seed initial data (if available)
+   # npx prisma db seed
+   ```
 
-7. **Run development server**
-   \`\`\`bash
+6. **Verify Prisma Connection**
+   ```bash
+   # Test database connection
+   npx prisma validate
+   ```
+
+7. **Run Development Server**
+   ```bash
    npm run dev
-   \`\`\`
+   # or
+   yarn dev
+   ```
 
-8. **Build for production**
-   \`\`\`bash
-   npm run build
-   npm start
-   \`\`\`
+8. **Access the Application**
+   - Open [http://localhost:3000](http://localhost:3000)
+   - Sign up as first user (becomes admin by default)
+   - Access admin panel at `/admin`
+
+### Production Build
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Or using PM2
+pm2 start npm --name "lms" -- start
+```
 
 ## 🗄 Database Schema
 
-### Models
+### Entity Relationship Diagram
+```
+┌───────────┐     ┌──────────┐     ┌─────────┐
+│   User    │◇───┐│Enrollment│┐───◇│ Course  │
+└───────────┘    │└──────────┘│    └─────────┘
+      │          │      │      │         │
+      │          │      │      │         │
+┌─────────────┐  │      │      │    ┌────────┐
+│QuizAssignment│◇┘      │      └───◇│ Module │
+└─────────────┘        │            └────────┘
+      │                │                 │
+      │                │                 │
+   ┌──────┐        ┌───────┐        ┌────────┐
+   │ Quiz │        │Lesson │        │Category│
+   └──────┘        └───────┘        └────────┘
+      │                 │
+      │                 │
+┌───────────┐      ┌─────────┐
+│ Question  │      │  Quiz   │← (optional)
+└───────────┘      └─────────┘
+```
+
+### Detailed Models
 
 #### User
-Stores user authentication and profile information.
-\`\`\`prisma
+```prisma
 model User {
   id              String            @id @default(uuid())
   clerkId         String            @unique
   email           String            @unique
-  role            String            @default("USER")
+  firstName       String?
+  lastName        String?
+  profileImage    String?
+  role            String            @default("USER") // USER, ADMIN, INSTRUCTOR
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  
+  // Relations
   enrollments     Enrollment[]
   quizAssignments QuizAssignment[]
+  
+  @@index([email])
+  @@index([clerkId])
 }
-\`\`\`
+```
 
 #### Category
-Course categories with icons and colors.
-\`\`\`prisma
+```prisma
 model Category {
-  id      String   @id @default(uuid())
-  name    String   @unique
-  icon    String
-  color   String
-  courses Course[]
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?   @db.Text
+  icon        String    @default("Book")
+  color       String    @default("blue")
+  slug        String    @unique
+  courses     Course[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([slug])
 }
-\`\`\`
+```
 
 #### Course
-Course information and metadata.
-\`\`\`prisma
+```prisma
 model Course {
   id                 String       @id @default(uuid())
   title              String
+  slug              String       @unique
   description        String       @db.Text
-  price              Decimal      @default(0.00)
-  level              String
-  imageUrl           String?
-  published          Boolean      @default(false)
-  categoryId         String
+  shortDescription  String?
+  price             Decimal      @default(0.00) @db.Decimal(10,2)
+  level             String       // beginner, intermediate, advanced
+  imageUrl          String?
+  thumbnailUrl      String?
+  published         Boolean      @default(false)
+  featured          Boolean      @default(false)
+  duration          Int?         // in hours
   certificateEnabled Boolean      @default(false)
-  enrollmentType     String       @default("open")
-  visibility         String       @default("draft")
-  category           Category     @relation(...)
-  enrollments        Enrollment[]
-  modules            Module[]
+  certificateTemplate String?     @db.Text
+  enrollmentType    String       @default("open") // open, approval, closed
+  visibility        String       @default("draft") // draft, published, archived
+  categoryId        String
+  instructorId      String?
+  
+  // Relations
+  category          Category     @relation(fields: [categoryId], references: [id])
+  enrollments       Enrollment[]
+  modules           Module[]
+  reviews           Review[]
+  
+  // Metadata
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  publishedAt       DateTime?
+  
+  @@index([slug])
+  @@index([categoryId])
+  @@index([published])
+  @@index([featured])
 }
-\`\`\`
+```
 
 #### Module
-Course modules containing lessons.
-\`\`\`prisma
+```prisma
 model Module {
   id          String   @id @default(uuid())
   title       String
   description String?  @db.Text
-  order       Int
+  order       Int      @default(0)
   courseId    String
+  duration    Int?     // in minutes
+  
+  // Relations
   lessons     Lesson[]
-  course      Course   @relation(...)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@index([courseId])
+  @@unique([courseId, order])
 }
-\`\`\`
+```
 
 #### Lesson
-Individual lessons within modules.
-\`\`\`prisma
+```prisma
 model Lesson {
   id          String   @id @default(uuid())
   title       String
-  contentType String
+  slug        String   @unique
+  contentType String   // video, article, quiz, assignment
   content     String?  @db.Text
-  duration    Int?
-  order       Int
+  videoUrl    String?
+  duration    Int?     // in minutes
+  order       Int      @default(0)
   moduleId    String
   quizId      String?
-  module      Module   @relation(...)
-  quiz        Quiz?    @relation(...)
+  isFree      Boolean  @default(false)
+  
+  // Relations
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quiz        Quiz?    @relation(fields: [quizId], references: [id], onDelete: SetNull)
+  
+  @@index([moduleId])
+  @@unique([moduleId, order])
+  @@index([slug])
 }
-\`\`\`
+```
 
 #### Quiz
-Quizzes with configurations.
-\`\`\`prisma
+```prisma
 model Quiz {
   id           String           @id @default(uuid())
   title        String
   description  String?          @db.Text
-  type         String           @default("practice")
-  timeLimit    Int?
-  attemptLimit Int?
+  type         String           @default("practice") // practice, exam, survey
+  timeLimit    Int?             // in minutes
+  attemptLimit Int?             @default(1)
   passingScore Int              @default(70)
   randomize    Boolean          @default(false)
-  status       String           @default("draft")
+  showAnswers  Boolean          @default(false)
+  status       String           @default("draft") // draft, published, archived
+  
+  // Relations
   questions    Question[]
   assignments  QuizAssignment[]
+  lesson       Lesson?
+  
+  // Metadata
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 }
-\`\`\`
+```
 
 #### Question
-Quiz questions with answers.
-\`\`\`prisma
+```prisma
 model Question {
   id            String   @id @default(uuid())
   quizId        String
-  type          String
+  type          String   // multiple_choice, true_false, short_answer
   question      String   @db.Text
-  options       String?  @db.LongText
+  options       String?  @db.LongText // JSON stringified array
   correctAnswer String   @db.Text
   explanation   String?  @db.Text
   score         Int      @default(1)
-  order         Int
-  quiz          Quiz     @relation(...)
+  order         Int      @default(0)
+  
+  // Relations
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  @@index([quizId])
 }
-\`\`\`
+```
 
 #### Enrollment
-Student course enrollments.
-\`\`\`prisma
+```prisma
 model Enrollment {
-  id        String   @id @default(uuid())
-  userId    String
-  courseId  String
-  progress  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(...)
-  course    Course   @relation(...)
+  id         String   @id @default(uuid())
+  userId     String
+  courseId   String
+  progress   Int      @default(0) // percentage
+  completed  Boolean  @default(false)
+  completedAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  // Progress tracking
+  lastAccessedAt DateTime?
+  lastLessonId   String?
+  
   @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([completed])
 }
-\`\`\`
+```
 
 #### QuizAssignment
-Quiz assignments to users.
-\`\`\`prisma
+```prisma
 model QuizAssignment {
   id          String    @id @default(uuid())
   userId      String
   quizId      String
-  status      String    @default("assigned")
+  status      String    @default("assigned") // assigned, in_progress, completed, expired
   score       Int?
-  createdAt   DateTime  @default(now())
+  maxScore    Int?
+  percentage  Float?
+  passed      Boolean?
+  startedAt   DateTime?
   completedAt DateTime?
-  user        User      @relation(...)
-  quiz        Quiz      @relation(...)
+  timeSpent   Int?      // in seconds
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  
+  // Answers storage
+  answers     String?   @db.LongText // JSON stringified
+  
   @@unique([userId, quizId])
+  @@index([userId])
+  @@index([quizId])
+  @@index([status])
+  @@index([completedAt])
 }
-\`\`\`
+```
+
+#### Additional Models (Optional)
+```prisma
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  rating    Int      @default(5) // 1-5
+  comment   String?  @db.Text
+  user      User     @relation(...)
+  course    Course   @relation(...)
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, courseId])
+}
+
+model Certificate {
+  id         String   @id @default(uuid())
+  userId     String
+  courseId   String
+  certificateNumber String @unique
+  issuedAt   DateTime @default(now())
+  expiryDate DateTime?
+  downloadUrl String?
+  user       User     @relation(...)
+  course     Course   @relation(...)
+  
+  @@index([userId])
+  @@index([courseId])
+}
+```
 
 ## 📡 API Documentation
 
 ### Authentication
-All API routes require Clerk authentication unless otherwise specified.
+All API routes (except public endpoints) require Clerk authentication. Include the session token in the Authorization header.
+
+### Base URL
+```
+http://localhost:3000/api
+```
+
+### Response Format
+```json
+{
+  "success": true,
+  "data": {},
+  "error": null,
+  "message": "Operation successful"
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "data": null,
+  "error": "Error message",
+  "message": "Operation failed"
+}
+```
+
+### Rate Limiting
+- Default: 100 requests per minute per user
+- Admin endpoints: 200 requests per minute
 
 ---
 
-### Admin APIs
+### 📚 Courses API
 
-#### Users Management
+#### GET `/api/courses`
+List all published courses with pagination.
 
-**GET /api/admin/users**
-- Fetch all users with pagination
-- Admin only
-- Response: \`{ users: User[], total: number }\`
+**Query Parameters:**
+- `page` (optional): Page number, default: 1
+- `limit` (optional): Items per page, default: 10
+- `category` (optional): Filter by category slug
+- `level` (optional): Filter by level
+- `search` (optional): Search in title/description
+- `sort` (optional): Sort field (title, createdAt, price)
+- `order` (optional): Sort order (asc, desc)
 
-**GET /api/admin/users/[id]**
-- Get specific user details
-- Admin only
-- Response: \`User\`
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "courses": [
+      {
+        "id": "uuid",
+        "title": "Course Title",
+        "slug": "course-slug",
+        "description": "Course description",
+        "price": 99.99,
+        "level": "beginner",
+        "imageUrl": "https://...",
+        "category": { "id": "uuid", "name": "Category Name" },
+        "enrollmentCount": 150,
+        "averageRating": 4.5
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "totalPages": 10
+  }
+}
+```
 
----
+#### GET `/api/courses/[slug]`
+Get course details by slug.
 
-### Courses
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "course": {
+      "id": "uuid",
+      "title": "Course Title",
+      "slug": "course-slug",
+      "description": "Full description",
+      "price": 99.99,
+      "level": "beginner",
+      "duration": 20,
+      "modules": [
+        {
+          "id": "uuid",
+          "title": "Module 1",
+          "lessons": [
+            {
+              "id": "uuid",
+              "title": "Lesson 1",
+              "contentType": "video",
+              "duration": 30,
+              "isFree": true
+            }
+          ]
+        }
+      ],
+      "instructor": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "profileImage": "https://..."
+      },
+      "userEnrollment": null | {
+        "progress": 30,
+        "completed": false,
+        "lastAccessedAt": "2024-01-01T10:00:00Z"
+      }
+    }
+  }
+}
+```
 
-**GET /api/courses**
-- List all published courses
-- Public access
-- Response: \`Course[]\`
+#### POST `/api/courses`
+Create a new course (Admin only).
 
-**POST /api/courses**
-- Create a new course
-- Admin only
-- Body: \`{ title, description, categoryId, price, level }\`
-- Response: \`Course\`
+**Request Body:**
+```json
+{
+  "title": "New Course",
+  "description": "Course description",
+  "categoryId": "uuid",
+  "price": 99.99,
+  "level": "beginner",
+  "duration": 20,
+  "certificateEnabled": true,
+  "enrollmentType": "open"
+}
+```
 
-**GET /api/courses/[id]**
-- Get course details with modules
-- Response: \`Course & { modules: Module[] }\`
+#### PUT `/api/courses/[id]`
+Update course (Admin only).
 
-**PUT /api/courses/[id]**
-- Update course
-- Admin only
-- Body: Course fields to update
-- Response: \`Course\`
+#### DELETE `/api/courses/[id]`
+Delete course (Admin only).
 
-**DELETE /api/courses/[id]**
-- Delete course
-- Admin only
-- Response: \`{ success: true }\`
-
-**POST /api/courses/[id]/enroll**
-- Enroll current user in course
-- Authenticated users
-- Response: \`Enrollment\`
-
-**GET /api/courses/[id]/modules**
-- Get all modules for a course
-- Response: \`Module[]\`
-
-**POST /api/courses/[id]/modules**
-- Create module in course
-- Admin only
-- Body: \`{ title, description, order }\`
-- Response: \`Module\`
-
----
-
-### Modules
-
-**GET /api/modules/[id]**
-- Get module details
-- Response: \`Module\`
-
-**PUT /api/modules/[id]**
-- Update module
-- Admin only
-- Body: Module fields to update
-- Response: \`Module\`
-
-**DELETE /api/modules/[id]**
-- Delete module
-- Admin only
-- Response: \`{ success: true }\`
-
-**GET /api/modules/[id]/lessons**
-- Get all lessons in module
-- Response: \`Lesson[]\`
-
-**POST /api/modules/[id]/lessons**
-- Create lesson in module
-- Admin only
-- Body: \`{ title, contentType, content, duration, order }\`
-- Response: \`Lesson\`
-
----
-
-### Lessons
-
-**GET /api/lessons/[id]**
-- Get lesson details
-- Response: \`Lesson\`
-
-**PUT /api/lessons/[id]**
-- Update lesson
-- Admin only
-- Body: Lesson fields to update
-- Response: \`Lesson\`
-
-**DELETE /api/lessons/[id]**
-- Delete lesson
-- Admin only
-- Response: \`{ success: true }\`
-
----
-
-### Quizzes
-
-**GET /api/quizzes**
-- List all quizzes
-- Admin: all quizzes, Users: published only
-- Response: \`Quiz[]\`
-
-**POST /api/quizzes**
-- Create quiz
-- Admin only
-- Body: \`{ title, description, type, timeLimit, passingScore }\`
-- Response: \`Quiz\`
-
-**GET /api/quizzes/[id]**
-- Get quiz details
-- Response: \`Quiz & { questions: Question[] }\`
-
-**PUT /api/quizzes/[id]**
-- Update quiz
-- Admin only
-- Body: Quiz fields to update
-- Response: \`Quiz\`
-
-**DELETE /api/quizzes/[id]**
-- Delete quiz
-- Admin only
-- Response: \`{ success: true }\`
+#### POST `/api/courses/[id]/enroll`
+Enroll current user in course.
 
 ---
 
-### Questions
+### 📂 Categories API
 
-**GET /api/quizzes/[id]/questions**
-- Get all questions for a quiz
-- Response: \`Question[]\`
+#### GET `/api/categories`
+List all categories with course counts.
 
-**POST /api/quizzes/[id]/questions**
-- Add question to quiz
-- Admin only
-- Body: \`{ type, question, options, correctAnswer, explanation, score, order }\`
-- Response: \`Question\`
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Web Development",
+      "slug": "web-development",
+      "icon": "Code",
+      "color": "blue",
+      "courseCount": 15,
+      "description": "Learn web development"
+    }
+  ]
+}
+```
 
-**PUT /api/quizzes/[id]/questions/[questionId]**
-- Update question
-- Admin only
-- Body: Question fields to update
-- Response: \`Question\`
-
-**DELETE /api/quizzes/[id]/questions/[questionId]**
-- Delete question
-- Admin only
-- Response: \`{ success: true }\`
-
----
-
-### Quiz Assignments
-
-**GET /api/quiz-assignments**
-- Get quiz assignments for current user
-- Response: \`QuizAssignment[] & { quiz: Quiz }\`
-
-**POST /api/quiz-assignments**
-- Assign quiz to users
-- Admin only
-- Body: \`{ quizId: string, userIds: string[] }\`
-- Response: \`QuizAssignment[]\`
+#### POST `/api/categories`
+Create category (Admin only).
 
 ---
 
-### User Data
+### 👥 Users API
 
-**GET /api/my-enrollments**
-- Get current user's enrollments
-- Response: \`Enrollment[] & { course: Course }\`
+#### GET `/api/users`
+Get users list (for sharing/assignment).
 
-**GET /api/my-stats**
-- Get current user's learning statistics
-- Response: \`{ totalEnrollments, coursesInProgress, certificatesEarned, hoursSpent, xpPoints }\`
+**Query Parameters:**
+- `role` (optional): Filter by role
+- `search` (optional): Search by email/name
 
-**POST /api/user/sync**
-- Sync Clerk user with database
-- Creates user record if doesn't exist
-- Response: \`User\`
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "email": "user@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "USER"
+    }
+  ]
+}
+```
+
+#### GET `/api/users/me`
+Get current user profile.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "profileImage": "https://...",
+    "role": "USER",
+    "createdAt": "2024-01-01T10:00:00Z",
+    "stats": {
+      "enrolledCourses": 5,
+      "completedCourses": 2,
+      "ongoingCourses": 3,
+      "certificates": 2,
+      "totalXp": 450
+    }
+  }
+}
+```
 
 ---
 
-### Categories
+### 📊 Admin API
 
-**GET /api/categories**
-- List all categories
-- Response: \`Category[]\`
+#### GET `/api/admin/dashboard`
+Get admin dashboard statistics.
 
-**POST /api/categories**
-- Create category
-- Admin only
-- Body: \`{ name, icon, color }\`
-- Response: \`Category\`
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalUsers": 1000,
+    "totalCourses": 50,
+    "totalEnrollments": 5000,
+    "activeUsers": 250,
+    "recentEnrollments": [
+      {
+        "id": "uuid",
+        "user": { "email": "user@example.com" },
+        "course": { "title": "Course Title" },
+        "createdAt": "2024-01-01T10:00:00Z"
+      }
+    ],
+    "popularCourses": [
+      {
+        "id": "uuid",
+        "title": "Popular Course",
+        "enrollmentCount": 300,
+        "completionRate": 65
+      }
+    ]
+  }
+}
+```
+
+#### GET `/api/admin/users`
+List all users with pagination (Admin only).
+
+#### GET `/api/admin/courses`
+List all courses including drafts (Admin only).
 
 ---
 
-### Statistics
+### 🧠 Learning API
 
-**GET /api/stats**
-- Get platform statistics
-- Admin only
-- Response: \`{ totalUsers, totalCourses, totalEnrollments, activeUsers }\`
+#### GET `/api/learning/enrollments`
+Get current user's enrollments.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "progress": 65,
+      "completed": false,
+      "lastAccessedAt": "2024-01-01T10:00:00Z",
+      "course": {
+        "id": "uuid",
+        "title": "Course Title",
+        "slug": "course-slug",
+        "imageUrl": "https://...",
+        "level": "beginner",
+        "modulesCount": 10,
+        "lessonsCount": 50
+      }
+    }
+  ]
+}
+```
+
+#### POST `/api/learning/progress`
+Update lesson progress.
+
+**Request Body:**
+```json
+{
+  "lessonId": "uuid",
+  "completed": true,
+  "timeSpent": 300 // seconds
+}
+```
+
+#### GET `/api/learning/quiz-assignments`
+Get user's quiz assignments.
 
 ---
 
-### Backup
+### 📝 Quizzes API
 
-**GET /api/backup**
-- Export database data
-- Admin only
-- Response: JSON export of all data
+#### GET `/api/quizzes/[id]`
+Get quiz with questions.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "quiz": {
+      "id": "uuid",
+      "title": "Quiz Title",
+      "description": "Quiz description",
+      "timeLimit": 30,
+      "passingScore": 70,
+      "questions": [
+        {
+          "id": "uuid",
+          "type": "multiple_choice",
+          "question": "What is React?",
+          "options": ["Framework", "Library", "Language", "Tool"],
+          "score": 1,
+          "order": 1
+        }
+      ],
+      "userAssignment": {
+        "status": "assigned",
+        "score": null,
+        "attempts": 0
+      }
+    }
+  }
+}
+```
+
+#### POST `/api/quizzes/[id]/submit`
+Submit quiz answers.
+
+**Request Body:**
+```json
+{
+  "answers": [
+    {
+      "questionId": "uuid",
+      "answer": "Library",
+      "timeSpent": 30
+    }
+  ],
+  "timeSpent": 600 // total seconds
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "score": 8,
+    "total": 10,
+    "percentage": 80,
+    "passed": true,
+    "answers": [
+      {
+        "questionId": "uuid",
+        "correct": true,
+        "correctAnswer": "Library",
+        "explanation": "React is a JavaScript library"
+      }
+    ]
+  }
+}
+```
 
 ---
 
-### Users List
+### 📤 Backup API
 
-**GET /api/users**
-- Get all registered users (for sharing features)
-- Response: \`{ id, email }[]\`
+#### GET `/api/admin/backup`
+Export database data (Admin only).
+
+**Query Parameters:**
+- `format` (optional): json, csv (default: json)
+- `type` (optional): all, courses, users, enrollments
+
+**Response:** JSON or CSV file download.
 
 ---
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 lkpbinarkomputer/
-├── app/
-│   ├── (admin)/           # Admin routes
-│   │   └── admin/
-│   │       ├── courses/   # Course management
-│   │       ├── quizzes/   # Quiz management
-│   │       ├── users/     # User management
-│   │       └── backup/    # Data backup
-│   ├── (client)/          # Client routes
-│   │   ├── dashboard/     # Student dashboard
-│   │   ├── courses/       # Course browsing & learning
-│   │   ├── quizzes/       # Quiz taking
-│   │   ├── my-learning/   # Learning progress
-│   │   ├── profile/       # User profile
-│   │   ├── settings/      # User settings
-│   │   └── certificate/   # Certificate viewing
-│   └── api/               # API routes
-│       ├── courses/       # Course APIs
-│       ├── quizzes/       # Quiz APIs
-│       ├── modules/       # Module APIs
-│       ├── lessons/       # Lesson APIs
-│       ├── categories/    # Category APIs
-│       ├── users/         # User APIs
-│       └── ...
-├── components/            # React components
-│   ├── admin/            # Admin components
-│   └── ...
-├── lib/                  # Utilities
-│   ├── prisma.ts         # Prisma client
-│   └── generated/        # Generated Prisma client
-├── prisma/
-│   └── schema.prisma     # Database schema
-├── public/               # Static assets
-└── package.json
-
-\`\`\`
+├── app/                           # Next.js 13+ App Router
+│   ├── (auth)/                   # Authentication routes
+│   │   ├── sign-in/              # Sign in page
+│   │   ├── sign-up/              # Sign up page
+│   │   └── layout.tsx            # Auth layout
+│   ├── (admin)/                  # Admin routes
+│   │   ├── admin/                # Admin panel
+│   │   │   ├── dashboard/        # Admin dashboard
+│   │   │   ├── courses/          # Course management
+│   │   │   │   ├── [id]/         # Course edit
+│   │   │   │   ├── new/          # Create course
+│   │   │   │   └── page.tsx      # Courses list
+│   │   │   ├── quizzes/          # Quiz management
+│   │   │   ├── users/            # User management
+│   │   │   ├── categories/       # Category management
+│   │   │   ├── analytics/        # Analytics dashboard
+│   │   │   └── backup/           # Data backup
+│   │   └── layout.tsx            # Admin layout
+│   ├── (client)/                 # Client routes
+│   │   ├── dashboard/            # User dashboard
+│   │   ├── courses/              # Course browsing
+│   │   │   ├── [slug]/           # Course details
+│   │   │   │   ├── learn/        # Learning interface
+│   │   │   │   │   ├── [moduleId]/
+│   │   │   │   │   └── [lessonId]/
+│   │   │   │   └── page.tsx      # Course overview
+│   │   │   └── page.tsx          # Courses catalog
+│   │   ├── my-learning/          # Learning dashboard
+│   │   │   ├── enrolled/         # Enrolled courses
+│   │   │   ├── progress/         # Progress tracking
+│   │   │   ├── certificates/     # Certificates
+│   │   │   └── quizzes/          # Quiz assignments
+│   │   ├── quizzes/              # Quiz interface
+│   │   │   ├── take/[id]/        # Take quiz
+│   │   │   └── results/[id]/     # Quiz results
+│   │   ├── profile/              # User profile
+│   │   ├── settings/             # Account settings
+│   │   └── certificate/[id]/     # Certificate view
+│   ├── api/                      # API routes
+│   │   ├── courses/              # Course APIs
+│   │   │   ├── route.ts          # GET, POST
+│   │   │   └── [id]/             # Course-specific APIs
+│   │   ├── categories/           # Category APIs
+│   │   ├── users/                # User APIs
+│   │   ├── learning/             # Learning progress APIs
+│   │   ├── quizzes/              # Quiz APIs
+│   │   ├── admin/                # Admin APIs
+│   │   └── webhooks/             # Webhook handlers
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Homepage
+│   └── globals.css               # Global styles
+├── components/                   # Reusable components
+│   ├── ui/                       # Basic UI components
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── dialog.tsx
+│   │   ├── form.tsx
+│   │   ├── input.tsx
+│   │   ├── select.tsx
+│   │   ├── table.tsx
+│   │   └── badge.tsx
+│   ├── layout/                   # Layout components
+│   │   ├── header.tsx
+│   │   ├── footer.tsx
+│   │   ├── sidebar/
+│   │   │   ├── admin-sidebar.tsx
+│   │   │   └── user-sidebar.tsx
+│   │   └── navigation/
+│   ├── course/                   # Course components
+│   │   ├── course-card.tsx
+│   │   ├── course-grid.tsx
+│   │   ├── course-progress.tsx
+│   │   ├── lesson-player.tsx
+│   │   └── enrollment-button.tsx
+│   ├── quiz/                     # Quiz components
+│   │   ├── quiz-card.tsx
+│   │   ├── quiz-taker.tsx
+│   │   ├── question-view.tsx
+│   │   └── quiz-results.tsx
+│   ├── admin/                    # Admin components
+│   │   ├── stats-cards.tsx
+│   │   ├── data-table.tsx
+│   │   ├── course-form.tsx
+│   │   └── quiz-builder.tsx
+│   └── shared/                   # Shared components
+│       ├── progress-bar.tsx
+│       ├── loading-spinner.tsx
+│       ├── error-boundary.tsx
+│       └── empty-state.tsx
+├── lib/                          # Utilities and helpers
+│   ├── prisma.ts                 # Prisma client instance
+│   ├── auth.ts                   # Authentication helpers
+│   ├── api/                      # API utilities
+│   │   ├── response.ts           # API response formatting
+│   │   ├── error-handler.ts      # Error handling
+│   │   └── validators/           Request validators
+│   ├── utils/                    # General utilities
+│   │   ├── format.ts             # Formatting functions
+│   │   ├── calculate.ts          # Calculation helpers
+│   │   └── validation.ts         # Validation helpers
+│   └── constants/                Constants
+│       ├── roles.ts              # User roles
+│       ├── course-levels.ts      # Course levels
+│       └── quiz-types.ts         # Quiz types
+├── hooks/                        Custom React hooks
+│   ├── use-toast.ts              # Toast notifications
+│   ├── use-api.ts                # API call hook
+│   ├── use-course-progress.ts    # Course progress tracking
+│   └── use-quiz.ts               # Quiz taking logic
+├── types/                        TypeScript types
+│   ├── index.ts                  # Main exports
+│   ├── api.ts                    # API types
+│   ├── course.ts                 # Course related types
+│   ├── user.ts                   # User types
+│   └── quiz.ts                   # Quiz types
+├── prisma/                       # Database schema
+│   ├── schema.prisma             # Prisma schema
+│   ├── migrations/               # Migration files
+│   └── seed.ts                   # Database seeder
+├── public/                       # Static assets
+│   ├── images/                   # Images
+│   ├── fonts/                    # Fonts
+│   └── certificates/             # Certificate templates
+├── styles/                       # CSS styles
+│   ├── globals.css               # Global styles
+│   └── components/               # Component styles
+├── .env.example                  # Environment variables example
+├── .gitignore                    # Git ignore file
+├── next.config.js                # Next.js configuration
+├── tailwind.config.js            # Tailwind CSS configuration
+├── tsconfig.json                 # TypeScript configuration
+├── package.json                  # Dependencies
+└── README.md                     # This file
+```
 
 ## 🔐 Environment Variables
 
 ### Required Variables
 
-\`\`\`env
+```env
 # Database Configuration
 DATABASE_HOST=localhost
 DATABASE_USER=root
 DATABASE_PASSWORD=your_password
 DATABASE_NAME=lkpbinarkomputer
-DATABASE_URL="mysql://user:password@localhost:3306/dbname"
+DATABASE_URL="mysql://user:password@localhost:3306/lkpbinarkomputer?connection_limit=5"
 
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 
 # Application
 NODE_ENV=development
-\`\`\`
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
 ### Optional Variables
 
-\`\`\`env
-# Clerk URLs (customize if needed)
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
-\`\`\`
+```env
+# Clerk Webhook (for user sync)
+CLERK_WEBHOOK_SECRET=whsec_...
+
+# File Upload Configuration
+NEXT_PUBLIC_UPLOADTHING_URL=https://uploadthing.com
+UPLOADTHING_SECRET=sk_...
+UPLOADTHING_APP_ID=app_...
+
+# Email Service (for quiz sharing)
+RESEND_API_KEY=re_...
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_password
+
+# Analytics
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=uuid
+NEXT_PUBLIC_UMAMI_URL=https://analytics.example.com
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_CERTIFICATES=true
+NEXT_PUBLIC_ENABLE_PAYMENTS=false
+NEXT_PUBLIC_ENABLE_DISCUSSIONS=true
+```
 
 ## 🚀 Development
 
 ### Available Scripts
 
-\`\`\`bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm start        # Start production server
-npm run lint     # Run ESLint
-\`\`\`
+```bash
+# Development
+npm run dev           # Start development server
+npm run dev --turbo   # Start with Turbopack (faster)
 
-### Database Management
+# Build & Production
+npm run build         # Build for production
+npm run start         # Start production server
+npm run preview       # Preview production build
 
-\`\`\`bash
-npx prisma generate      # Generate Prisma Client
-npx prisma db push       # Push schema to database
-npx prisma studio        # Open Prisma Studio (DB GUI)
-npx prisma format        # Format schema file
-\`\`\`
+# Code Quality
+npm run lint          # Run ESLint
+npm run type-check    # Run TypeScript type check
+npm run format        # Format code with Prettier
+npm run format:check  # Check formatting
 
-## 📝 Notes
+# Database
+npx prisma generate   # Generate Prisma Client
+npx prisma db push    # Push schema changes
+npx prisma migrate dev # Create and apply migrations
+npx prisma studio     # Open database GUI
+npx prisma db seed    # Seed database
 
-- **Authentication**: Clerk handles authentication. Configure webhooks for user creation/updates.
-- **File Uploads**: Currently uses placeholder images. Integrate cloud storage (e.g., Cloudinary, S3) for production.
-- **Email**: Mailto links used for quiz sharing. Consider integrating email service (SendGrid, Resend) for production.
-- **Database**: Uses MySQL/MariaDB. Connection pooling configured with limit of 5.
+# Testing
+npm run test          # Run tests
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Generate test coverage
+```
+
+### Development Workflow
+
+1. **Start Development Environment**
+   ```bash
+   # Start database (if using Docker)
+   docker-compose up -d
+
+   # Install dependencies
+   npm install
+
+   # Set up environment
+   cp .env.example .env.local
+   # Edit .env.local with your values
+
+   # Initialize database
+   npx prisma generate
+   npx prisma db push
+
+   # Start development server
+   npm run dev
+   ```
+
+2. **Database Migrations**
+   ```bash
+   # Create migration after schema changes
+   npx prisma migrate dev --name add_feature_name
+
+   # Apply migrations in production
+   npx prisma migrate deploy
+
+   # Reset database (development only)
+   npx prisma migrate reset
+   ```
+
+3. **Component Development**
+   ```bash
+   # Create new component
+   npx @mui/codegen component Button --path components/ui
+   ```
+
+### Coding Standards
+
+1. **TypeScript**
+   - Use strict typing
+   - Avoid `any` type
+   - Define interfaces for props
+   - Use TypeScript generics where appropriate
+
+2. **Component Structure**
+   ```typescript
+   // Example component structure
+   import { FC } from 'react';
+   import { cn } from '@/lib/utils';
+   
+   interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+     variant?: 'primary' | 'secondary' | 'outline';
+     size?: 'sm' | 'md' | 'lg';
+     isLoading?: boolean;
+   }
+   
+   export const Button: FC<ButtonProps> = ({
+     className,
+     variant = 'primary',
+     size = 'md',
+     isLoading = false,
+     children,
+     ...props
+   }) => {
+     return (
+       <button
+         className={cn(
+           'button',
+           `button--${variant}`,
+           `button--${size}`,
+           isLoading && 'button--loading',
+           className
+         )}
+         disabled={isLoading}
+         {...props}
+       >
+         {isLoading ? <LoadingSpinner size="sm" /> : children}
+       </button>
+     );
+   };
+   ```
+
+3. **API Route Structure**
+   ```typescript
+   // Example API route
+   import { NextRequest, NextResponse } from 'next/server';
+   import { getAuth } from '@clerk/nextjs/server';
+   import prisma from '@/lib/prisma';
+   import { ApiResponse } from '@/lib/api/response';
+   import { courseSchema } from '@/lib/validators/course';
+   
+   export async function GET(request: NextRequest) {
+     try {
+       const { userId } = getAuth(request);
+       
+       if (!userId) {
+         return ApiResponse.unauthorized();
+       }
+       
+       const courses = await prisma.course.findMany({
+         where: { published: true },
+         include: { category: true },
+         orderBy: { createdAt: 'desc' },
+         take: 10,
+       });
+       
+       return ApiResponse.success(courses);
+     } catch (error) {
+       return ApiResponse.error('Failed to fetch courses', error);
+     }
+   }
+   
+   export async function POST(request: NextRequest) {
+     try {
+       const { userId } = getAuth(request);
+       
+       if (!userId) {
+         return ApiResponse.unauthorized();
+       }
+       
+       // Check admin role
+       const user = await prisma.user.findUnique({ where: { clerkId: userId } });
+       if (user?.role !== 'ADMIN') {
+         return ApiResponse.forbidden();
+       }
+       
+       const body = await request.json();
+       const validated = courseSchema.parse(body);
+       
+       const course = await prisma.course.create({
+         data: {
+           ...validated,
+           slug: validated.title.toLowerCase().replace(/\s+/g, '-'),
+         },
+       });
+       
+       return ApiResponse.created(course);
+     } catch (error) {
+       return ApiResponse.error('Failed to create course', error);
+     }
+   }
+   ```
+
+## 🚢 Deployment
+
+### Prerequisites for Production
+
+1. **Production Database**
+   - Use managed database service (AWS RDS, PlanetScale, etc.)
+   - Enable connection pooling
+   - Set up regular backups
+
+2. **Authentication**
+   - Update Clerk to production keys
+   - Configure custom domain
+   - Set up email templates
+
+3. **File Storage**
+   - Configure S3, Cloudinary, or UploadThing
+   - Set up CDN for assets
+
+4. **Monitoring**
+   - Set up error tracking (Sentry)
+   - Configure analytics
+   - Enable logging
+
+### Deployment Options
+
+#### Vercel (Recommended)
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+
+# Environment variables will be set in Vercel dashboard
+```
+
+#### Docker Deployment
+```dockerfile
+# Dockerfile
+FROM node:20-alpine AS base
+
+# Install dependencies
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+
+# Build application
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV production
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+EXPOSE 3000
+ENV PORT 3000
+CMD ["node", "server.js"]
+```
+
+#### Manual Deployment
+```bash
+# Build
+npm run build
+
+# Start
+npm start
+
+# Using PM2
+pm2 start npm --name "lms" -- start
+```
+
+### Production Checklist
+
+- [ ] Update all environment variables for production
+- [ ] Configure SSL certificate
+- [ ] Set up domain and DNS
+- [ ] Configure backup strategy
+- [ ] Set up monitoring and alerts
+- [ ] Configure CDN for static assets
+- [ ] Implement rate limiting
+- [ ] Set up security headers
+- [ ] Configure logging and error tracking
+- [ ] Test backup restoration process
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Issues**
+   ```bash
+   # Check database connection
+   npx prisma db execute --stdin --url="mysql://user:pass@host:port/db"
+   
+   # Reset connection
+   npx prisma generate --force
+   ```
+
+2. **Clerk Authentication Issues**
+   - Verify API keys in Clerk Dashboard
+   - Check webhook configuration
+   - Ensure CORS settings are correct
+
+3. **Build Errors**
+   ```bash
+   # Clear Next.js cache
+   rm -rf .next
+   rm -rf node_modules/.cache
+   
+   # Reinstall dependencies
+   npm ci
+   ```
+
+4. **Performance Issues**
+   - Check database indexes
+   - Enable query logging in development
+   - Use Prisma extension for query optimization
+
+### Debug Mode
+
+Enable debug logging:
+```bash
+# Prisma debug
+DEBUG=prisma:* npm run dev
+
+# Next.js debug
+NEXT_DEBUG=1 npm run dev
+```
+
+## 📚 Additional Resources
+
+### Documentation
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Clerk Documentation](https://clerk.com/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+
+### Tutorials
+- [Next.js App Router](https://nextjs.org/docs/app)
+- [Prisma with MySQL](https://www.prisma.io/docs/orm/overview/databases/mysql)
+- [Clerk Integration](https://clerk.com/docs/quickstarts/nextjs)
+
+### Tools
+- [Prisma Studio](https://www.prisma.io/studio) - Database GUI
+- [Next.js DevTools](https://nextjs.org/docs/app/building-your-application/configuring/devtools)
+- [Tailwind CSS IntelliSense](https://tailwindcss.com/docs/editor-setup)
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch (\`git checkout -b feature/amazing-feature\`)
-3. Commit your changes (\`git commit -m 'Add amazing feature'\`)
-4. Push to the branch (\`git push origin feature/amazing-feature\`)
-5. Open a Pull Request
+We welcome contributions! Please follow these steps:
+
+1. **Fork the Repository**
+   ```bash
+   git clone https://github.com/naelaasawa/lkpbinarkomputer
+   cd lkpbinarkomputer
+   ```
+
+2. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+
+3. **Make Your Changes**
+   - Follow coding standards
+   - Add tests for new features
+   - Update documentation
+   - Ensure TypeScript compiles without errors
+
+4. **Commit Changes**
+   ```bash
+   git add .
+   git commit -m "Add amazing feature"
+   ```
+
+5. **Push to Branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+
+6. **Open a Pull Request**
+   - Describe the changes
+   - Reference any related issues
+   - Add screenshots if applicable
+
+### Development Guidelines
+
+- Write meaningful commit messages
+- Keep pull requests focused on single features
+- Update documentation for API changes
+- Add tests for new functionality
+- Ensure backward compatibility
 
 ## 📄 License
 
-This project is private and proprietary.
+This project is proprietary software. All rights reserved.
+
+**Copyright © 2024 LKP Binar Komputer**
+
+Unauthorized copying, modification, distribution, or use of this software is strictly prohibited.
 
 ## 👥 Support
 
-For support, contact the development team or open an issue in the repository.
+For support, please contact:
 
----
+- **Development Team**: dev@lkpbinarkomputer.com
+- **Technical Issues**: Create an issue in the repository
+- **Documentation**: docs@lkpbinarkomputer.com
 
-**Built with ❤️ for LKP Binar Komputer**
+### Community
+- [GitHub Issues](https://github.com/your-org/lkpbinarkomputer/issues) - Bug reports and feature requests
+- [Discussions](https://github.com/your-org/lkpbinarkomputer/discussions) - Questions and discussions
+
