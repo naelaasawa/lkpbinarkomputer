@@ -1,23 +1,29 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Users, Award, ChevronRight, Star, Monitor, Code, CheckCircle, Menu, FileText, Smile, Briefcase, GraduationCap, Printer, Wifi, Home, Banknote, Heart, Handshake, MapPin, Phone, Mail, HelpCircle, ChevronDown, Target, LayoutDashboard } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Award, ChevronRight, Star, Monitor, Code, CheckCircle, FileText, Smile, Briefcase, GraduationCap, Printer, Wifi, Home, Heart, Handshake, MapPin, Phone, Mail, HelpCircle, ChevronDown, Target, LayoutDashboard } from "lucide-react";
 import { currentUser } from "@clerk/nextjs/server";
+import MobileNav from "@/components/MobileNav";
+import ProgramUnggulanSection from "@/components/ProgramUnggulanSection";
 
 export default async function LandingPage() {
   const user = await currentUser();
 
   return (
-    <div className="flex flex-col min-h-screen font-sans">
+    <div className="flex flex-col min-h-screen font-sans scroll-smooth">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-16 md:h-18">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-blue-600">LKP BINAR</span>
+              <Link href="/" className="text-xl md:text-2xl font-bold text-blue-600 touch-manipulation">
+                LKP BINAR
+              </Link>
             </div>
+
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="#program" className="text-slate-600 hover:text-blue-600 text-sm font-medium">Program</Link>
-              <Link href="#about" className="text-slate-600 hover:text-blue-600 text-sm font-medium">Tentang Kami</Link>
-              <Link href="#contact" className="text-slate-600 hover:text-blue-600 text-sm font-medium">Kontak</Link>
+              <Link href="#program" className="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Program</Link>
+              <Link href="#about" className="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Tentang Kami</Link>
+              <Link href="#contact" className="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Kontak</Link>
 
               {user ? (
                 <Link href="/dashboard" className="px-5 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
@@ -26,74 +32,67 @@ export default async function LandingPage() {
                 </Link>
               ) : (
                 <>
-                  <Link href="/dashboard" className="text-blue-600 font-semibold text-sm hover:underline">Masuk</Link>
+                  <Link href="/dashboard" className="text-blue-600 font-semibold text-sm hover:underline transition-colors">Masuk</Link>
                   <Link href="/sign-up" className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm">
                     Daftar Sekarang
                   </Link>
                 </>
               )}
             </div>
-            <div className="md:hidden flex items-center gap-4">
-              {user ? (
-                <Link href="/dashboard" className="text-blue-600 font-bold text-sm">Dashboard</Link>
-              ) : (
-                <Link href="/dashboard" className="text-blue-600 font-semibold text-sm">Masuk</Link>
-              )}
-              <button className="text-slate-700">
-                <Menu size={24} />
-              </button>
-            </div>
+
+            {/* Mobile Navigation */}
+            <MobileNav isLoggedIn={!!user} />
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
+      <section className="relative pt-12 pb-16 md:pt-20 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#2563EB_1px,transparent_1px)] [background-size:16px_16px]"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
+          <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-12">
             <div className="flex-1 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-6 border border-blue-100">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-4 md:mb-6 border border-blue-100 touch-manipulation">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                 </span>
                 Pendaftaran Batch Baru Dibuka
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight mb-4 md:mb-6">
                 Binar Komputer <br className="hidden lg:block" />
                 <span className="text-blue-600">Tegal</span>
               </h1>
-              <h2 className="text-xl md:text-2xl text-slate-600 font-medium mb-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl text-slate-600 font-medium mb-3 md:mb-4">
                 Rumah belajar komputer berbasis privat
               </h2>
-              <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg text-slate-500 mb-6 md:mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                 Mengembangkan keterampilan digital, kesiapan kerja, dan kemandirian peserta didik.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="#courses" className="px-8 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
+                <Link href="#courses" className="min-h-[48px] px-6 md:px-8 py-3 md:py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 touch-manipulation">
                   Lihat Program <ArrowRight size={18} />
                 </Link>
-                <Link href="https://wa.me/6281234567890" className="px-8 py-3.5 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center">
+                <Link href="https://wa.me/6281234567890" className="min-h-[48px] px-6 md:px-8 py-3 md:py-3.5 bg-white text-slate-700 border-2 border-slate-200 rounded-xl font-bold hover:bg-slate-50 active:bg-slate-100 transition-all flex items-center justify-center touch-manipulation">
                   Daftar Konsultasi
                 </Link>
               </div>
             </div>
-            <div className="flex-1 w-full max-w-lg lg:max-w-none">
+            <div className="flex-1 w-full max-w-sm sm:max-w-md lg:max-w-none">
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full blur-3xl opacity-70"></div>
-                <div className="relative bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
-                  {/* Abstract Educational Illustration (Composition of icons/elements) */}
+                <div className="relative bg-white rounded-3xl shadow-2xl p-4 md:p-6 border border-slate-100">
+                  {/* Abstract Educational Illustration */}
                   <div className="aspect-[4/3] bg-slate-50 rounded-2xl relative overflow-hidden flex items-center justify-center">
-                    <div className="absolute top-10 left-10 p-3 bg-white rounded-xl shadow-lg animate-bounce duration-[3000ms]">
-                      <Code size={32} className="text-blue-500" />
+                    <div className="absolute top-6 left-6 md:top-10 md:left-10 p-2 md:p-3 bg-white rounded-xl shadow-lg animate-bounce duration-[3000ms]">
+                      <Code size={24} className="text-blue-500 md:w-8 md:h-8" />
                     </div>
-                    <div className="absolute bottom-10 right-10 p-3 bg-white rounded-xl shadow-lg animate-bounce duration-[3000ms] delay-700">
-                      <Monitor size={32} className="text-purple-500" />
+                    <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 p-2 md:p-3 bg-white rounded-xl shadow-lg animate-bounce duration-[3000ms] delay-700">
+                      <Monitor size={24} className="text-purple-500 md:w-8 md:h-8" />
                     </div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-100 rounded-full flex items-center justify-center">
-                      <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center shadow-inner">
-                        <BookOpen size={40} className="text-white" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 bg-blue-100 rounded-full flex items-center justify-center">
+                      <div className="w-20 h-20 md:w-24 md:h-24 bg-blue-600 rounded-full flex items-center justify-center shadow-inner">
+                        <BookOpen size={32} className="text-white md:w-10 md:h-10" />
                       </div>
                     </div>
                   </div>
@@ -105,18 +104,18 @@ export default async function LandingPage() {
       </section>
 
       {/* Tentang Kami Section */}
-      <section className="py-16 bg-white border-b border-slate-50">
+      <section className="py-10 md:py-16 bg-white border-b border-slate-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-4 tracking-wide uppercase">
+          <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-3 md:mb-4 tracking-wide uppercase">
             Tentang Kami
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 md:mb-6">
             LKP Binar Komputer
           </h2>
-          <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto mb-10">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto mb-6 md:mb-10">
             "LKP Binar Komputer Tegal berdiri sejak 2016 sebagai rumah belajar komputer berbasis privat dengan pendekatan kekeluargaan dan pembelajaran personal."
           </p>
-          <Link href="/profile" className="inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700 transition-colors group">
+          <Link href="/profile" className="inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700 active:text-blue-800 transition-colors group min-h-[44px] touch-manipulation">
             Profil Lengkap <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -391,60 +390,31 @@ export default async function LandingPage() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/courses" className="inline-flex items-center gap-2 px-8 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+            <Link href="/program" className="inline-flex items-center gap-2 px-8 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
               Lihat Detail Program <ArrowRight size={18} />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Kegiatan Section */}
+
+      {/* Fasilitas Belajar Section */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Kegiatan Kami</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Fasilitas Belajar</h2>
             <div className="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {[
-              { title: "Pelatihan Komputer", icon: Monitor, color: "bg-blue-100 text-blue-600" },
-              { title: "Motivasi Belajar", icon: Star, color: "bg-yellow-100 text-yellow-600" },
-              { title: "Psikotest", icon: FileText, color: "bg-purple-100 text-purple-600" },
-              { title: "Beauty Class", icon: Smile, color: "bg-pink-100 text-pink-600" },
-              { title: "Pendampingan Kerja", icon: Briefcase, color: "bg-green-100 text-green-600" }
-            ].map((item, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center gap-4 hover:-translate-y-1">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${item.color}`}>
-                  <item.icon size={20} />
-                </div>
-                <span className="font-bold text-slate-700 text-sm">{item.title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Fasilitas & Pendanaan Section */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Fasilitas & Pendanaan</h2>
-            <div className="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Fasilitas */}
+          <div className="max-w-3xl mx-auto">
             <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                   <Monitor size={24} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">Fasilitas Belajar</h3>
-                  <p className="text-sm text-slate-500">Sarana penunjang pembelajaran</p>
+                  <h3 className="text-xl font-bold text-slate-900">Sarana Penunjang Pembelajaran</h3>
+                  <p className="text-sm text-slate-500">Fasilitas lengkap untuk pengalaman belajar optimal</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -458,36 +428,6 @@ export default async function LandingPage() {
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                     <item.icon size={18} className={item.color} />
                     <span className="font-medium text-slate-700">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Pendanaan */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                  <Banknote size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">Sumber Pendanaan</h3>
-                  <p className="text-sm text-slate-500">Transparansi pengelolaan dana</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { icon: Banknote, label: "Iuran Peserta Didik", desc: "Kontribusi biaya pendidikan yang terjangkau." },
-                  { icon: Heart, label: "Kontribusi Pengurus", desc: "Dukungan sukarela dari pengurus yayasan." },
-                  { icon: Handshake, label: "Kerja Sama & Proyek", desc: "Kolaborasi proyek pendukung operasional." }
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 items-start">
-                    <div className="mt-1">
-                      <item.icon size={20} className="text-slate-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm">{item.label}</h4>
-                      <p className="text-xs text-slate-500 mt-1">{item.desc}</p>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -532,91 +472,6 @@ export default async function LandingPage() {
                 <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
                 <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Courses Preview */}
-      <section id="courses" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-4">Program Unggulan</h2>
-              <p className="text-slate-600">Pilih program yang sesuai dengan minat dan tujuan karirmu.</p>
-            </div>
-            <Link href="/courses" className="hidden md:flex items-center gap-2 text-blue-600 font-bold hover:underline">
-              Lihat Semua Program <ChevronRight size={20} />
-            </Link>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden hover:-translate-y-1">
-                <div className="h-48 bg-slate-200 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-slate-100 flex items-center justify-center text-slate-300 group-hover:scale-105 transition-transform duration-500">
-                    <Monitor size={48} />
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-xs font-bold text-slate-700 shadow-sm flex items-center gap-1">
-                    <Star size={12} className="fill-yellow-400 text-yellow-400" /> 4.9
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-md">Microsoft Office</span>
-                    <span className="px-2 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-md">Beginner</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight group-hover:text-blue-600 transition-colors">Administrasi Perkantoran Modern</h3>
-                  <div className="flex items-center gap-4 text-sm text-slate-500 mb-6">
-                    <span className="flex items-center gap-1"><BookOpen size={14} /> 12 Sesi</span>
-                    <span className="flex items-center gap-1"><Users size={14} /> 150 Siswa</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                    <div>
-                      <span className="text-xs text-slate-400 line-through">Rp 750.000</span>
-                      <p className="text-lg font-bold text-blue-600">Rp 500.000</p>
-                    </div>
-                    <button className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-colors">
-                      <ChevronRight size={20} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center md:hidden">
-            <Link href="/courses" className="inline-flex items-center gap-2 text-blue-600 font-bold hover:underline">
-              Lihat Semua Program <ChevronRight size={20} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Pertanyaan Umum</h2>
-            <div className="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              { q: "Bagaimana cara mendaftar?", a: "Anda dapat mendaftar langsung ke kantor kami atau mengisi formulir pendaftaran online melalui website ini pada menu 'Daftar'." },
-              { q: "Apakah ada kelas malam?", a: "Ya, kami menyediakan opsi jadwal fleksibel termasuk kelas sore dan malam bagi peserta yang bekerja atau sekolah." },
-              { q: "Berapa lama durasi kursus?", a: "Durasi bervariasi tergantung program, mulai dari paket kilat 2 minggu hingga program intensif 3 bulan." },
-              { q: "Apakah mendapat sertifikat?", a: "Tentu, semua peserta yang lulus ujian akhir akan mendapatkan sertifikat resmi dari LKP Binar Komputer." }
-            ].map((item, i) => (
-              <details key={i} className="group bg-slate-50 p-6 rounded-2xl border border-slate-100 open:bg-white open:shadow-md transition-all duration-300">
-                <summary className="flex justify-between items-center font-bold text-slate-900 list-none cursor-pointer">
-                  <span>{item.q}</span>
-                  <ChevronDown className="transform group-open:rotate-180 transition-transform duration-300 text-slate-400" />
-                </summary>
-                <p className="mt-4 text-slate-600 text-sm leading-relaxed mb-2">
-                  {item.a}
-                </p>
-              </details>
             ))}
           </div>
         </div>

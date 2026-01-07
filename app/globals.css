@@ -2,18 +2,82 @@
 
 @theme {
   --font-sans: var(--font-poppins), system-ui, sans-serif;
-  
+
   --color-primary: #2563EB;
   --color-primary-dark: #1E40AF;
   --color-primary-light: #60A5FA;
-  
+
   --color-whatsapp: #25D366;
-  
+
   --color-bg-app: #F8FAFC;
   --color-surface: #FFFFFF;
+}
+
+/* Mobile Optimizations */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background-color: var(--color-bg-app);
   font-family: var(--font-sans);
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+}
+
+/* Touch-friendly tap highlights */
+* {
+  -webkit-tap-highlight-color: rgba(37, 99, 235, 0.1);
+  tap-highlight-color: rgba(37, 99, 235, 0.1);
+}
+
+/* Improve touch-action for better mobile performance */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* iOS Safe Area Support */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Prevent text size adjustment on iOS */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-padding-top: 80px;
+  /* Account for fixed navbar */
+}
+
+/* Optimize for mobile scrolling */
+@media (max-width: 768px) {
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Custom fade-in animation for Program Unggulan */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
 }
