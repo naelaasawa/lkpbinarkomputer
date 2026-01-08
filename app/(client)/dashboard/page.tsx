@@ -157,7 +157,10 @@ export default function DashboardPage() {
                     </Link>
                 </div>
                 {continueEnrollment ? (
-                    <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex gap-4 md:items-center">
+                    <Link
+                        href={`/courses/${continueEnrollment.course.id}/learn`}
+                        className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-blue-200 cursor-pointer transition-all flex gap-4 md:items-center group relative"
+                    >
                         <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center">
                             <Monitor size={24} className="text-gray-400" />
                         </div>
@@ -165,7 +168,7 @@ export default function DashboardPage() {
                             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${continueEnrollment.course.category.color}`}>
                                 {continueEnrollment.course.category.name}
                             </span>
-                            <h3 className="font-bold text-slate-800 text-sm md:text-base mt-1 line-clamp-1">
+                            <h3 className="font-bold text-slate-800 text-sm md:text-base mt-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
                                 {continueEnrollment.course.title}
                             </h3>
                             <div className="mt-3">
@@ -175,13 +178,22 @@ export default function DashboardPage() {
                                 </div>
                                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-blue-600 rounded-full"
+                                        className="h-full bg-blue-600 rounded-full transition-all"
                                         style={{ width: `${continueEnrollment.progress}%` }}
                                     ></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm group-hover:bg-blue-700 transition-colors">
+                            Continue Learning
+                            <ChevronRight size={16} />
+                        </div>
+                        <div className="md:hidden absolute bottom-4 right-4">
+                            <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
+                                <ChevronRight size={16} />
+                            </div>
+                        </div>
+                    </Link>
                 ) : (
                     <div className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm text-center">
                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, ChevronLeft, Check, Upload, FileText, Video, Link as LinkIcon, HelpCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Upload, FileText, Video, Link as LinkIcon, HelpCircle, ChevronDown, Trash2, GripVertical, Plus } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 
 // --- Types ---
 
@@ -209,6 +210,8 @@ export default function CourseBuilder({ mode, initialData }: CourseBuilderProps)
                 imageUrl: courseData.imageUrl || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60", // Default
                 modules: modules.map((m, idx) => ({
                     ...m,
+                    title: m.title, // Explicitly included
+                    description: m.description || "", // BUG FIX: Explicitly including description
                     order: idx,
                     lessons: m.lessons.map((l, lIdx) => ({
                         ...l,
@@ -403,7 +406,8 @@ function Step1BasicInfo({ data, onChange, onTitleChange, categories }: any) {
             <div className="grid gap-6">
                 <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Course Title <span className="text-red-500">*</span></label>
-                    <input type="text" value={data.title} onChange={(e) => onTitleChange(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Complete Web Development Bootcamp" />
+                    <input type="text" value={data.title} onChange={(e) => onTitleChange(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Master ReactJS: From Zero to Hero" />
+                    <p className="text-xs text-slate-500 mt-1">💡 Tip: Use a catchy, benefit-driven title to attract more students.</p>
                 </div>
                 <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Slug</label>
@@ -414,8 +418,11 @@ function Step1BasicInfo({ data, onChange, onTitleChange, categories }: any) {
                 </div>
                 <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Short Description <span className="text-red-500">*</span></label>
-                    <textarea value={data.shortDescription} onChange={(e) => onChange({ ...data, shortDescription: e.target.value })} maxLength={160} rows={3} className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Max 160 characters" />
-                    <p className="text-xs text-slate-400 mt-1 text-right">{data.shortDescription.length}/160</p>
+                    <textarea value={data.shortDescription} onChange={(e) => onChange({ ...data, shortDescription: e.target.value })} maxLength={160} rows={3} className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Briefly describe what this course is about..." />
+                    <div className="flex justify-between mt-1">
+                        <p className="text-xs text-slate-500">Used for SEO and course cards. Keep it under 160 characters.</p>
+                        <p className="text-xs text-slate-400">{data.shortDescription.length}/160</p>
+                    </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -475,13 +482,22 @@ function Step2Description({ data, onChange }: any) {
             </div>
             <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Full Description <span className="text-red-500">*</span></label>
-                <textarea value={data.fullDescription} onChange={(e) => onChange({ ...data, fullDescription: e.target.value })} rows={6} className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Markdown supported..." />
+                <div className="prose-editor">
+                    <RichTextEditor
+                        value={data.fullDescription}
+                        onChange={(val: string) => onChange({ ...data, fullDescription: val })}
+                        placeholder="Describe your course in detail..."
+                        className="mb-12"
+                    />
+                </div>
+            </div>
+            <div className="mt-12">
             </div>
             <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">What Students Will Learn (Min 3)</label>
                 {data.whatYouLearn.map((pt: string, i: number) => (
                     <div key={i} className="flex gap-2 mb-2">
-                        <input type="text" value={pt} onChange={(e) => updateLearningPoint(i, e.target.value)} className="flex-1 px-4 py-2 border border-slate-200 rounded-lg" placeholder={`Point ${i + 1}`} />
+                        <input type="text" value={pt} onChange={(e) => updateLearningPoint(i, e.target.value)} className="flex-1 px-4 py-2 border border-slate-200 rounded-lg" placeholder={`e.g. ${i === 0 ? 'Build real-world applications' : i === 1 ? 'Master core concepts' : 'Deploy to production'}`} />
                         {data.whatYouLearn.length > 3 && <button onClick={() => onChange({ ...data, whatYouLearn: data.whatYouLearn.filter((_: any, idx: number) => idx !== i) })} className="text-red-500 font-bold px-2">✕</button>}
                     </div>
                 ))}
@@ -507,47 +523,151 @@ function Step3Curriculum({ modules, setModules }: any) {
 
     return (
         <div className="space-y-6">
-            <div><h2 className="text-2xl font-bold text-slate-800 mb-2">Curriculum Builder</h2><p className="text-sm text-slate-500">Structure your course.</p></div>
-            {modules.map((m: any, mIdx: number) => (
-                <div key={m.id} className="border border-slate-200 rounded-lg overflow-hidden mb-4">
-                    <div className="bg-slate-50 p-4 flex gap-4 items-start">
-                        <span className="font-bold text-slate-400 mt-2">#{mIdx + 1}</span>
-                        <div className="flex-1 space-y-2">
-                            <input type="text" value={m.title} onChange={(e) => updateModule(mIdx, "title", e.target.value)} placeholder="Module Title" className="w-full px-3 py-2 border rounded font-medium" />
-                            <input type="text" value={m.description} onChange={(e) => updateModule(mIdx, "description", e.target.value)} placeholder="Description (Optional)" className="w-full px-3 py-2 border rounded text-sm" />
-                        </div>
-                        <button onClick={() => setModules(modules.filter((_: any, i: number) => i !== mIdx))} className="text-red-500 p-2">✕</button>
-                    </div>
-                    <div className="p-4 bg-white">
-                        {m.lessons.map((l: any, lIdx: number) => (
-                            <div key={l.id} className="flex gap-3 items-center mb-3 ml-4">
-                                <span className="text-xs text-slate-400">{mIdx + 1}.{lIdx + 1}</span>
-                                <input type="text" value={l.title} onChange={(e) => updateLesson(mIdx, lIdx, "title", e.target.value)} placeholder="Lesson Title" className="flex-1 px-3 py-2 border rounded text-sm" />
-                                <select value={l.contentType} onChange={(e) => updateLesson(mIdx, lIdx, "contentType", e.target.value)} className="px-3 py-2 border rounded text-sm">
-                                    <option value="video">Video</option>
-                                    <option value="text">Text</option>
-                                    <option value="file">File</option>
-                                    <option value="link">Link</option>
-                                    <option value="quiz">Quiz</option>
-                                </select>
-                                <button onClick={() => { const nM = [...modules]; nM[mIdx].lessons = nM[mIdx].lessons.filter((_: any, i: number) => i !== lIdx); setModules(nM); }} className="text-red-400 text-sm">✕</button>
+            <div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">Curriculum Builder</h2>
+                <p className="text-sm text-slate-500">Structure your course. Use the drag handles to reorder (coming soon).</p>
+            </div>
+
+            <div className="space-y-4">
+                {modules.map((m: any, mIdx: number) => (
+                    <div key={m.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        {/* Module Header */}
+                        <div className="bg-slate-50 p-4 border-b border-slate-100 flex gap-3 items-start group">
+                            <div className="mt-2 text-slate-400 cursor-move hover:text-slate-600">
+                                <GripVertical size={20} />
                             </div>
-                        ))}
-                        <button onClick={() => addLesson(mIdx)} className="text-sm text-blue-600 ml-4 font-medium">+ Add Lesson</button>
+                            <div className="flex-1 space-y-3">
+                                <div className="flex gap-3">
+                                    <span className="font-bold text-slate-500 py-2">Module {mIdx + 1}</span>
+                                    <input
+                                        type="text"
+                                        value={m.title}
+                                        onChange={(e) => updateModule(mIdx, "title", e.target.value)}
+                                        placeholder="e.g. Introduction to the Course"
+                                        className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={m.description}
+                                    onChange={(e) => updateModule(mIdx, "description", e.target.value)}
+                                    placeholder="What will students learn in this module?"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                />
+                            </div>
+                            <button
+                                onClick={() => setModules(modules.filter((_: any, i: number) => i !== mIdx))}
+                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                title="Delete Module"
+                            >
+                                <Trash2 size={20} />
+                            </button>
+                        </div>
+
+                        {/* Lessons List - Accordion Content */}
+                        <div className="p-2 bg-white">
+                            {m.lessons.length === 0 ? (
+                                <div className="text-center py-6 border-2 border-dashed border-slate-100 rounded-lg m-2">
+                                    <p className="text-xs text-slate-400 mb-2">No lessons in this module yet</p>
+                                    <button onClick={() => addLesson(mIdx)} className="text-xs font-bold text-blue-600 hover:underline">+ Add First Lesson</button>
+                                </div>
+                            ) : (
+                                <div className="space-y-2 p-2">
+                                    {m.lessons.map((l: any, lIdx: number) => (
+                                        <div key={l.id} className="flex gap-3 items-center bg-slate-50 p-3 rounded-lg border border-slate-100 group hover:border-blue-200 transition-colors">
+                                            <div className="text-slate-300 cursor-move hover:text-slate-500">
+                                                <GripVertical size={16} />
+                                            </div>
+                                            <div className="text-xs font-bold text-slate-400 bg-white px-2 py-1 rounded border min-w-[3rem] text-center">
+                                                {mIdx + 1}.{lIdx + 1}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={l.title}
+                                                onChange={(e) => updateLesson(mIdx, lIdx, "title", e.target.value)}
+                                                placeholder="Lesson Title"
+                                                className="flex-1 px-3 py-1.5 border border-slate-200 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            />
+                                            <select
+                                                value={l.contentType}
+                                                onChange={(e) => updateLesson(mIdx, lIdx, "contentType", e.target.value)}
+                                                className="px-3 py-1.5 border border-slate-200 rounded text-sm bg-white text-slate-600 focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="video">Video</option>
+                                                <option value="text">Text / Article</option>
+                                                <option value="file">File / PDF</option>
+                                                <option value="link">Link</option>
+                                                <option value="quiz">Quiz</option>
+                                            </select>
+                                            <button
+                                                onClick={() => { const nM = [...modules]; nM[mIdx].lessons = nM[mIdx].lessons.filter((_: any, i: number) => i !== lIdx); setModules(nM); }}
+                                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition"
+                                                title="Delete Lesson"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {m.lessons.length > 0 && (
+                                <div className="px-2 pb-2">
+                                    <button
+                                        onClick={() => addLesson(mIdx)}
+                                        className="w-full py-2 border border-dashed border-blue-200 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-50 transition flex items-center justify-center gap-2"
+                                    >
+                                        <Plus size={16} /> Add Lesson
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
+                ))}
+            </div>
+
+            {modules.length === 0 && (
+                <div className="text-center py-12 bg-white border-2 border-dashed border-slate-300 rounded-xl mb-6">
+                    <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <ChevronRight size={32} />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800">Start Building Your Curriculum</h3>
+                    <p className="text-slate-500 max-w-sm mx-auto mt-2 mb-6">
+                        Break down your course into manageable modules and lessons. Start by adding your first module below.
+                    </p>
                 </div>
-            ))}
-            <button onClick={addModule} className="w-full py-4 border-2 border-dashed rounded-lg text-slate-500 hover:text-blue-600 hover:border-blue-400 transition font-medium">Add Module</button>
+            )}
+
+            <button
+                onClick={addModule}
+                className="w-full py-4 border-2 border-dashed rounded-xl text-slate-500 hover:text-blue-600 hover:border-blue-400 transition font-bold bg-white hover:bg-blue-50 flex flex-col items-center gap-2"
+            >
+                <span className="flex items-center gap-2 text-lg"><Plus size={24} /> Add New Module</span>
+                <span className="text-xs font-normal opacity-70">Create a new section for your course</span>
+            </button>
         </div>
     );
 }
 
 function Step4Content({ modules, updateModuleLesson }: any) {
+    const [activeLesson, setActiveLesson] = useState<{ mIdx: number, lIdx: number } | null>(null);
+
+    // Auto-select first lesson if none selected
+    useEffect(() => {
+        if (!activeLesson && modules.length > 0 && modules[0].lessons.length > 0) {
+            setActiveLesson({ mIdx: 0, lIdx: 0 });
+        }
+    }, [modules]); // eslint-disable-line
+
+    const currentLesson = activeLesson
+        ? modules[activeLesson.mIdx]?.lessons[activeLesson.lIdx]
+        : null;
+
     return (
         <div className="space-y-6">
             <div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Content Upload</h2>
-                <p className="text-sm text-slate-500">Add the actual content for your lessons.</p>
+                <p className="text-sm text-slate-500">Select a lesson from the sidebar to add content.</p>
             </div>
 
             {modules.length === 0 ? (
@@ -555,59 +675,116 @@ function Step4Content({ modules, updateModuleLesson }: any) {
                     <p className="text-slate-500">Please add modules and lessons in the Curriculum step first.</p>
                 </div>
             ) : (
-                <div className="space-y-8">
-                    {modules.map((module: any, mIdx: number) => (
-                        <div key={module.id} className="space-y-4">
-                            <h3 className="font-bold text-lg text-slate-700 border-b pb-2">{module.title || `Module ${mIdx + 1}`}</h3>
-                            {module.lessons.length === 0 ? <p className="text-sm text-slate-400 italic">No lessons in this module.</p> : (
-                                <div className="space-y-4">
-                                    {module.lessons.map((lesson: any, lIdx: number) => (
-                                        <div key={lesson.id} className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                {lesson.contentType === 'video' && <Video size={16} className="text-blue-500" />}
-                                                {lesson.contentType === 'text' && <FileText size={16} className="text-green-500" />}
-                                                {lesson.contentType === 'link' && <LinkIcon size={16} className="text-orange-500" />}
-                                                {lesson.contentType === 'file' && <Upload size={16} className="text-purple-500" />}
-                                                {lesson.contentType === 'quiz' && <HelpCircle size={16} className="text-red-500" />}
-                                                <span className="font-medium text-slate-700">{lesson.title || `Lesson ${lIdx + 1}`}</span>
-                                                <span className="text-xs text-slate-400 uppercase bg-white px-2 py-0.5 rounded border">
-                                                    {lesson.contentType}
-                                                </span>
-                                            </div>
+                <div className="flex flex-col md:flex-row gap-6 h-[600px] border border-slate-200 rounded-xl overflow-hidden bg-white">
+                    {/* Sidebar: Lesson Hierarchy */}
+                    <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50 overflow-y-auto">
+                        <div className="p-4 border-b border-slate-200 font-bold text-slate-700 bg-white sticky top-0">
+                            Course Structure
+                        </div>
+                        <div className="p-2 space-y-4">
+                            {modules.map((module: any, mIdx: number) => (
+                                <div key={module.id}>
+                                    <div className="px-3 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-300"></div>
+                                        {module.title || `Module ${mIdx + 1}`}
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        {module.lessons.map((lesson: any, lIdx: number) => {
+                                            const isActive = activeLesson?.mIdx === mIdx && activeLesson?.lIdx === lIdx;
+                                            return (
+                                                <button
+                                                    key={lesson.id}
+                                                    onClick={() => setActiveLesson({ mIdx, lIdx })}
+                                                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition ${isActive ? 'bg-blue-100 text-blue-700 font-medium shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                                                >
+                                                    {lesson.contentType === 'video' && <Video size={14} />}
+                                                    {lesson.contentType === 'text' && <FileText size={14} />}
+                                                    {lesson.contentType === 'link' && <LinkIcon size={14} />}
+                                                    <span className="truncate">{lesson.title || `Lesson ${lIdx + 1}`}</span>
+                                                    {lesson.content && <Check size={12} className="ml-auto text-green-500" />}
+                                                </button>
+                                            );
+                                        })}
+                                        {module.lessons.length === 0 && (
+                                            <div className="px-3 py-2 text-xs text-slate-400 italic">No lessons</div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-                                            {/* Input based on type */}
-                                            {lesson.contentType === 'text' ? (
-                                                <textarea
-                                                    value={lesson.content || ''}
-                                                    onChange={(e) => updateModuleLesson(mIdx, lIdx, 'content', e.target.value)}
-                                                    className="w-full p-3 border rounded-lg text-sm"
-                                                    rows={4}
-                                                    placeholder="Enter lesson text content here..."
+                    {/* Main Content: Editor */}
+                    <div className="flex-1 bg-white overflow-y-auto p-6">
+                        {currentLesson ? (
+                            <div className="h-full flex flex-col">
+                                <div className="border-b border-slate-100 pb-4 mb-6">
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+                                        <span className="uppercase">{modules[activeLesson!.mIdx].title}</span>
+                                        <ChevronRight size={14} />
+                                        <span>Lesson {activeLesson!.lIdx + 1}</span>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800">{currentLesson.title}</h3>
+                                    <div className="flex gap-2 mt-2">
+                                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-xs font-bold uppercase border border-blue-100">
+                                            {currentLesson.contentType}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Dynamic Editor based on Type */}
+                                <div className="flex-1">
+                                    {currentLesson.contentType === 'text' ? (
+                                        <div className="h-full pb-12">
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">Lesson Article Content</label>
+                                            <RichTextEditor
+                                                value={currentLesson.content || ''}
+                                                onChange={(val: string) => updateModuleLesson(activeLesson!.mIdx, activeLesson!.lIdx, 'content', val)}
+                                                placeholder="Write your lesson content here..."
+                                                className="h-[400px]"
+                                            />
+                                        </div>
+                                    ) : currentLesson.contentType === 'video' || currentLesson.contentType === 'link' ? (
+                                        <div className="max-w-xl">
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                {currentLesson.contentType === 'video' ? 'Video URL' : 'Resource URL'}
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={currentLesson.content || ''}
+                                                    onChange={(e) => updateModuleLesson(activeLesson!.mIdx, activeLesson!.lIdx, 'content', e.target.value)}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    placeholder={currentLesson.contentType === 'video' ? "https://youtube.com/watch?v=..." : "https://example.com/resource"}
                                                 />
-                                            ) : lesson.contentType === 'video' || lesson.contentType === 'link' ? (
-                                                <div>
-                                                    <label className="block text-xs font-semibold text-slate-500 mb-1">
-                                                        {lesson.contentType === 'video' ? 'Video URL (YouTube/Vimeo)' : 'Resource URL'}
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={lesson.content || ''}
-                                                        onChange={(e) => updateModuleLesson(mIdx, lIdx, 'content', e.target.value)}
-                                                        className="w-full p-2 border rounded-lg text-sm"
-                                                        placeholder="https://..."
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-4 bg-white border border-dashed rounded text-xs text-slate-500">
-                                                    {lesson.contentType === 'quiz' ? 'Quiz selection will be available in the Assessment step or future update.' : 'File upload coming soon. Please use external link for now.'}
+                                            </div>
+                                            {currentLesson.content && (
+                                                <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                                    <p className="text-xs font-bold text-slate-500 mb-2 uppercase">Preview</p>
+                                                    <a href={currentLesson.content} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                                                        {currentLesson.content} <LinkIcon size={12} />
+                                                    </a>
                                                 </div>
                                             )}
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <div className="text-center py-20 bg-slate-50 border border-dashed rounded-lg">
+                                            <HelpCircle size={48} className="mx-auto text-slate-300 mb-4" />
+                                            <h3 className="text-lg font-medium text-slate-600">Configuration Required</h3>
+                                            <p className="text-slate-500 text-sm mt-2 max-w-xs mx-auto">
+                                                To configure {currentLesson.contentType}, please save the curriculum structure first or use the specialized tool in the dashboard.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                            </div>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
+                                <FileText size={48} className="mb-4 opacity-20" />
+                                <p>Select a lesson to start editing content</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
