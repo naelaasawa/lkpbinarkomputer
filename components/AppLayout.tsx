@@ -13,8 +13,13 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
     const pathname = usePathname();
     const isLandingPage = pathname === "/";
+    const isCourseLearnPage = pathname.includes('/learn') && pathname.includes('/courses');
 
     if (isLandingPage) {
+        return <main className="w-full min-h-screen bg-white">{children}</main>;
+    }
+
+    if (isCourseLearnPage) {
         return <main className="w-full min-h-screen bg-white">{children}</main>;
     }
 

@@ -30,8 +30,7 @@ interface Course {
     modules: Module[];
 }
 
-export default function CoursePlayerPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function CoursePlayer({ id }: { id: string }) {
     const { user, isLoaded } = useUser();
     const router = useRouter();
     const searchParams = useSearchParams();
