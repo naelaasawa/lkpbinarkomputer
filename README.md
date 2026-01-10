@@ -188,27 +188,313 @@ pm2 start npm --name "lms" -- start
 
 ## 🗄 Database Schema
 
-### Entity Relationship Diagram
+### Entity Relationship Diagram (Mermaid)
+
+```mermaid
+erDiagram
+    User ||--o{ Enrollment : has
+    User ||--o{ QuizAssignment : has
+    User ||--o{ Review : writes
+    User ||--o{ Note : creates
+    User ||--o{ UserProgress : tracks
+
+    Category ||--o{ Course : contains
+
+    Course ||--o{ Enrollment : has
+    Course ||--o{ Module : contains
+    Course ||--o{ Review : receives
+
+    Module ||--o{ Lesson : contains
+
+    Lesson ||--o{ Note : has
+    Lesson ||--o{ UserProgress : tracks
+    Lesson }o--|| Quiz : "optionally links"
+
+    Quiz ||--o{ Question : contains
+    Quiz ||--o{ QuizAssignment : assigned
+    Quiz ||--o{ Lesson : "linked from"
+
+    User {
+        string id PK
+        string clerkId UK
+        string email UK
+        string role
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Category {
+        string id PK
+        string name UK
+        string icon
+        string color
+    }
+
+    Course {
+        string id PK
+        string title
+        text description
+        decimal price
+        string level
+        string imageUrl
+        boolean published
+        string categoryId FK
+        string visibility
+    }
+
+    Module {
+        string id PK
+        string title
+        text description
+        int order
+        string courseId FK
+    }
+
+    Lesson {
+        string id PK
+        string title
+        string contentType
+        text content
+        int duration
+        int order
+        string moduleId FK
+        string quizId FK
+    }
+
+    Quiz {
+        string id PK
+        string title
+        text description
+        string type
+        int timeLimit
+        int passingScore
+        boolean randomize
+        string status
+    }
+
+    Question {
+        string id PK
+        string quizId FK
+        string type
+        text question
+        text options
+        text correctAnswer
+        int score
+        int order
+    }
+
+    Enrollment {
+        string id PK
+        string userId FK
+        string courseId FK
+        int progress
+        datetime createdAt
+    }
+
+    QuizAssignment {
+        string id PK
+        string userId FK
+        string quizId FK
+        string status
+        int score
+        datetime completedAt
+    }
+
+    Review {
+        string id PK
+        int rating
+        text comment
+        string userId FK
+        string courseId FK
+    }
+
+    Note {
+        string id PK
+        text content
+        string userId FK
+        string lessonId FK
+    }
+
+    UserProgress {
+        string id PK
+        string userId FK
+        string lessonId FK
+        boolean isCompleted
+        datetime createdAt
+    }
 ```
-┌───────────┐     ┌──────────┐     ┌─────────┐
-│   User    │◇───┐│Enrollment│┐───◇│ Course  │
-└───────────┘    │└──────────┘│    └─────────┘
-      │          │      │      │         │
-      │          │      │      │         │
-┌─────────────┐  │      │      │    ┌────────┐
-│QuizAssignment│◇┘      │      └───◇│ Module │
-└─────────────┘        │            └────────┘
-      │                │                 │
-      │                │                 │
-   ┌──────┐        ┌───────┐        ┌────────┐
-   │ Quiz │        │Lesson │        │Category│
-   └──────┘        └───────┘        └────────┘
-      │                 │
-      │                 │
-┌───────────┐      ┌─────────┐
-│ Question  │      │  Quiz   │← (optional)
-└───────────┘      └─────────┘
+
+---
+
+## 🔄 Application Workflow
+
+### System Architecture Overview
+
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Client (Browser)"]
+        UI[React Components]
+        State[Client State]
+    end
+
+    subgraph NextJS["⚡ Next.js 16 App Router"]
+        Pages["Pages & Layouts"]
+        API["API Routes (/api/*)"]
+        Middleware["Middleware (Auth)"]
+    end
+
+    subgraph Auth["🔐 Authentication"]
+        Clerk["Clerk Auth Service"]
+    end
+
+    subgraph Database["🗄️ Database Layer"]
+        Prisma["Prisma ORM"]
+        MySQL["MySQL/MariaDB"]
+    end
+
+    subgraph Storage["📁 File Storage"]
+        Uploads["public/uploads/"]
+    end
+
+    UI --> Pages
+    UI --> API
+    Pages --> Middleware
+    API --> Middleware
+    Middleware --> Clerk
+    Clerk --> API
+    API --> Prisma
+    Prisma --> MySQL
+    API --> Uploads
 ```
+
+### User Learning Flow
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant C as 🖥️ Client
+    participant A as 🔐 Clerk Auth
+    participant S as ⚡ Next.js API
+    participant DB as 🗄️ Database
+
+    U->>C: Visit /sign-in
+    C->>A: Authenticate
+    A-->>C: Session Token
+    C->>S: GET /api/courses
+    S->>DB: Query published courses
+    DB-->>S: Course list
+    S-->>C: JSON Response
+    C-->>U: Display Course Catalog
+
+    U->>C: Click "Enroll" on Course
+    C->>S: POST /api/courses/[id]/enroll
+    S->>DB: Create Enrollment
+    DB-->>S: Success
+    S-->>C: Enrollment confirmed
+    C-->>U: Redirect to Course Player
+
+    U->>C: Navigate lessons
+    C->>S: GET /api/courses/[id]/progress
+    S->>DB: Query UserProgress
+    DB-->>S: Completed lesson IDs
+    S-->>C: Progress data
+    C-->>U: Show progress indicators
+
+    U->>C: Scroll to bottom of lesson
+    C->>S: POST /api/courses/[id]/lessons/[lessonId]/progress
+    S->>DB: Upsert UserProgress + Update Enrollment
+    DB-->>S: Transaction success
+    S-->>C: New progress percentage
+    C-->>U: Update progress bar
+```
+
+### Admin Course Management Flow
+
+```mermaid
+flowchart LR
+    subgraph Admin["👨‍💼 Admin Panel"]
+        Dashboard["📊 Dashboard"]
+        CourseBuilder["📝 Course Builder"]
+        QuizManager["❓ Quiz Manager"]
+        UserManager["👥 User Manager"]
+    end
+
+    subgraph Actions["Actions"]
+        Create["Create Course"]
+        Edit["Edit Modules/Lessons"]
+        Upload["Upload Media"]
+        Publish["Publish Course"]
+        Assign["Assign Quizzes"]
+    end
+
+    subgraph API["API Endpoints"]
+        CourseAPI["POST /api/courses"]
+        ModuleAPI["PATCH /api/courses/[id]"]
+        UploadAPI["POST /api/upload"]
+        QuizAPI["POST /api/quizzes"]
+        AssignAPI["POST /api/quiz-assignments"]
+    end
+
+    Dashboard --> CourseBuilder
+    CourseBuilder --> Create --> CourseAPI
+    CourseBuilder --> Edit --> ModuleAPI
+    CourseBuilder --> Upload --> UploadAPI
+    CourseBuilder --> Publish --> ModuleAPI
+    Dashboard --> QuizManager --> QuizAPI
+    QuizManager --> Assign --> AssignAPI
+    Dashboard --> UserManager
+```
+
+---
+
+## 🆕 Recent Updates (January 2026)
+
+### New Features
+- **Real-Time Progress Tracking**: Lesson completion is now tracked in the database via the `UserProgress` model. When a student scrolls to the bottom of a lesson, it's automatically marked as complete.
+- **"My Learning" Progress Persistence**: Progress bars on the "My Learning" page now accurately reflect data from the `UserProgress` table, synced with the course player.
+- **Scroll-to-Top on Lesson Change**: The Course Player now automatically scrolls to the top when switching lessons or modules.
+- **Focus Mode**: A "Focus Mode" toggle hides the header and sidebar for distraction-free learning.
+- **Previous/Next Navigation**: Navigation buttons in the course player allow easy traversal between lessons and modules.
+- **Docx Quiz Import**: Admins can now create quizzes by uploading `.docx` files. Questions and options are parsed automatically.
+- **Image Uploads in Rich Text Editor**: The Tiptap editor now supports image uploads, stored in `public/uploads/materials/courses/[courseId]`.
+
+### Updated APIs
+
+#### `POST /api/courses/[id]/lessons/[lessonId]/progress` (New)
+Marks a lesson as complete for the current user, recalculates overall course progress, and updates the `Enrollment` record.
+
+**Request:** None (authenticated via Clerk session).
+
+**Response:**
+```json
+{
+  "success": true,
+  "progress": 33,
+  "completedLesssonId": "lesson-uuid"
+}
+```
+
+#### `GET /api/courses/[id]/progress` (New)
+Fetches the list of lesson IDs the current user has completed for a specific course.
+
+**Response:**
+```json
+["lesson-uuid-1", "lesson-uuid-2"]
+```
+
+#### `POST /api/utils/parse-docx` (New)
+Accepts a `.docx` file upload and returns the extracted raw text content.
+
+**Request:** `multipart/form-data` with `file` field.
+
+**Response:**
+```json
+{
+  "text": "Extracted text content from the .docx file..."
+}
+```
+
+---
 
 ### Detailed Models
 
@@ -863,7 +1149,229 @@ Submit quiz answers.
 
 ---
 
-### 📤 Backup API
+### � Notes API
+
+#### GET `/api/notes`
+Get note for a specific lesson.
+
+**Query Parameters:**
+- `lessonId` (required): Lesson ID
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "content": "My notes for this lesson...",
+  "lessonId": "uuid",
+  "createdAt": "2024-01-01T10:00:00Z",
+  "updatedAt": "2024-01-01T10:00:00Z"
+}
+```
+
+#### POST `/api/notes`
+Create or update a note.
+
+**Request Body:**
+```json
+{
+  "lessonId": "uuid",
+  "content": "My updated notes..."
+}
+```
+
+---
+
+### ⭐ Reviews API
+
+#### GET `/api/reviews`
+Get reviews for a course.
+
+**Query Parameters:**
+- `courseId` (required): Course ID
+
+**Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "rating": 5,
+    "comment": "Great course!",
+    "user": { "email": "user@example.com" },
+    "createdAt": "2024-01-01T10:00:00Z"
+  }
+]
+```
+
+#### POST `/api/reviews`
+Submit a review.
+
+**Request Body:**
+```json
+{
+  "courseId": "uuid",
+  "rating": 5,
+  "comment": "Excellent course!"
+}
+```
+
+---
+
+### �📤 Upload API
+
+#### POST `/api/upload`
+Upload a file (images, documents, etc.).
+
+**Request:** `multipart/form-data`
+- `file` (required): The file to upload
+- `courseId` (optional): If provided, files are stored in `public/uploads/materials/courses/[courseId]`
+
+**Response:**
+```json
+{
+  "success": true,
+  "fileUrl": "/uploads/materials/courses/[courseId]/filename.ext"
+}
+```
+
+#### POST `/api/upload-pdf`
+Upload and parse a PDF file.
+
+**Request:** `multipart/form-data`
+- `file` (required): PDF file
+
+**Response:**
+```json
+{
+  "success": true,
+  "fileUrl": "/uploads/filename.pdf",
+  "metadata": { "pageCount": 10 }
+}
+```
+
+---
+
+### 📊 Stats API
+
+#### GET `/api/stats`
+Get platform-wide statistics.
+
+**Response:**
+```json
+{
+  "totalCourses": 50,
+  "totalUsers": 1000,
+  "totalEnrollments": 5000
+}
+```
+
+#### GET `/api/my-stats`
+Get current user's learning statistics.
+
+**Response:**
+```json
+{
+  "enrolledCourses": 5,
+  "completedCourses": 2,
+  "totalLessonsCompleted": 45,
+  "averageProgress": 65
+}
+```
+
+---
+
+### 📚 My Enrollments API
+
+#### GET `/api/my-enrollments`
+Get current user's course enrollments with progress.
+
+**Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "courseId": "uuid",
+    "progress": 65,
+    "createdAt": "2024-01-01T10:00:00Z",
+    "course": {
+      "id": "uuid",
+      "title": "Course Title",
+      "imageUrl": "/uploads/...",
+      "level": "beginner"
+    }
+  }
+]
+```
+
+---
+
+### 📋 Quiz Assignments API
+
+#### GET `/api/quiz-assignments`
+Get quizzes assigned to the current user.
+
+**Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "quizId": "uuid",
+    "status": "assigned",
+    "score": null,
+    "quiz": {
+      "id": "uuid",
+      "title": "Quiz Title",
+      "description": "Quiz description",
+      "timeLimit": 30
+    }
+  }
+]
+```
+
+#### POST `/api/quiz-assignments`
+Assign a quiz to users (Admin only).
+
+**Request Body:**
+```json
+{
+  "quizId": "uuid",
+  "userIds": ["user-uuid-1", "user-uuid-2"]
+}
+```
+
+---
+
+### 📦 Modules API
+
+#### GET `/api/modules/[id]`
+Get module details with lessons.
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "title": "Module Title",
+  "description": "Module description",
+  "order": 1,
+  "lessons": [
+    {
+      "id": "uuid",
+      "title": "Lesson 1",
+      "contentType": "video",
+      "duration": 15
+    }
+  ]
+}
+```
+
+#### PATCH `/api/modules/[id]`
+Update module (Admin only).
+
+#### DELETE `/api/modules/[id]`
+Delete module (Admin only).
+
+---
+
+### 📠 Backup API
 
 #### GET `/api/admin/backup`
 Export database data (Admin only).
@@ -880,139 +1388,113 @@ Export database data (Admin only).
 
 ```
 lkpbinarkomputer/
-├── app/                           # Next.js 13+ App Router
-│   ├── (auth)/                   # Authentication routes
-│   │   ├── sign-in/              # Sign in page
-│   │   ├── sign-up/              # Sign up page
-│   │   └── layout.tsx            # Auth layout
-│   ├── (admin)/                  # Admin routes
-│   │   ├── admin/                # Admin panel
-│   │   │   ├── dashboard/        # Admin dashboard
-│   │   │   ├── courses/          # Course management
-│   │   │   │   ├── [id]/         # Course edit
-│   │   │   │   ├── new/          # Create course
-│   │   │   │   └── page.tsx      # Courses list
-│   │   │   ├── quizzes/          # Quiz management
-│   │   │   ├── users/            # User management
-│   │   │   ├── categories/       # Category management
-│   │   │   ├── analytics/        # Analytics dashboard
-│   │   │   └── backup/           # Data backup
-│   │   └── layout.tsx            # Admin layout
-│   ├── (client)/                 # Client routes
-│   │   ├── dashboard/            # User dashboard
-│   │   ├── courses/              # Course browsing
-│   │   │   ├── [slug]/           # Course details
-│   │   │   │   ├── learn/        # Learning interface
-│   │   │   │   │   ├── [moduleId]/
-│   │   │   │   │   └── [lessonId]/
-│   │   │   │   └── page.tsx      # Course overview
-│   │   │   └── page.tsx          # Courses catalog
-│   │   ├── my-learning/          # Learning dashboard
-│   │   │   ├── enrolled/         # Enrolled courses
-│   │   │   ├── progress/         # Progress tracking
-│   │   │   ├── certificates/     # Certificates
-│   │   │   └── quizzes/          # Quiz assignments
-│   │   ├── quizzes/              # Quiz interface
-│   │   │   ├── take/[id]/        # Take quiz
-│   │   │   └── results/[id]/     # Quiz results
-│   │   ├── profile/              # User profile
-│   │   ├── settings/             # Account settings
-│   │   └── certificate/[id]/     # Certificate view
-│   ├── api/                      # API routes
-│   │   ├── courses/              # Course APIs
-│   │   │   ├── route.ts          # GET, POST
-│   │   │   └── [id]/             # Course-specific APIs
-│   │   ├── categories/           # Category APIs
-│   │   ├── users/                # User APIs
-│   │   ├── learning/             # Learning progress APIs
-│   │   ├── quizzes/              # Quiz APIs
-│   │   ├── admin/                # Admin APIs
-│   │   └── webhooks/             # Webhook handlers
-│   ├── layout.tsx                # Root layout
-│   ├── page.tsx                  # Homepage
-│   └── globals.css               # Global styles
-├── components/                   # Reusable components
-│   ├── ui/                       # Basic UI components
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   ├── form.tsx
-│   │   ├── input.tsx
-│   │   ├── select.tsx
-│   │   ├── table.tsx
-│   │   └── badge.tsx
-│   ├── layout/                   # Layout components
-│   │   ├── header.tsx
-│   │   ├── footer.tsx
-│   │   ├── sidebar/
-│   │   │   ├── admin-sidebar.tsx
-│   │   │   └── user-sidebar.tsx
-│   │   └── navigation/
-│   ├── course/                   # Course components
-│   │   ├── course-card.tsx
-│   │   ├── course-grid.tsx
-│   │   ├── course-progress.tsx
-│   │   ├── lesson-player.tsx
-│   │   └── enrollment-button.tsx
-│   ├── quiz/                     # Quiz components
-│   │   ├── quiz-card.tsx
-│   │   ├── quiz-taker.tsx
-│   │   ├── question-view.tsx
-│   │   └── quiz-results.tsx
-│   ├── admin/                    # Admin components
-│   │   ├── stats-cards.tsx
-│   │   ├── data-table.tsx
-│   │   ├── course-form.tsx
-│   │   └── quiz-builder.tsx
-│   └── shared/                   # Shared components
-│       ├── progress-bar.tsx
-│       ├── loading-spinner.tsx
-│       ├── error-boundary.tsx
-│       └── empty-state.tsx
-├── lib/                          # Utilities and helpers
-│   ├── prisma.ts                 # Prisma client instance
-│   ├── auth.ts                   # Authentication helpers
-│   ├── api/                      # API utilities
-│   │   ├── response.ts           # API response formatting
-│   │   ├── error-handler.ts      # Error handling
-│   │   └── validators/           Request validators
-│   ├── utils/                    # General utilities
-│   │   ├── format.ts             # Formatting functions
-│   │   ├── calculate.ts          # Calculation helpers
-│   │   └── validation.ts         # Validation helpers
-│   └── constants/                Constants
-│       ├── roles.ts              # User roles
-│       ├── course-levels.ts      # Course levels
-│       └── quiz-types.ts         # Quiz types
-├── hooks/                        Custom React hooks
-│   ├── use-toast.ts              # Toast notifications
-│   ├── use-api.ts                # API call hook
-│   ├── use-course-progress.ts    # Course progress tracking
-│   └── use-quiz.ts               # Quiz taking logic
-├── types/                        TypeScript types
-│   ├── index.ts                  # Main exports
-│   ├── api.ts                    # API types
-│   ├── course.ts                 # Course related types
-│   ├── user.ts                   # User types
-│   └── quiz.ts                   # Quiz types
-├── prisma/                       # Database schema
-│   ├── schema.prisma             # Prisma schema
-│   ├── migrations/               # Migration files
-│   └── seed.ts                   # Database seeder
-├── public/                       # Static assets
-│   ├── images/                   # Images
-│   ├── fonts/                    # Fonts
-│   └── certificates/             # Certificate templates
-├── styles/                       # CSS styles
-│   ├── globals.css               # Global styles
-│   └── components/               # Component styles
-├── .env.example                  # Environment variables example
-├── .gitignore                    # Git ignore file
-├── next.config.js                # Next.js configuration
-├── tailwind.config.js            # Tailwind CSS configuration
-├── tsconfig.json                 # TypeScript configuration
-├── package.json                  # Dependencies
-└── README.md                     # This file
+├── app/                              # Next.js 16 App Router
+│   ├── (admin)/                      # Admin routes (grouped)
+│   │   └── admin/                    # Admin panel
+│   │       ├── page.tsx              # Admin dashboard
+│   │       ├── courses/              # Course management
+│   │       │   ├── page.tsx          # Courses list
+│   │       │   ├── create/           # Create new course
+│   │       │   └── [id]/edit/        # Edit course
+│   │       ├── quizzes/              # Quiz management
+│   │       │   └── page.tsx          # Quizzes list + builder
+│   │       ├── users/                # User management
+│   │       └── layout.tsx            # Admin layout
+│   ├── (auth)/                       # Authentication routes
+│   │   ├── sign-in/                  # Sign in page
+│   │   └── sign-up/                  # Sign up page
+│   ├── (client)/                     # Client/Student routes
+│   │   ├── dashboard/                # User dashboard
+│   │   │   └── page.tsx
+│   │   ├── courses/                  # Course browsing
+│   │   │   ├── page.tsx              # Courses catalog
+│   │   │   └── [id]/                 # Course details
+│   │   │       ├── page.tsx          # Course overview
+│   │   │       └── learn/            # Course player
+│   │   │           └── page.tsx
+│   │   ├── my-learning/              # Learning dashboard
+│   │   │   └── page.tsx              # Enrolled courses + progress
+│   │   ├── profile/                  # User profile
+│   │   ├── progress/                 # Progress tracking
+│   │   └── layout.tsx                # Client layout
+│   ├── api/                          # API routes
+│   │   ├── courses/                  # Course APIs
+│   │   │   ├── route.ts              # GET (list), POST (create)
+│   │   │   └── [id]/                 # Course-specific APIs
+│   │   │       ├── route.ts          # GET, PATCH, DELETE
+│   │   │       ├── enroll/           # POST - Enroll user
+│   │   │       ├── progress/         # GET - User's completed lessons
+│   │   │       ├── lessons/[lessonId]/progress/  # POST - Mark lesson complete
+│   │   │       └── modules/          # Module management
+│   │   ├── categories/               # Category APIs
+│   │   ├── quizzes/                  # Quiz APIs
+│   │   │   ├── route.ts              # GET, POST
+│   │   │   └── [id]/                 # Quiz-specific APIs
+│   │   │       ├── route.ts          # GET, PATCH, DELETE
+│   │   │       └── questions/        # Question management
+│   │   ├── users/                    # User list API
+│   │   ├── admin/                    # Admin-only APIs
+│   │   │   ├── users/                # User management
+│   │   │   └── quizzes/              # Quiz admin APIs
+│   │   ├── notes/                    # Lesson notes API
+│   │   ├── reviews/                  # Course reviews API
+│   │   ├── upload/                   # File upload API
+│   │   ├── upload-pdf/               # PDF upload + parsing
+│   │   ├── my-enrollments/           # User's enrollments
+│   │   ├── my-stats/                 # User's learning stats
+│   │   ├── quiz-assignments/         # Quiz assignment API
+│   │   ├── modules/                  # Module APIs
+│   │   ├── stats/                    # Platform statistics
+│   │   ├── backup/                   # Data backup API
+│   │   └── utils/                    # Utility APIs
+│   │       └── parse-docx/           # DOCX parsing for quizzes
+│   ├── layout.tsx                    # Root layout
+│   ├── globals.css                   # Global styles (Tailwind)
+│   └── not-found.tsx                 # 404 page
+├── components/                       # Reusable React components
+│   ├── admin/                        # Admin-specific components
+│   │   ├── CourseBuilder.tsx         # Multi-step course builder
+│   │   ├── course-steps/             # Course builder steps
+│   │   │   ├── BasicInfoStep.tsx
+│   │   │   ├── ModulesStep.tsx
+│   │   │   ├── ContentStep.tsx
+│   │   │   ├── AssessmentStep.tsx
+│   │   │   └── SettingsStep.tsx
+│   │   ├── editors/
+│   │   │   └── TiptapEditor.tsx      # Rich text editor (Tiptap)
+│   │   ├── ShareQuizModal.tsx        # Quiz sharing modal
+│   │   └── QuizBuilder.tsx           # Quiz creation interface
+│   ├── player/                       # Course player components
+│   │   └── CoursePlayer.tsx          # Main learning interface
+│   ├── ui/                           # Basic UI components
+│   │   ├── Button.tsx
+│   │   ├── Input.tsx
+│   │   ├── Loading.tsx
+│   │   └── ...
+│   ├── AdminLayout.tsx               # Admin layout wrapper
+│   ├── AdminSidebar.tsx              # Admin navigation
+│   ├── AppLayout.tsx                 # Client app layout
+│   ├── Sidebar.tsx                   # Client sidebar
+│   ├── MobileNav.tsx                 # Mobile navigation
+│   └── BottomNavigation.tsx          # Mobile bottom nav
+├── lib/                              # Utilities and helpers
+│   ├── prisma.ts                     # Prisma client instance
+│   ├── generated/prisma/             # Generated Prisma client
+│   └── utils.ts                      # General utilities
+├── prisma/                           # Database configuration
+│   └── schema.prisma                 # Prisma schema (models)
+├── public/                           # Static assets
+│   ├── uploads/                      # User-uploaded files
+│   │   └── materials/courses/        # Course-specific uploads
+│   ├── images/                       # Static images
+│   └── icons/                        # App icons
+├── middleware.ts                     # Next.js middleware (Clerk auth)
+├── prisma.config.ts                  # Prisma configuration
+├── next.config.ts                    # Next.js configuration
+├── tailwind.config.js                # Tailwind CSS configuration
+├── tsconfig.json                     # TypeScript configuration
+├── package.json                      # Dependencies
+└── README.md                         # This file
 ```
 
 ## 🔐 Environment Variables
