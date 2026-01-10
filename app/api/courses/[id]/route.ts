@@ -102,8 +102,9 @@ export async function PATCH(
                             lessons: {
                                 create: module.lessons.map((lesson: any) => ({
                                     title: lesson.title,
-                                    type: lesson.type,
-                                    contentUrl: lesson.contentUrl,
+                                    contentType: lesson.contentType || lesson.type || "text",
+                                    content: lesson.content || lesson.contentUrl || "",
+                                    duration: lesson.duration || null,
                                     order: lesson.order
                                 }))
                             }

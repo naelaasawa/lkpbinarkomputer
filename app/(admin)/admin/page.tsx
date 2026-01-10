@@ -40,12 +40,19 @@ export default function AdminDashboard() {
     }, []);
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this course?")) return;
+        if (!confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
         try {
-            await fetch(`/api/courses/${id}`, { method: "DELETE" });
-            fetchData();
+            const res = await fetch(`/api/courses/${id}`, { method: "DELETE" });
+            if (res.ok) {
+                alert("Course deleted successfully!");
+                fetchData();
+            } else {
+                const errorText = await res.text();
+                alert(`Failed to delete course: ${res.status} ${errorText}`);
+            }
         } catch (error) {
-            console.error(error);
+            console.error("Delete error:", error);
+            alert("An error occurred while deleting the course. Please try again.");
         }
     };
 

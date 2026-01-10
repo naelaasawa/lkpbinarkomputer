@@ -151,3 +151,24 @@ model QuizAssignment {
   @@index([userId], map: "QuizAssignment_userId_fkey")
   @@index([quizId], map: "QuizAssignment_quizId_fkey")
 }
+
+model File {
+  id          String   @id @default(uuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  path        String
+  type        String   @default("file") // file, image, video, pdf
+  courseId    String?
+  moduleId    String?
+  lessonId    String?
+  metadata    String?  @db.LongText // JSON string for extra data like PDF structure
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([courseId])
+  @@index([moduleId])
+  @@index([lessonId])
+}
+

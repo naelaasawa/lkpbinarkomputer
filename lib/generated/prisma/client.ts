@@ -84,3 +84,8 @@ export type Enrollment = Prisma.EnrollmentModel
  * 
  */
 export type QuizAssignment = Prisma.QuizAssignmentModel
+/**
+ * Model File
+ * 
+ */
+export type File = Prisma.FileModel

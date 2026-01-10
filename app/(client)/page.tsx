@@ -112,12 +112,9 @@ export default async function LandingPage() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 md:mb-6">
             LKP Binar Komputer
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto mb-6 md:mb-10">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
             "LKP Binar Komputer Tegal berdiri sejak 2016 sebagai rumah belajar komputer berbasis privat dengan pendekatan kekeluargaan dan pembelajaran personal."
           </p>
-          <Link href="/profile" className="inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700 active:text-blue-800 transition-colors group min-h-[44px] touch-manipulation">
-            Profil Lengkap <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
         </div>
       </section>
 
@@ -218,10 +215,6 @@ export default async function LandingPage() {
                   </div>
                 </li>
               </ul>
-              <button className="px-6 py-3 bg-white text-blue-600 border border-blue-200 rounded-xl font-bold hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-2">
-                <FileText size={18} />
-                Detail Visi & Misi
-              </button>
             </div>
           </div>
         </div>
@@ -321,14 +314,14 @@ export default async function LandingPage() {
               <p className="text-lg text-slate-600 leading-relaxed mb-8">
                 Didukung oleh tim pengajar dan pembimbing berpengalaman dengan struktur organisasi yang jelas, sehingga proses belajar berjalan terarah dan optimal.
               </p>
-              <div className="flex gap-8 border-t border-slate-100 pt-8">
+              <div className="grid grid-cols-2 gap-4 md:gap-8 border-t border-slate-100 pt-8">
                 <div>
-                  <h4 className="font-bold text-slate-900 text-lg mb-1">Berpengalaman</h4>
-                  <p className="text-sm text-slate-500">Praktisi Industri</p>
+                  <h4 className="font-bold text-slate-900 text-base md:text-lg mb-1">Berpengalaman</h4>
+                  <p className="text-xs md:text-sm text-slate-500">Praktisi Industri</p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-lg mb-1">Terstruktur</h4>
-                  <p className="text-sm text-slate-500">Kurikulum Jelas</p>
+                  <h4 className="font-bold text-slate-900 text-base md:text-lg mb-1">Terstruktur</h4>
+                  <p className="text-xs md:text-sm text-slate-500">Kurikulum Jelas</p>
                 </div>
               </div>
             </div>

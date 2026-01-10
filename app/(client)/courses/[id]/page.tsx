@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Monitor, BookOpen, Clock, PlayCircle, Lock, ChevronDown, ChevronUp, Check, Star, FileText } from "lucide-react";
+import { Monitor, BookOpen, Clock, PlayCircle, Lock, ChevronDown, ChevronUp, Check, Star, FileText, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -86,6 +86,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             <div className="bg-white border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-6 py-10 md:py-16 grid grid-cols-1 lg:grid-cols-3 gap-10">
                     <div className="lg:col-span-2 space-y-6">
+                        {/* Back Button */}
+                        <Link href="/courses" className="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors text-sm font-medium">
+                            <ArrowLeft size={18} />
+                            Kembali ke Daftar Kursus
+                        </Link>
+
                         <div className="flex items-center gap-3">
                             {course.category && (
                                 <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wide bg-blue-100 text-blue-700`}>
@@ -100,7 +106,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                         </h1>
 
                         <p className="text-lg text-slate-600 leading-relaxed">
-                            {course.shortDescription}
+                            {course.shortDescription || course.description || "Pelajari materi ini dan tingkatkan kemampuan Anda."}
                         </p>
 
                         <div className="flex flex-wrap gap-6 text-sm text-slate-500 pt-4">
@@ -237,7 +243,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                         <h2 className="text-2xl font-bold text-slate-800 mb-4">Description</h2>
                         <div className="prose prose-slate max-w-none text-slate-600">
                             {/* Ideally sanitize this HTML/Markdown */}
-                            <div className="whitespace-pre-wrap">{course.fullDescription}</div>
+                            <div className="whitespace-pre-wrap">{course.fullDescription || course.description || "Deskripsi kursus ini belum tersedia."}</div>
                         </div>
                     </div>
                 </div>

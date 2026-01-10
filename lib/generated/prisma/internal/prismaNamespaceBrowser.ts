@@ -59,7 +59,8 @@ export const ModelName = {
   Quiz: 'Quiz',
   Question: 'Question',
   Enrollment: 'Enrollment',
-  QuizAssignment: 'QuizAssignment'
+  QuizAssignment: 'QuizAssignment',
+  File: 'File'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -215,6 +216,25 @@ export const QuizAssignmentScalarFieldEnum = {
 export type QuizAssignmentScalarFieldEnum = (typeof QuizAssignmentScalarFieldEnum)[keyof typeof QuizAssignmentScalarFieldEnum]
 
 
+export const FileScalarFieldEnum = {
+  id: 'id',
+  filename: 'filename',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  size: 'size',
+  path: 'path',
+  type: 'type',
+  courseId: 'courseId',
+  moduleId: 'moduleId',
+  lessonId: 'lessonId',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FileScalarFieldEnum = (typeof FileScalarFieldEnum)[keyof typeof FileScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -336,4 +356,20 @@ export const QuizAssignmentOrderByRelevanceFieldEnum = {
 } as const
 
 export type QuizAssignmentOrderByRelevanceFieldEnum = (typeof QuizAssignmentOrderByRelevanceFieldEnum)[keyof typeof QuizAssignmentOrderByRelevanceFieldEnum]
+
+
+export const FileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  filename: 'filename',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  path: 'path',
+  type: 'type',
+  courseId: 'courseId',
+  moduleId: 'moduleId',
+  lessonId: 'lessonId',
+  metadata: 'metadata'
+} as const
+
+export type FileOrderByRelevanceFieldEnum = (typeof FileOrderByRelevanceFieldEnum)[keyof typeof FileOrderByRelevanceFieldEnum]
 
