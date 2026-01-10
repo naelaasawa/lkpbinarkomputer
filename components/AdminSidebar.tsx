@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, HelpCircle, Users, Settings, LogOut, Database } from "lucide-react";
+import { LayoutDashboard, BookOpen, HelpCircle, Users, Star, Settings, LogOut, Database } from "lucide-react";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 
 export const AdminSidebar = () => {
@@ -15,6 +15,7 @@ export const AdminSidebar = () => {
         { href: "/admin/courses/create", label: "Courses", icon: BookOpen },
         { href: "/admin/quizzes", label: "Quizzes", icon: HelpCircle },
         { href: "/admin/users", label: "Users", icon: Users },
+        { href: "/admin/reviews", label: "Reviews", icon: Star },
         { href: "/admin/backup", label: "Backup & Restore", icon: Database },
     ];
 

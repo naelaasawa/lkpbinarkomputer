@@ -52,7 +52,6 @@ export default function ConfirmDialog({
 
     const handleConfirm = () => {
         onConfirm();
-        onClose();
     };
 
     return (

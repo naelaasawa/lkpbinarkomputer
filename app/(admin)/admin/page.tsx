@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Search, BookOpen } from "lucide-react";
+import { Plus, Trash2, Search, BookOpen, Eye, FileText } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 import EmptyState from "@/components/ui/EmptyState";
+
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function AdminDashboard() {
     const [courses, setCourses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ courses: 0, students: 0, enrollments: 0 });
+
+    // Delete Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -41,13 +48,24 @@ export default function AdminDashboard() {
         fetchData();
     }, []);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
+    const handleDeleteClick = (id: string) => {
+        setCourseToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!courseToDelete) return;
+
+        setIsDeleting(true);
         try {
-            const res = await fetch(`/api/courses/${id}`, { method: "DELETE" });
+            const res = await fetch(`/api/courses/${courseToDelete}`, { method: "DELETE" });
             if (res.ok) {
-                alert("Course deleted successfully!");
+                // Optimistic update
+                setCourses(courses.filter(c => c.id !== courseToDelete));
+                // Update stats locally or refetch
                 fetchData();
+                setShowDeleteModal(false);
+                setCourseToDelete(null);
             } else {
                 const errorText = await res.text();
                 alert(`Failed to delete course: ${res.status} ${errorText}`);
@@ -55,6 +73,8 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error("Delete error:", error);
             alert("An error occurred while deleting the course. Please try again.");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -104,7 +124,9 @@ export default function AdminDashboard() {
                         <thead className="bg-slate-50 border-b border-slate-100">
                             <tr>
                                 <th className="px-6 py-4 font-semibold text-slate-700">Course Title</th>
+                                <th className="px-6 py-4 font-semibold text-slate-700">Status</th>
                                 <th className="px-6 py-4 font-semibold text-slate-700">Category</th>
+                                <th className="px-6 py-4 font-semibold text-slate-700">Students</th>
                                 <th className="px-6 py-4 font-semibold text-slate-700">Price</th>
                                 <th className="px-6 py-4 font-semibold text-slate-700">Level</th>
                                 <th className="px-6 py-4 font-semibold text-slate-700 text-right">Actions</th>
@@ -130,20 +152,49 @@ export default function AdminDashboard() {
                             ) : (
                                 courses.map((course: any) => (
                                     <tr key={course.id} className="hover:bg-slate-50 transition">
-                                        <td className="px-6 py-4 font-medium text-slate-900">{course.title}</td>
+                                        <td className="px-6 py-4 font-medium text-slate-900">
+                                            <div className="flex flex-col">
+                                                <span>{course.title}</span>
+                                                <span className="text-xs text-slate-400 font-light hidden sm:inline-block">Updated: {new Date(course.updatedAt).toLocaleDateString()}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {course.published || course.visibility === "public" ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                    Public
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                    Draft
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded text-xs font-semibold ${course.category?.color || 'bg-gray-100 text-gray-800'}`}>
                                                 {course.category?.name || 'Uncategorized'}
                                             </span>
                                         </td>
+                                        <td className="px-6 py-4 text-slate-600">
+                                            {course._count?.enrollments || 0}
+                                        </td>
                                         <td className="px-6 py-4 text-slate-600">Rp {Number(course.price).toLocaleString()}</td>
                                         <td className="px-6 py-4 text-slate-600">{course.level}</td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Link href={`/admin/courses/${course.id}/edit`} className="p-2 text-blue-600 hover:bg-blue-50 rounded transition">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+                                                <Link
+                                                    href={`/courses/${course.id}`}
+                                                    target="_blank"
+                                                    className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition"
+                                                    title="View Public Page"
+                                                >
+                                                    <Eye size={18} />
                                                 </Link>
-                                                <button onClick={() => handleDelete(course.id)} className="p-2 text-red-500 hover:bg-red-50 rounded transition">
+                                                <Link href={`/admin/courses/${course.id}/edit`} className="p-2 text-blue-600 hover:bg-blue-50 rounded transition" title="Edit Course">
+                                                    <FileText size={18} />
+                                                </Link>
+                                                <button onClick={() => handleDeleteClick(course.id)} className="p-2 text-red-500 hover:bg-red-50 rounded transition" title="Delete Course">
                                                     <Trash2 size={18} />
                                                 </button>
                                             </div>
@@ -164,6 +215,18 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             </div>
+            {/* Delete Confirmation Modal */}
+            <ConfirmDialog
+                isOpen={showDeleteModal}
+                onClose={() => !isDeleting && setShowDeleteModal(false)}
+                onConfirm={confirmDelete}
+                title="Hapus Kursus?"
+                message="Tindakan ini tidak dapat dibatalkan. Semua proges siswa dan data terkait kursus ini akan dihapus permanen."
+                confirmText={isDeleting ? "Menghapus..." : "Hapus Permanen"}
+                cancelText="Batal"
+                variant="danger"
+                loading={isDeleting}
+            />
         </div>
     );
 }

@@ -4,9 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
     try {
         const coursesCount = await prisma.course.count();
-        const studentsCount = await prisma.user.count({
-            where: { role: "USER" }
-        });
+        const studentsCount = await prisma.user.count();
         const enrollmentsCount = await prisma.enrollment.count();
 
         // Calculate estimated revenue (naive: sum of course prices for all enrollments)
