@@ -19,7 +19,13 @@ export async function GET(
                     },
                     orderBy: { order: "asc" }
                 },
-                category: true
+                category: true,
+                _count: {
+                    select: {
+                        enrollments: true,
+                        reviews: true
+                    }
+                }
             }
         });
 

@@ -3,8 +3,9 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Monitor, BookOpen, Clock, PlayCircle, Lock, ChevronDown, ChevronUp, Check, Star, FileText, ArrowLeft } from "lucide-react";
+import { Monitor, BookOpen, Clock, PlayCircle, Lock, ChevronDown, ChevronUp, Check, Star, FileText, ArrowLeft, User } from "lucide-react";
 import Link from "next/link";
+import Loading from "@/components/ui/Loading";
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -75,7 +76,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         }
     };
 
-    if (loading) return <div className="min-h-[60vh] flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div></div>;
+    if (loading) return <Loading />;
     if (!course) return <div className="text-center py-20">Course not found</div>;
 
     const totalLessons = course.modules?.reduce((acc: number, m: any) => acc + m.lessons.length, 0) || 0;
@@ -115,13 +116,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                 <span>{totalLessons} Lessons</span>
                             </div>
                             <div className="flex items-center gap-2">
+                                <User size={18} />
+                                <span>{course._count?.enrollments || 0} Students</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <Check size={18} />
                                 <span>Certificate of Completion</span>
                             </div>
                             <div className="flex items-center gap-1">
                                 <Star size={18} className="text-yellow-400 fill-yellow-400" />
                                 <span className="text-slate-700 font-bold">4.8</span>
-                                <span>(120 reviews)</span>
+                                <span>({course._count?.reviews || 0} reviews)</span>
                             </div>
                         </div>
 

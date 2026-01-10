@@ -5,6 +5,8 @@ import { Search, Filter, Monitor, Star, ArrowUpRight, BookOpen, Clock, Users, Pl
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import Loading from "@/components/ui/Loading";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function CoursesPage() {
     const [courses, setCourses] = useState<any[]>([]);
@@ -66,11 +68,7 @@ export default function CoursesPage() {
     }, [selectedCategory, searchQuery, courses]);
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-            </div>
-        );
+        return <Loading />;
     }
 
     return (
@@ -94,15 +92,15 @@ export default function CoursesPage() {
                         <div className="flex flex-wrap gap-4 md:gap-8 text-slate-300 text-sm font-medium">
                             <div className="flex items-center gap-2">
                                 <PlayCircle size={18} className="text-blue-400" />
-                                <span>8 Courses</span>
+                                <span>{courses.length} Courses</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Clock size={18} className="text-blue-400" />
-                                <span>+234 Hours</span>
+                                <BookOpen size={18} className="text-blue-400" />
+                                <span>{courses.reduce((acc, c) => acc + (c.totalLessons || 0), 0)} Lessons</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Users size={18} className="text-blue-400" />
-                                <span>349 Students</span>
+                                <span>{courses.reduce((acc, c) => acc + (c._count?.enrollments || 0), 0)} Students</span>
                             </div>
                         </div>
                     </div>
@@ -159,13 +157,11 @@ export default function CoursesPage() {
             {/* Course Grid */}
             <div className="min-h-[400px]">
                 {filteredCourses.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 text-slate-300 shadow-sm">
-                            <BookOpen size={32} />
-                        </div>
-                        <h3 className="text-lg font-bold text-slate-700">No courses found</h3>
-                        <p className="text-slate-500 text-sm">Try adjusting your search or category filter.</p>
-                    </div>
+                    <EmptyState
+                        icon={BookOpen}
+                        title="No courses found"
+                        description="Try adjusting your search or category filter to find what you're looking for."
+                    />
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredCourses.map((course) => (
@@ -185,7 +181,7 @@ function CourseCard({ course }: { course: any }) {
     // Calculate generic stats if not real
     const lessonsCount = course.totalLessons || 0;
     // Generate a random-looking student count based on ID if not real, just for consistent UI demo
-    const studentCount = parseInt(course.id.substring(0, 3), 16) % 500 + 50;
+    const studentCount = course._count?.enrollments || 0;
 
     return (
         <Link href={`/courses/${course.id}`} className="group bg-white rounded-2xl border border-slate-100 p-3 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">

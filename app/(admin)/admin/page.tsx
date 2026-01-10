@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Search } from "lucide-react";
+import { Plus, Trash2, Search, BookOpen } from "lucide-react";
+import Loading from "@/components/ui/Loading";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function AdminDashboard() {
     const [courses, setCourses] = useState<any[]>([]);
@@ -56,7 +58,7 @@ export default function AdminDashboard() {
         }
     };
 
-    if (loading) return <div className="p-10 text-center">Loading dashboard...</div>;
+    if (loading) return <Loading />;
 
     return (
         <div className="space-y-6">
@@ -110,7 +112,21 @@ export default function AdminDashboard() {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {courses.length === 0 ? (
-                                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-500">No courses found. Create one to get started.</td></tr>
+                                <tr>
+                                    <td colSpan={5} className="p-8">
+                                        <EmptyState
+                                            icon={BookOpen}
+                                            title="No courses yet"
+                                            description="Create your first course to get started!"
+                                            action={
+                                                <Link href="/admin/courses/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-blue-700 transition shadow-sm mt-2">
+                                                    <Plus size={20} />
+                                                    <span>Create Course</span>
+                                                </Link>
+                                            }
+                                        />
+                                    </td>
+                                </tr>
                             ) : (
                                 courses.map((course: any) => (
                                     <tr key={course.id} className="hover:bg-slate-50 transition">

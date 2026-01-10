@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Search, Filter, PlayCircle, Clock, CheckCircle, BookOpen } from "lucide-react";
+import { PlayCircle, CheckCircle, BookOpen, ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
+import Loading from "@/components/ui/Loading";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Enrollment {
     id: string;
@@ -21,6 +23,7 @@ interface Enrollment {
             color: string;
         };
         price: number;
+        modules: { id: string; lessons: { id: string; duration: number }[] }[];
     };
 }
 
@@ -55,7 +58,7 @@ export default function MyLearning() {
     }, [isLoaded, user]);
 
     if (!isLoaded || loading) {
-        return <div className="p-10 text-center">Loading your courses...</div>;
+        return <Loading />;
     }
 
     // Filter enrollments based on active tab
@@ -66,147 +69,167 @@ export default function MyLearning() {
                 ? enrollments.filter((e) => e.progress < 100)
                 : enrollments.filter((e) => e.progress === 100);
 
-    // Calculate time since last access
-    const getTimeAgo = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffDays = Math.floor(diffHours / 24);
-
-        if (diffHours < 1) return "Just now";
-        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-        return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
-    };
-
     return (
-        <div className="flex flex-col gap-6 px-6 pt-8 pb-20 md:pb-8 min-h-screen bg-slate-50">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">My Learning</h1>
-                    <p className="text-sm text-gray-500">
-                        {enrollments.length > 0 ? "Keep up the good work!" : "Start your learning journey"}
+        <div className="min-h-screen bg-slate-50 pb-20">
+            {/* Header Section with Gradient */}
+            <div className="bg-slate-900 text-white pt-12 pb-24 px-6 md:px-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-10 translate-x-1/3 -translate-y-1/3"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500 rounded-full blur-3xl opacity-10 -translate-x-1/3 translate-y-1/3"></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <h1 className="text-3xl font-bold mb-2">Pembelajaran Saya</h1>
+                    <p className="text-slate-400 text-lg">
+                        {enrollments.length > 0
+                            ? "Lanjutkan progres belajar Anda hari ini!"
+                            : "Mulai perjalanan belajar Anda disini"}
                     </p>
                 </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 border-b border-gray-200 pb-1 overflow-x-auto scrollbar-hide">
-                {["All", "On Progress", "Completed"].map((tab) => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors relative ${activeTab === tab ? "text-blue-600" : "text-gray-500 hover:text-gray-700"
-                            }`}
-                    >
-                        {tab}
-                        {activeTab === tab && (
-                            <span className="absolute bottom-[-5px] left-0 w-full h-0.5 bg-blue-600 rounded-full"></span>
-                        )}
-                    </button>
-                ))}
-            </div>
-
-            {/* Course List */}
-            <div className="flex flex-col gap-4 pb-4">
-                {filteredEnrollments.length > 0 ? (
-                    filteredEnrollments.map((enrollment) => (
-                        <div
-                            key={enrollment.id}
-                            className="bg-white rounded-xl p-4 shadow-sm border border-gray-50 flex flex-col gap-3"
+            <div className="max-w-7xl mx-auto px-6 md:px-12 -mt-12 relative z-20">
+                {/* Tabs */}
+                <div className="flex gap-2 mb-8 bg-white/80 backdrop-blur-md p-1.5 rounded-2xl shadow-sm w-fit border border-slate-200/50">
+                    {["All", "On Progress", "Completed"].map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab
+                                ? "bg-slate-900 text-white shadow-md shadow-slate-900/20"
+                                : "text-slate-600 hover:bg-slate-100/50 hover:text-slate-900"
+                                }`}
                         >
-                            <div className="flex gap-3">
-                                <Link
-                                    href={enrollment.progress < 100 ? `/courses/${enrollment.course.id}/learn` : `/courses/${enrollment.course.id}`}
-                                    className={`w-20 h-20 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0 cursor-pointer overflow-hidden`}
+                            {tab === "All" ? "Semua" : tab === "On Progress" ? "Sedang Berjalan" : "Selesai"}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredEnrollments.length > 0 ? (
+                        filteredEnrollments.map((enrollment) => {
+                            const isCompleted = enrollment.progress === 100;
+                            const totalLessons = enrollment.course.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) || 0;
+
+                            return (
+                                <div
+                                    key={enrollment.id}
+                                    className="group bg-white rounded-2xl border border-slate-200/60 overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full"
                                 >
-                                    {enrollment.course.imageUrl ? (
-                                        <img src={enrollment.course.imageUrl} alt={enrollment.course.title} className="w-full h-full object-cover" />
-                                    ) : (
-                                        enrollment.progress === 100 ? (
-                                            <CheckCircle className="text-green-600" size={32} />
+                                    {/* Card Image */}
+                                    <Link
+                                        href={isCompleted ? `/courses/${enrollment.course.id}` : `/courses/${enrollment.course.id}/learn`}
+                                        className="relative aspect-video block overflow-hidden bg-slate-100"
+                                    >
+                                        {enrollment.course.imageUrl ? (
+                                            <img
+                                                src={enrollment.course.imageUrl.startsWith("http") || enrollment.course.imageUrl.startsWith("/") ? enrollment.course.imageUrl : `/${enrollment.course.imageUrl}`}
+                                                alt={enrollment.course.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
                                         ) : (
-                                            <PlayCircle className="text-blue-600" size={32} />
-                                        )
-                                    )}
-                                </Link>
-                                <div className="flex flex-col justify-between w-full">
-                                    <div>
-                                        <span
-                                            className={`text-[10px] font-bold px-2 py-0.5 rounded w-fit ${enrollment.course.category.color}`}
-                                        >
+                                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                                <PlayCircle size={48} />
+                                            </div>
+                                        )}
+
+                                        {/* Overlay Play Button */}
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300">
+                                            <div className="w-12 h-12 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg transform scale-50 group-hover:scale-100 transition-all">
+                                                <PlayCircle className="text-slate-900 ml-1" size={24} />
+                                            </div>
+                                        </div>
+
+                                        {/* Category Badge */}
+                                        <span className={`absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-lg shadow-sm backdrop-blur-md ${enrollment.course.category.color || 'bg-white text-slate-800'}`}>
                                             {enrollment.course.category.name}
                                         </span>
-                                        <Link 
-                                            href={enrollment.progress < 100 ? `/courses/${enrollment.course.id}/learn` : `/courses/${enrollment.course.id}`}
-                                            className="text-sm font-bold text-slate-800 mt-1 line-clamp-2 leading-tight hover:text-blue-600 transition-colors block"
+                                    </Link>
+
+                                    {/* Helper to ensure correct image path */}
+                                    {/* We define it outside map or inline to be safe */}
+                                    {/* Actually cleaner to use a utility or inline logical check */}
+
+
+                                    {/* Card Content */}
+                                    <div className="p-5 flex flex-col flex-1">
+                                        <Link
+                                            href={isCompleted ? `/courses/${enrollment.course.id}` : `/courses/${enrollment.course.id}/learn`}
+                                            className="font-bold text-slate-800 text-lg leading-tight mb-2 line-clamp-2 hover:text-blue-600 transition-colors"
                                         >
                                             {enrollment.course.title}
                                         </Link>
+
+                                        <div className="flex items-center gap-3 text-xs text-slate-500 mb-4">
+                                            <span className="flex items-center gap-1">
+                                                <BookOpen size={14} />
+                                                {totalLessons} Materi
+                                            </span>
+                                            {/* Could add duration estimate here if available */}
+                                        </div>
+
+                                        <div className="mt-auto pt-4 border-t border-slate-100">
+                                            <div className="flex justify-between items-end mb-2">
+                                                <span className="text-xs font-semibold text-slate-700">
+                                                    Progres Belajar
+                                                </span>
+                                                <span className={`text-xs font-bold ${isCompleted ? 'text-emerald-600' : 'text-blue-600'}`}>
+                                                    {enrollment.progress}%
+                                                </span>
+                                            </div>
+
+                                            <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-4">
+                                                <div
+                                                    className={`h-full rounded-full transition-all duration-1000 ${isCompleted
+                                                        ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
+                                                        : "bg-gradient-to-r from-blue-400 to-blue-600"
+                                                        }`}
+                                                    style={{ width: `${enrollment.progress}%` }}
+                                                ></div>
+                                            </div>
+
+                                            {isCompleted ? (
+                                                <button className="w-full py-2.5 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-xl border border-emerald-100 hover:bg-emerald-100 transition flex items-center justify-center gap-2">
+                                                    <CheckCircle size={16} />
+                                                    Selesai
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    href={`/courses/${enrollment.course.id}/learn`}
+                                                    className="w-full py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-200 hover:bg-slate-800 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 group/btn"
+                                                >
+                                                    Lanjutkan
+                                                    <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                                                </Link>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Progress Section */}
-                            <div className="pt-2 border-t border-gray-50">
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <span className="text-xs font-semibold text-gray-600">
-                                        {enrollment.progress}%{" "}
-                                        <span className="text-gray-400 font-normal">Complete</span>
-                                    </span>
-                                    <span className="text-xs text-gray-400">
-                                        {/* Placeholder lesson count */}
-                                        {Math.floor((enrollment.progress / 100) * 24)}/24 Lessons
-                                    </span>
-                                </div>
-                                <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div
-                                        className={`h-2 rounded-full ${enrollment.progress === 100 ? "bg-green-500" : "bg-blue-600"
-                                            }`}
-                                        style={{ width: `${enrollment.progress}%` }}
-                                    ></div>
-                                </div>
-
-                                {enrollment.progress < 100 && (
-                                    <button className="w-full mt-3 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all text-white text-xs font-bold rounded-lg shadow-blue-200 shadow-sm">
-                                        Continue Learning
-                                    </button>
-                                )}
-                                {enrollment.progress === 100 && (
-                                    <button className="w-full mt-3 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg border border-slate-200">
-                                        View Certificate
-                                    </button>
-                                )}
-                            </div>
+                            );
+                        })
+                    ) : (
+                        <div className="col-span-full">
+                            <EmptyState
+                                icon={BookOpen}
+                                title={activeTab === "All"
+                                    ? "Belum ada kursus yang diikuti"
+                                    : activeTab === "On Progress"
+                                        ? "Tidak ada kursus yang sedang berjalan"
+                                        : "Belum ada kursus yang selesai"}
+                                description={activeTab === "All"
+                                    ? "Mulai perjalanan belajar Anda dengan mendaftar di kursus-kursus menarik kami."
+                                    : "Ayo semangat belajar untuk menyelesaikan kursusmu!"}
+                                action={
+                                    <Link
+                                        href="/courses"
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-blue-300 transition-all active:scale-95"
+                                    >
+                                        Jelajahi Kursus
+                                    </Link>
+                                }
+                            />
                         </div>
-                    ))
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                            <BookOpen className="text-gray-400" size={24} />
-                        </div>
-                        <h3 className="text-slate-800 font-bold">
-                            {activeTab === "All"
-                                ? "No enrolled courses yet"
-                                : activeTab === "On Progress"
-                                    ? "No courses in progress"
-                                    : "No completed courses yet"}
-                        </h3>
-                        <p className="text-gray-500 text-sm mt-1">
-                            {activeTab === "All"
-                                ? "Start learning by enrolling in a course!"
-                                : "Keep learning to complete your courses"}
-                        </p>
-                        <Link
-                            href="/courses"
-                            className="mt-4 px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-200 hover:bg-blue-700 transition"
-                        >
-                            Browse Courses
-                        </Link>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

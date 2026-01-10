@@ -262,6 +262,7 @@ export type LessonWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
   module?: Prisma.XOR<Prisma.ModuleScalarRelationFilter, Prisma.ModuleWhereInput>
   quiz?: Prisma.XOR<Prisma.QuizNullableScalarRelationFilter, Prisma.QuizWhereInput> | null
+  notes?: Prisma.NoteListRelationFilter
 }
 
 export type LessonOrderByWithRelationInput = {
@@ -277,6 +278,7 @@ export type LessonOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   module?: Prisma.ModuleOrderByWithRelationInput
   quiz?: Prisma.QuizOrderByWithRelationInput
+  notes?: Prisma.NoteOrderByRelationAggregateInput
   _relevance?: Prisma.LessonOrderByRelevanceInput
 }
 
@@ -296,6 +298,7 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string
   module?: Prisma.XOR<Prisma.ModuleScalarRelationFilter, Prisma.ModuleWhereInput>
   quiz?: Prisma.XOR<Prisma.QuizNullableScalarRelationFilter, Prisma.QuizWhereInput> | null
+  notes?: Prisma.NoteListRelationFilter
 }, "id">
 
 export type LessonOrderByWithAggregationInput = {
@@ -343,6 +346,7 @@ export type LessonCreateInput = {
   updatedAt?: Date | string
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput
   quiz?: Prisma.QuizCreateNestedOneWithoutLessonsInput
+  notes?: Prisma.NoteCreateNestedManyWithoutLessonInput
 }
 
 export type LessonUncheckedCreateInput = {
@@ -356,6 +360,7 @@ export type LessonUncheckedCreateInput = {
   quizId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutLessonInput
 }
 
 export type LessonUpdateInput = {
@@ -369,6 +374,7 @@ export type LessonUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput
   quiz?: Prisma.QuizUpdateOneWithoutLessonsNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateInput = {
@@ -382,6 +388,7 @@ export type LessonUncheckedUpdateInput = {
   quizId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonCreateManyInput = {
@@ -486,6 +493,11 @@ export type LessonSumOrderByAggregateInput = {
   order?: Prisma.SortOrder
 }
 
+export type LessonScalarRelationFilter = {
+  is?: Prisma.LessonWhereInput
+  isNot?: Prisma.LessonWhereInput
+}
+
 export type LessonCreateNestedManyWithoutModuleInput = {
   create?: Prisma.XOR<Prisma.LessonCreateWithoutModuleInput, Prisma.LessonUncheckedCreateWithoutModuleInput> | Prisma.LessonCreateWithoutModuleInput[] | Prisma.LessonUncheckedCreateWithoutModuleInput[]
   connectOrCreate?: Prisma.LessonCreateOrConnectWithoutModuleInput | Prisma.LessonCreateOrConnectWithoutModuleInput[]
@@ -578,6 +590,20 @@ export type LessonUncheckedUpdateManyWithoutQuizNestedInput = {
   deleteMany?: Prisma.LessonScalarWhereInput | Prisma.LessonScalarWhereInput[]
 }
 
+export type LessonCreateNestedOneWithoutNotesInput = {
+  create?: Prisma.XOR<Prisma.LessonCreateWithoutNotesInput, Prisma.LessonUncheckedCreateWithoutNotesInput>
+  connectOrCreate?: Prisma.LessonCreateOrConnectWithoutNotesInput
+  connect?: Prisma.LessonWhereUniqueInput
+}
+
+export type LessonUpdateOneRequiredWithoutNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.LessonCreateWithoutNotesInput, Prisma.LessonUncheckedCreateWithoutNotesInput>
+  connectOrCreate?: Prisma.LessonCreateOrConnectWithoutNotesInput
+  upsert?: Prisma.LessonUpsertWithoutNotesInput
+  connect?: Prisma.LessonWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LessonUpdateToOneWithWhereWithoutNotesInput, Prisma.LessonUpdateWithoutNotesInput>, Prisma.LessonUncheckedUpdateWithoutNotesInput>
+}
+
 export type LessonCreateWithoutModuleInput = {
   id?: string
   title: string
@@ -588,6 +614,7 @@ export type LessonCreateWithoutModuleInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   quiz?: Prisma.QuizCreateNestedOneWithoutLessonsInput
+  notes?: Prisma.NoteCreateNestedManyWithoutLessonInput
 }
 
 export type LessonUncheckedCreateWithoutModuleInput = {
@@ -600,6 +627,7 @@ export type LessonUncheckedCreateWithoutModuleInput = {
   quizId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutLessonInput
 }
 
 export type LessonCreateOrConnectWithoutModuleInput = {
@@ -654,6 +682,7 @@ export type LessonCreateWithoutQuizInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput
+  notes?: Prisma.NoteCreateNestedManyWithoutLessonInput
 }
 
 export type LessonUncheckedCreateWithoutQuizInput = {
@@ -666,6 +695,7 @@ export type LessonUncheckedCreateWithoutQuizInput = {
   moduleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutLessonInput
 }
 
 export type LessonCreateOrConnectWithoutQuizInput = {
@@ -694,6 +724,74 @@ export type LessonUpdateManyWithWhereWithoutQuizInput = {
   data: Prisma.XOR<Prisma.LessonUpdateManyMutationInput, Prisma.LessonUncheckedUpdateManyWithoutQuizInput>
 }
 
+export type LessonCreateWithoutNotesInput = {
+  id?: string
+  title: string
+  contentType: string
+  content?: string | null
+  duration?: number | null
+  order: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  module: Prisma.ModuleCreateNestedOneWithoutLessonsInput
+  quiz?: Prisma.QuizCreateNestedOneWithoutLessonsInput
+}
+
+export type LessonUncheckedCreateWithoutNotesInput = {
+  id?: string
+  title: string
+  contentType: string
+  content?: string | null
+  duration?: number | null
+  order: number
+  moduleId: string
+  quizId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type LessonCreateOrConnectWithoutNotesInput = {
+  where: Prisma.LessonWhereUniqueInput
+  create: Prisma.XOR<Prisma.LessonCreateWithoutNotesInput, Prisma.LessonUncheckedCreateWithoutNotesInput>
+}
+
+export type LessonUpsertWithoutNotesInput = {
+  update: Prisma.XOR<Prisma.LessonUpdateWithoutNotesInput, Prisma.LessonUncheckedUpdateWithoutNotesInput>
+  create: Prisma.XOR<Prisma.LessonCreateWithoutNotesInput, Prisma.LessonUncheckedCreateWithoutNotesInput>
+  where?: Prisma.LessonWhereInput
+}
+
+export type LessonUpdateToOneWithWhereWithoutNotesInput = {
+  where?: Prisma.LessonWhereInput
+  data: Prisma.XOR<Prisma.LessonUpdateWithoutNotesInput, Prisma.LessonUncheckedUpdateWithoutNotesInput>
+}
+
+export type LessonUpdateWithoutNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput
+  quiz?: Prisma.QuizUpdateOneWithoutLessonsNestedInput
+}
+
+export type LessonUncheckedUpdateWithoutNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  contentType?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  order?: Prisma.IntFieldUpdateOperationsInput | number
+  moduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  quizId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type LessonCreateManyModuleInput = {
   id?: string
   title: string
@@ -716,6 +814,7 @@ export type LessonUpdateWithoutModuleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quiz?: Prisma.QuizUpdateOneWithoutLessonsNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateWithoutModuleInput = {
@@ -728,6 +827,7 @@ export type LessonUncheckedUpdateWithoutModuleInput = {
   quizId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateManyWithoutModuleInput = {
@@ -764,6 +864,7 @@ export type LessonUpdateWithoutQuizInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateWithoutQuizInput = {
@@ -776,6 +877,7 @@ export type LessonUncheckedUpdateWithoutQuizInput = {
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutLessonNestedInput
 }
 
 export type LessonUncheckedUpdateManyWithoutQuizInput = {
@@ -791,6 +893,35 @@ export type LessonUncheckedUpdateManyWithoutQuizInput = {
 }
 
 
+/**
+ * Count Type LessonCountOutputType
+ */
+
+export type LessonCountOutputType = {
+  notes: number
+}
+
+export type LessonCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  notes?: boolean | LessonCountOutputTypeCountNotesArgs
+}
+
+/**
+ * LessonCountOutputType without action
+ */
+export type LessonCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LessonCountOutputType
+   */
+  select?: Prisma.LessonCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LessonCountOutputType without action
+ */
+export type LessonCountOutputTypeCountNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NoteWhereInput
+}
+
 
 export type LessonSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -805,6 +936,8 @@ export type LessonSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   updatedAt?: boolean
   module?: boolean | Prisma.ModuleDefaultArgs<ExtArgs>
   quiz?: boolean | Prisma.Lesson$quizArgs<ExtArgs>
+  notes?: boolean | Prisma.Lesson$notesArgs<ExtArgs>
+  _count?: boolean | Prisma.LessonCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lesson"]>
 
 
@@ -826,6 +959,8 @@ export type LessonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type LessonInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   module?: boolean | Prisma.ModuleDefaultArgs<ExtArgs>
   quiz?: boolean | Prisma.Lesson$quizArgs<ExtArgs>
+  notes?: boolean | Prisma.Lesson$notesArgs<ExtArgs>
+  _count?: boolean | Prisma.LessonCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $LessonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -833,6 +968,7 @@ export type $LessonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     module: Prisma.$ModulePayload<ExtArgs>
     quiz: Prisma.$QuizPayload<ExtArgs> | null
+    notes: Prisma.$NotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1187,6 +1323,7 @@ export interface Prisma__LessonClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   module<T extends Prisma.ModuleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ModuleDefaultArgs<ExtArgs>>): Prisma.Prisma__ModuleClient<runtime.Types.Result.GetResult<Prisma.$ModulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   quiz<T extends Prisma.Lesson$quizArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lesson$quizArgs<ExtArgs>>): Prisma.Prisma__QuizClient<runtime.Types.Result.GetResult<Prisma.$QuizPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  notes<T extends Prisma.Lesson$notesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lesson$notesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1585,6 +1722,30 @@ export type Lesson$quizArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.QuizInclude<ExtArgs> | null
   where?: Prisma.QuizWhereInput
+}
+
+/**
+ * Lesson.notes
+ */
+export type Lesson$notesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Note
+   */
+  select?: Prisma.NoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Note
+   */
+  omit?: Prisma.NoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NoteInclude<ExtArgs> | null
+  where?: Prisma.NoteWhereInput
+  orderBy?: Prisma.NoteOrderByWithRelationInput | Prisma.NoteOrderByWithRelationInput[]
+  cursor?: Prisma.NoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NoteScalarFieldEnum | Prisma.NoteScalarFieldEnum[]
 }
 
 /**

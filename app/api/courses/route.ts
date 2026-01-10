@@ -17,6 +17,11 @@ export async function GET(req: Request) {
                         lessons: true,
                     },
                 },
+                _count: {
+                    select: {
+                        enrollments: true,
+                    }
+                }
             },
             orderBy: {
                 createdAt: "desc",

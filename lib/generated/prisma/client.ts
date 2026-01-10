@@ -89,3 +89,13 @@ export type QuizAssignment = Prisma.QuizAssignmentModel
  * 
  */
 export type File = Prisma.FileModel
+/**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel
+/**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel
