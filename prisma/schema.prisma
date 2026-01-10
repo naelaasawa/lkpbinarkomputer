@@ -19,6 +19,7 @@ model User {
   quizAssignments QuizAssignment[]
   reviews     Review[]
   notes       Note[]
+  progress    UserProgress[]
 }
 
 model Category {
@@ -87,6 +88,7 @@ model Lesson {
   module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quiz        Quiz?    @relation(fields: [quizId], references: [id])
   notes       Note[]
+  userProgress UserProgress[]
 
   @@index([moduleId], map: "Lesson_moduleId_fkey")
   @@index([quizId], map: "Lesson_quizId_fkey")
@@ -204,5 +206,20 @@ model Note {
   @@index([userId])
   @@index([lessonId])
   @@unique([userId, lessonId])
+}
+
+model UserProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  lessonId    String
+  isCompleted Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
 }
 

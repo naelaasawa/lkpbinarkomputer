@@ -178,6 +178,7 @@ export default function BasicInfoStep({
                                     src={data.imageUrl}
                                     alt="Thumbnail"
                                     className="w-full h-full object-cover"
+                                    onError={() => onChange({ ...data, imageUrl: "" })}
                                 />
                                 {/* Success indicator */}
                                 <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">

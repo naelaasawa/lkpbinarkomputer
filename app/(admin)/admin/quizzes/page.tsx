@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Search, Edit, Trash2, FileQuestion, Share2, Wand2, X, HelpCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, FileQuestion, Share2, Wand2, X, HelpCircle, Upload, Loader2 } from "lucide-react";
 import ShareQuizModal from "@/components/admin/ShareQuizModal";
 import { useRouter } from "next/navigation";
 
@@ -80,62 +80,164 @@ export default function QuizzesPage() {
         const newQuestions: any[] = [];
         let currentQ: any = null;
 
-        const optionRegex = /^[A-Ea-e][\.\)]\s+(.*)/;
-        const answerRegex = /^(ANSWER|JAWABAN):\s*([A-Ea-e])/i;
+        const optionRegex = /^([A-Ea-e])[\.\)]\s+(.*)/; // Matches "A. Content"
+        // Also match "True" or "False" as options if they appear on their own line? 
+        // Or just let user type them. Let's strictly look for A-E for standard MC, 
+        // but if we see "True" or "False" on a line by itself, treat as option?
+
+        const answerRegex = /^(?:ANSWER|JAWABAN):\s*(.*)/i; // Capture full text
         const questionNumberRegex = /^\d+[\.\)]\s+(.*)/;
+
+        const finalizeQuestion = (q: any) => {
+            if (!q) return;
+
+            // Type Inference
+            if (q.options.length === 0) {
+                // No options -> Short Answer or Essay
+                // If answer provided, Short Answer.
+                q.type = "short_answer";
+            } else {
+                // Has options
+                // Check if options look like True/False
+                const lowerOpts = q.options.map((o: string) => o.toLowerCase());
+                if (lowerOpts.includes('true') || lowerOpts.includes('false') || lowerOpts.includes('benar') || lowerOpts.includes('salah')) {
+                    q.type = "true_false";
+                } else {
+                    q.type = "multiple_choice";
+                }
+            }
+
+            // Map Answer Text to Option Key (A, B, C...) or keep as text
+            if (q.rawAnswer) {
+                const ans = q.rawAnswer.trim();
+
+                // 1. Check if single letter A-E
+                if (/^[A-E]$/i.test(ans)) {
+                    // Convert A -> Option Index -> Text
+                    const idx = ans.toUpperCase().charCodeAt(0) - 65;
+                    if (q.options[idx]) q.correctAnswer = q.options[idx];
+                }
+                // 2. Check if Answer matches an option text exactly
+                else {
+                    const match = q.options.find((o: string) => o.toLowerCase() === ans.toLowerCase());
+                    if (match) q.correctAnswer = match;
+                    else q.correctAnswer = ans; // Fallback for short answer
+                }
+            }
+
+            // Validations
+            if (q.question) {
+                newQuestions.push({
+                    type: q.type || "multiple_choice",
+                    question: q.question,
+                    options: q.options,
+                    correctAnswer: q.correctAnswer || "",
+                    explanation: "",
+                    score: 1,
+                    order: newQuestions.length
+                });
+            }
+        };
 
         lines.forEach(line => {
             const trimmed = line.trim();
             if (!trimmed) return;
 
+            // 1. Check for Answer line
             const answerMatch = trimmed.match(answerRegex);
-            if (answerMatch && currentQ) {
-                const answerIndex = answerMatch[2].toUpperCase().charCodeAt(0) - 65;
-                if (currentQ.options && currentQ.options[answerIndex]) {
-                    currentQ.correctAnswer = currentQ.options[answerIndex];
+            if (answerMatch) {
+                if (currentQ) {
+                    currentQ.rawAnswer = answerMatch[1];
+                    finalizeQuestion(currentQ);
+                    currentQ = null;
                 }
-                if (currentQ.question && currentQ.correctAnswer) {
-                    newQuestions.push({
-                        type: "multiple_choice",
-                        question: currentQ.question,
-                        options: currentQ.options || [],
-                        correctAnswer: currentQ.correctAnswer,
-                        explanation: "",
-                        score: 1,
-                        order: newQuestions.length // will adjust later
-                    });
-                }
-                currentQ = null;
                 return;
             }
 
+            // 2. Check for Option (A. ...)
             const optionMatch = trimmed.match(optionRegex);
-            if (optionMatch && currentQ) {
-                if (!currentQ.options) currentQ.options = [];
-                currentQ.options.push(optionMatch[1]);
+            if (optionMatch) {
+                if (currentQ) {
+                    // Add option
+                    currentQ.options.push(optionMatch[2]);
+                }
                 return;
             }
 
+            // 2b. Check for Special Options (True/False) without A./B. prefix
+            // If the line is exactly "True", "False", "Benar", "Salah"
+            const lowerLine = trimmed.toLowerCase();
+            if (["true", "false", "benar", "salah"].includes(lowerLine)) {
+                if (currentQ) currentQ.options.push(trimmed);
+                return;
+            }
+
+            // 3. New Question Start (1. ...)
             const qMatch = trimmed.match(questionNumberRegex);
             if (qMatch) {
+                // If previous exists, finalize it (case where no answer line provided)
+                if (currentQ) finalizeQuestion(currentQ);
+
                 currentQ = {
                     question: qMatch[1],
                     options: [],
-                    type: "multiple_choice"
                 };
-            } else if (!currentQ) {
-                currentQ = {
-                    question: trimmed,
-                    options: [],
-                    type: "multiple_choice"
-                };
-            } else {
-                if (!optionMatch && !answerMatch) {
-                    currentQ.question += " " + trimmed;
+            }
+            // 4. Continuation or Unnumbered Question
+            else {
+                if (!currentQ && trimmed.length > 0) {
+                    // Maybe start of question without number?
+                    currentQ = {
+                        question: trimmed,
+                        options: [],
+                    };
+                } else if (currentQ) {
+                    // Append to question text if no options yet
+                    // If options exist, we can't easily append to question, likely broken format
+                    // But assume multiline question
+                    if (currentQ.options.length === 0) {
+                        currentQ.question += " " + trimmed;
+                    }
                 }
             }
         });
+
+        // Finalize last
+        if (currentQ) finalizeQuestion(currentQ);
+
         return newQuestions;
+    };
+
+    const handleImportDocx = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setBulkLoading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/api/utils/parse-docx", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.text) {
+                    setBulkText((prev) => (prev ? prev + "\n\n" + data.text : data.text));
+                    alert("Import successful! Please review the text format.");
+                }
+            } else {
+                alert("Failed to import document");
+            }
+        } catch (error) {
+            console.error("Import error", error);
+            alert("Error importing document");
+        } finally {
+            setBulkLoading(false);
+            e.target.value = ""; // Reset input
+        }
     };
 
     const handleBulkCreate = async () => {
@@ -383,14 +485,52 @@ export default function QuizzesPage() {
                             <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-lg text-sm text-indigo-800">
                                 <h4 className="font-bold flex items-center gap-2 mb-2">
                                     <HelpCircle size={16} />
-                                    Format Guide
+                                    Format Examples
                                 </h4>
-                                <pre className="bg-white/50 p-3 rounded border border-indigo-100 font-mono text-xs">
-                                    {`1. Question Text
-A. Option A
-B. Option B
-ANSWER: A`}
-                                </pre>
+                                <div className="text-xs space-y-4">
+                                    <div>
+                                        <p className="font-bold mb-1">1. Multiple Choice (Auto-detect A/B/C)</p>
+                                        <pre className="bg-white/50 p-2 rounded border border-indigo-100 font-mono">
+                                            {`1. Capital of France?
+A. London
+B. Paris
+ANSWER: B (or ANSWER: Paris)`}
+                                        </pre>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold mb-1">2. True/False</p>
+                                        <pre className="bg-white/50 p-2 rounded border border-indigo-100 font-mono">
+                                            {`2. The earth is flat.
+True
+False
+ANSWER: False`}
+                                        </pre>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold mb-1">3. Short Answer (No Options)</p>
+                                        <pre className="bg-white/50 p-2 rounded border border-indigo-100 font-mono">
+                                            {`3. What is 2 + 2?
+ANSWER: 4`}
+                                        </pre>
+                                    </div>
+                                </div>
+                                <p className="mt-2 text-xs italic text-indigo-600">
+                                    "ANSWER:" is optional if you just want to generate structure.
+                                </p>
+                            </div>
+
+                            <div className="flex justify-end mb-2">
+                                <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-medium">
+                                    {bulkLoading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                                    Import from Word (.docx)
+                                    <input
+                                        type="file"
+                                        accept=".docx"
+                                        className="hidden"
+                                        onChange={handleImportDocx}
+                                        disabled={bulkLoading}
+                                    />
+                                </label>
                             </div>
 
                             <textarea

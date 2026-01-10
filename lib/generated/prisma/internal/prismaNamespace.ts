@@ -395,7 +395,8 @@ export const ModelName = {
   QuizAssignment: 'QuizAssignment',
   File: 'File',
   Review: 'Review',
-  Note: 'Note'
+  Note: 'Note',
+  UserProgress: 'UserProgress'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "category" | "course" | "module" | "lesson" | "quiz" | "question" | "enrollment" | "quizAssignment" | "file" | "review" | "note"
+    modelProps: "user" | "category" | "course" | "module" | "lesson" | "quiz" | "question" | "enrollment" | "quizAssignment" | "file" | "review" | "note" | "userProgress"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1207,6 +1208,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserProgress: {
+      payload: Prisma.$UserProgressPayload<ExtArgs>
+      fields: Prisma.UserProgressFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserProgressFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserProgressFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>
+        }
+        findFirst: {
+          args: Prisma.UserProgressFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserProgressFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>
+        }
+        findMany: {
+          args: Prisma.UserProgressFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>[]
+        }
+        create: {
+          args: Prisma.UserProgressCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>
+        }
+        createMany: {
+          args: Prisma.UserProgressCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.UserProgressDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>
+        }
+        update: {
+          args: Prisma.UserProgressUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserProgressDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserProgressUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.UserProgressUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserProgressPayload>
+        }
+        aggregate: {
+          args: Prisma.UserProgressAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserProgress>
+        }
+        groupBy: {
+          args: Prisma.UserProgressGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserProgressGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserProgressCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserProgressCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1427,6 +1494,18 @@ export const NoteScalarFieldEnum = {
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
 
 
+export const UserProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  lessonId: 'lessonId',
+  isCompleted: 'isCompleted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserProgressScalarFieldEnum = (typeof UserProgressScalarFieldEnum)[keyof typeof UserProgressScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1586,6 +1665,15 @@ export const NoteOrderByRelevanceFieldEnum = {
 export type NoteOrderByRelevanceFieldEnum = (typeof NoteOrderByRelevanceFieldEnum)[keyof typeof NoteOrderByRelevanceFieldEnum]
 
 
+export const UserProgressOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  lessonId: 'lessonId'
+} as const
+
+export type UserProgressOrderByRelevanceFieldEnum = (typeof UserProgressOrderByRelevanceFieldEnum)[keyof typeof UserProgressOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -1740,6 +1828,7 @@ export type GlobalOmitConfig = {
   file?: Prisma.FileOmit
   review?: Prisma.ReviewOmit
   note?: Prisma.NoteOmit
+  userProgress?: Prisma.UserProgressOmit
 }
 
 /* Types for Logging */

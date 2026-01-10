@@ -175,8 +175,8 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
                     lessons: m.lessons ? m.lessons.map((l: any) => ({
                         id: l.id,
                         title: l.title,
-                        contentType: l.type || "video",
-                        content: l.contentUrl || "",
+                        contentType: l.contentType || l.type || "video",
+                        content: l.content || l.contentUrl || l.quizId || "",
                         order: l.order,
                     })) : [],
                 })));
@@ -247,8 +247,13 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
             });
 
             if (res.ok) {
+                const data = await res.json();
                 addToast({ type: "success", title: "Draft tersimpan!" });
                 setHasChanges(false);
+
+                if (mode === "create" && data.id) {
+                    router.push(`/admin/courses/${data.id}/edit`);
+                }
             } else {
                 addToast({ type: "error", title: "Gagal menyimpan draft" });
             }
@@ -435,7 +440,11 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
                         <CurriculumStep modules={modules} setModules={setModules} />
                     )}
                     {currentStep === 4 && (
-                        <ContentStep modules={modules} updateModuleLesson={updateModuleLesson} />
+                        <ContentStep
+                            modules={modules}
+                            updateModuleLesson={updateModuleLesson}
+                            courseId={initialData?.id}
+                        />
                     )}
                     {currentStep === 5 && (
                         <AssessmentStep modules={modules} updateModuleLesson={updateModuleLesson} />

@@ -29,8 +29,17 @@ export async function POST(req: NextRequest) {
         else if (mimeType.startsWith("video/")) fileType = "video";
         else if (mimeType === "application/pdf") fileType = "pdf";
 
+        // Generate relative path for DB/Client
+        let uploadSubPath = "uploads";
+
+        // Check for courseId to categorize uploads
+        const courseId = formData.get("courseId") as string;
+        if (courseId) {
+            uploadSubPath = path.join("uploads", "materials", "courses", courseId);
+        }
+
         // Ensure uploads directory exists
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        const uploadDir = path.join(process.cwd(), "public", uploadSubPath);
         if (!existsSync(uploadDir)) {
             await mkdir(uploadDir, { recursive: true });
         }
@@ -40,6 +49,8 @@ export async function POST(req: NextRequest) {
         const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
         const filename = `${timestamp}_${sanitizedName}`;
         const filepath = path.join(uploadDir, filename);
+
+
 
         // Save file to local storage
         await writeFile(filepath, buffer);
@@ -58,7 +69,7 @@ export async function POST(req: NextRequest) {
             };
         }
 
-        const fileUrl = `/uploads/${filename}`;
+        const fileUrl = `/${uploadSubPath}/${filename}`;
 
         // Return the file info
         return NextResponse.json({

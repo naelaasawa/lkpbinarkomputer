@@ -272,40 +272,49 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         popularCourses.map((course: any) => (
-                            <div
+                            <Link
+                                href={`/courses/${course.id}`}
                                 key={course.id}
-                                className="min-w-[240px] bg-white rounded-xl p-3 shadow-md border border-gray-50 flex flex-col gap-3 hover:shadow-lg transition-shadow"
+                                className="min-w-[240px] bg-white rounded-xl p-3 shadow-md border border-gray-50 flex flex-col gap-3 hover:shadow-lg transition-all group"
                             >
-                                <div className="h-28 md:h-40 bg-gray-200 rounded-lg relative overflow-hidden group">
-                                    <div className="absolute inset-0 bg-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-slate-300 transition-colors">
-                                        <Monitor size={32} className="md:w-10 md:h-10" />
-                                    </div>
+                                <div className="h-32 md:h-40 bg-gray-200 rounded-lg relative overflow-hidden">
+                                    {course.imageUrl ? (
+                                        <img
+                                            src={course.imageUrl.startsWith("http") || course.imageUrl.startsWith("/") ? course.imageUrl : `/${course.imageUrl}`}
+                                            alt={course.title}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-slate-300 transition-colors">
+                                            <Monitor size={32} className="md:w-10 md:h-10" />
+                                        </div>
+                                    )}
                                     <div className="absolute top-2 right-2 bg-white px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-700 shadow-sm flex items-center gap-1">
-                                        <Star size={10} className="fill-yellow-400 text-yellow-400" /> 4.8
+                                        <Star size={10} className="fill-yellow-400 text-yellow-400" /> {course.rating || "4.8"}
                                     </div>
                                 </div>
                                 <div>
-                                    <span className={`text-[10px] font-semibold px-2 py-1 rounded ${course.category.color}`}>
-                                        {course.category.name}
+                                    <span className={`text-[10px] font-semibold px-2 py-1 rounded ${course.category?.color || 'bg-blue-100 text-blue-700'}`}>
+                                        {course.category?.name || 'Course'}
                                     </span>
-                                    <h4 className="text-sm md:text-base font-bold text-slate-800 mt-2 line-clamp-2">
+                                    <h4 className="text-sm md:text-base font-bold text-slate-800 mt-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                                         {course.title}
                                     </h4>
                                     <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                                        <span>24 Lessons</span>
+                                        <span>{course._count?.lessons || 24} Lessons</span>
                                         <span>•</span>
                                         <span>{course.level}</span>
                                     </div>
                                     <div className="flex items-center justify-between mt-3">
                                         <span className="text-blue-600 font-bold md:text-lg">
-                                            Rp {Number(course.price).toLocaleString()}
+                                            {Number(course.price) === 0 ? "Free" : `Rp ${Number(course.price).toLocaleString()}`}
                                         </span>
                                         <button className="p-1.5 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition-colors">
                                             <ChevronRight size={14} className="md:w-5 md:h-5" />
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))
                     )}
                 </div>

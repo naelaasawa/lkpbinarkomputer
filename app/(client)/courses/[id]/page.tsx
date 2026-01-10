@@ -15,10 +15,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
     const [loading, setLoading] = useState(true);
     const [expandedModules, setExpandedModules] = useState<string[]>([]);
     const [enrolling, setEnrolling] = useState(false);
+    const [isEnrolled, setIsEnrolled] = useState(false);
 
     useEffect(() => {
         const fetchCourse = async () => {
             try {
+                // Fetch course details
                 const res = await fetch(`/api/courses/${id}`);
                 if (res.ok) {
                     const data = await res.json();
@@ -26,6 +28,18 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     // Expand all modules by default
                     if (data.modules) {
                         setExpandedModules(data.modules.map((m: any) => m.id));
+                    }
+                }
+
+                // Check enrollment status if user is logged in
+                if (user) {
+                    const enrollRes = await fetch("/api/my-enrollments");
+                    if (enrollRes.ok) {
+                        const enrollments = await enrollRes.json();
+                        const found = enrollments.find((e: any) => e.courseId === id);
+                        if (found) {
+                            setIsEnrolled(true);
+                        }
                     }
                 }
             } catch (error) {
@@ -36,7 +50,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         };
 
         fetchCourse();
-    }, [id]);
+    }, [id, user]);
 
     const toggleModule = (moduleId: string) => {
         setExpandedModules(prev =>
@@ -166,22 +180,40 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                             <div className="mb-6">
                                 <div className="flex items-end gap-2 mb-2">
                                     <span className="text-3xl font-bold text-slate-900">
-                                        {course.price === 0 ? "Free" : `Rp ${Number(course.price).toLocaleString("id-ID")}`}
+                                        {isEnrolled ? (
+                                            <span className="text-emerald-600 text-2xl">Sudah Terdaftar</span>
+                                        ) : (
+                                            course.price === 0 ? "Free" : `Rp ${Number(course.price).toLocaleString("id-ID")}`
+                                        )}
                                     </span>
-                                    {course.price > 0 && (
+                                    {!isEnrolled && course.price > 0 && (
                                         <span className="text-slate-500 line-through text-lg mb-1">
                                             Rp {Number(course.price * 1.5).toLocaleString("id-ID")}
                                         </span>
                                     )}
                                 </div>
-                                <button
-                                    onClick={handleEnroll}
-                                    disabled={enrolling}
-                                    className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    {enrolling ? "Enrolling..." : (course.price === 0 ? "Enroll Now" : "Buy Course")}
-                                </button>
-                                <p className="text-center text-xs text-slate-400 mt-3">30-Day Money-Back Guarantee</p>
+
+                                {isEnrolled ? (
+                                    <Link
+                                        href={`/courses/${id}/learn`}
+                                        className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition shadow-lg shadow-slate-200 active:scale-95 group"
+                                    >
+                                        Lanjut Belajar
+                                        <ChevronDown className="rotate-[-90deg] group-hover:translate-x-1 transition-transform" size={18} />
+                                    </Link>
+                                ) : (
+                                    <button
+                                        onClick={handleEnroll}
+                                        disabled={enrolling}
+                                        className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    >
+                                        {enrolling ? "Enrolling..." : (course.price === 0 ? "Enroll Now" : "Buy Course")}
+                                    </button>
+                                )}
+
+                                <p className="text-center text-xs text-slate-400 mt-3">
+                                    {isEnrolled ? "You have lifetime access to this course." : "30-Day Money-Back Guarantee"}
+                                </p>
                             </div>
 
                             <div className="space-y-4 text-sm text-slate-600">

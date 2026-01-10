@@ -69,6 +69,7 @@ export async function POST(req: Request) {
             certificateEnabled,
             modules,
             price,
+            imageUrl,
         } = body;
 
         if (!title || !categoryId) {
@@ -104,13 +105,15 @@ export async function POST(req: Request) {
                             create: module.lessons?.map((lesson: any) => ({
                                 title: lesson.title,
                                 contentType: lesson.contentType,
-                                content: lesson.content,
+                                content: lesson.contentType === "quiz" ? null : lesson.content,
+                                quizId: lesson.contentType === "quiz" ? lesson.content : null,
                                 duration: lesson.duration,
                                 order: lesson.order,
                             })) || [],
                         },
                     })) || [],
                 },
+                imageUrl,
             },
             include: {
                 modules: {

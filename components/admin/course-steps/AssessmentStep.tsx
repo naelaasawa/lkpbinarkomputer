@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HelpCircle, Link as LinkIcon, Search, Check, ExternalLink } from "lucide-react";
+import { HelpCircle, Link as LinkIcon, Search, Check, ExternalLink, Upload, Loader2, Plus } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 
@@ -59,6 +59,178 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
     const openQuizSelector = (moduleIdx: number, lessonIdx: number) => {
         setSelectedTarget({ moduleIdx, lessonIdx });
         setShowQuizModal(true);
+    };
+
+    const parseDocxQuestions = (text: string) => {
+        if (!text.trim()) return [];
+
+        // Normalize text: ensure newlines before question numbers if missing
+        // This helps if everything is one giant blob
+        let cleanText = text.replace(/(\r\n|\n|\r)/gm, "\n");
+
+        // Split by "Answer:" to get chunks, but this might be risky if Answer is missing.
+        // Better strategy: Split by Question Number `\n\d+\.` or `^\d+\.`
+
+        const questionBlocks: string[] = [];
+        const lines = cleanText.split('\n');
+        let currentBlock = "";
+
+        lines.forEach(line => {
+            if (/^\d+\./.test(line.trim())) {
+                if (currentBlock) questionBlocks.push(currentBlock);
+                currentBlock = line;
+            } else {
+                currentBlock += "\n" + line;
+            }
+        });
+        if (currentBlock) questionBlocks.push(currentBlock);
+
+        const newQuestions: any[] = [];
+
+        questionBlocks.forEach((block, index) => {
+            // Extract Answer
+            const answerMatch = block.match(/(?:Answer|JAWABAN):\s*([A-E])/i);
+            const correctAnswerChar = answerMatch ? answerMatch[1].toUpperCase() : null;
+
+            // Remove Answer line from block to process Question + Options
+            let content = block.replace(/(?:Answer|JAWABAN):\s*([A-E])[\s\S]*/i, "").trim();
+
+            // Basic strategy: Find where "A." starts. 
+            // Note: This assumes A. appears once as the start of options. 
+            // If "A." appears in question text, this breaks. 
+            // We'll rely on the format "A. " (A dot space).
+
+            const optionsStartIndex = content.search(/\bA\.\s/);
+
+            if (optionsStartIndex === -1) return; // No options found
+
+            const questionText = content.substring(0, optionsStartIndex).replace(/^\d+\.\s*/, "").trim();
+            const optionsText = content.substring(optionsStartIndex);
+
+            // Split options: "A. Option A B. Option B..."
+            // We can use a regex to match " X. "
+            const options: string[] = [];
+
+            // We need to split by " A. ", " B. ", " C. ", " D. ", " E. "
+            // Use a capturing group approach or split.
+            // Let's use a simple state machine or specific regex replace to parse
+
+            let currentOptionChar = 'A';
+            let remainingOptions = optionsText;
+
+            while (true) {
+                const nextChar = String.fromCharCode(currentOptionChar.charCodeAt(0) + 1);
+                const currentMarker = `${currentOptionChar}.`;
+                const nextMarker = `${nextChar}.`;
+
+                const startIdx = remainingOptions.indexOf(currentMarker);
+                if (startIdx === -1) break; // Should not happen for first one
+
+                const nextIdx = remainingOptions.indexOf(nextMarker);
+
+                let optionContent = "";
+                if (nextIdx !== -1) {
+                    optionContent = remainingOptions.substring(startIdx + currentMarker.length, nextIdx).trim();
+                    // Advance
+                    currentOptionChar = nextChar; // Go to B
+                } else {
+                    // Last option (e.g. D or E)
+                    optionContent = remainingOptions.substring(startIdx + currentMarker.length).trim();
+                    if (optionContent) options.push(optionContent);
+                    break;
+                }
+
+                if (optionContent) options.push(optionContent);
+            }
+
+            if (questionText && options.length > 0 && correctAnswerChar) {
+                // Map char 'A' -> option string
+                const correctIndex = correctAnswerChar.charCodeAt(0) - 65;
+                const correctOptionString = options[correctIndex];
+
+                if (correctOptionString) {
+                    newQuestions.push({
+                        type: "multiple_choice",
+                        question: questionText,
+                        options: options,
+                        correctAnswer: correctOptionString,
+                        explanation: "",
+                        score: 1,
+                        order: index
+                    });
+                }
+            }
+        });
+
+        return newQuestions;
+    };
+
+    const handleCreateFromDocx = async (e: React.ChangeEvent<HTMLInputElement>, moduleIdx: number, lessonIdx: number) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setLoading(true); // Reuse loading or add precise state
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            // 1. Upload & Parse
+            const parseRes = await fetch("/api/utils/parse-docx", { method: "POST", body: formData });
+            if (!parseRes.ok) throw new Error("Failed to parse docx");
+            const parseData = await parseRes.json();
+
+            // 2. Extract Questions
+            const questions = parseDocxQuestions(parseData.text);
+            if (questions.length === 0) {
+                alert("Could not find valid questions. Please check format.");
+                return;
+            }
+
+            // 3. Extract Title (From "Materi: ..." or default)
+            let quizTitle = "New Quiz from Docx";
+            const titleMatch = parseData.text.match(/Materi:\s*(.*)/i);
+            if (titleMatch) quizTitle = "Kuis: " + titleMatch[1].trim();
+            else if (file.name) quizTitle = "Kuis: " + file.name.replace(".docx", "");
+
+            // 4. Create Quiz
+            const quizRes = await fetch("/api/quizzes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: quizTitle,
+                    description: "Auto-generated from " + file.name,
+                    type: "practice",
+                    status: "active", // Make active immediately for use
+                    passingScore: 70
+                }),
+            });
+            if (!quizRes.ok) throw new Error("Failed to create quiz");
+            const quiz = await quizRes.json();
+
+            // 5. Add Questions
+            for (const [index, q] of questions.entries()) {
+                await fetch(`/api/quizzes/${quiz.id}/questions`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ...q, order: index }),
+                });
+            }
+
+            // 6. Link to Lesson
+            updateModuleLesson(moduleIdx, lessonIdx, "content", quiz.id);
+            alert(`Berhasil membuat kuis "${quizTitle}" dengan ${questions.length} soal!`);
+
+            // Refresh list helps if we open modal later
+            // We can manually add to local state too
+            setQuizzes(prev => [quiz, ...prev]);
+
+        } catch (error) {
+            console.error(error);
+            alert("Terjadi kesalahan saat memproses file.");
+        } finally {
+            setLoading(false);
+            e.target.value = "";
+        }
     };
 
     const selectQuiz = (quizId: string) => {
@@ -143,13 +315,38 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
                                         </button>
                                     </div>
                                 ) : (
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        onClick={() => openQuizSelector(lesson.moduleIdx, lesson.lessonIdx)}
-                                    >
-                                        Pilih Kuis
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                openQuizSelector(lesson.moduleIdx, lesson.lessonIdx);
+                                            }}
+                                        >
+                                            Pilih Kuis
+                                        </Button>
+                                        <div className="relative">
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                icon={<Upload size={14} />}
+                                                onClick={() => {
+                                                    document.getElementById(`upload-quiz-${lesson.id}`)?.click();
+                                                }}
+                                            >
+                                                Buat dari Docx
+                                            </Button>
+                                            <input
+                                                id={`upload-quiz-${lesson.id}`}
+                                                type="file"
+                                                accept=".docx"
+                                                className="hidden"
+                                                onChange={(e) => handleCreateFromDocx(e, lesson.moduleIdx, lesson.lessonIdx)}
+                                            />
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         );

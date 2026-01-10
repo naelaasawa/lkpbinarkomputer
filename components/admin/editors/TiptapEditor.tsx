@@ -6,6 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import Highlight from "@tiptap/extension-highlight";
+import Image from "@tiptap/extension-image";
 import {
     Bold,
     Italic,
@@ -21,18 +22,21 @@ import {
     Highlighter,
     Undo,
     Redo,
+    Image as ImageIcon,
 } from "lucide-react";
 
 interface TiptapEditorProps {
     content: string;
     onChange: (content: string) => void;
     placeholder?: string;
+    courseId?: string;
 }
 
 export default function TiptapEditor({
     content,
     onChange,
     placeholder = "Tulis deskripsi kursus Anda di sini...",
+    courseId,
 }: TiptapEditorProps) {
     const editor = useEditor({
         extensions: [
@@ -56,6 +60,11 @@ export default function TiptapEditor({
                     class: "bg-yellow-200 rounded px-1",
                 },
             }),
+            Image.configure({
+                HTMLAttributes: {
+                    class: "rounded-xl shadow-md max-w-full mx-auto my-4",
+                },
+            }),
         ],
         content,
         immediatelyRender: false, // Fix SSR hydration mismatch
@@ -76,6 +85,43 @@ export default function TiptapEditor({
         if (url) {
             editor.chain().focus().setLink({ href: url }).run();
         }
+    };
+
+    const addImage = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = async (event) => {
+            const file = (event.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                if (courseId) {
+                    formData.append('courseId', courseId);
+                }
+
+                try {
+                    const res = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        const url = data.file?.url || data.url;
+                        if (url) {
+                            editor.chain().focus().setImage({ src: url }).run();
+                        }
+                    } else {
+                        alert("Failed to upload image");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Error uploading image");
+                }
+            }
+        };
+        input.click();
     };
 
     const ToolbarButton = ({
@@ -203,6 +249,10 @@ export default function TiptapEditor({
 
                 <ToolbarButton onClick={addLink} isActive={editor.isActive("link")} title="Add Link">
                     <LinkIcon size={18} />
+                </ToolbarButton>
+                <div className="w-px h-6 bg-slate-200 mx-1" />
+                <ToolbarButton onClick={addImage} title="Add Image">
+                    <ImageIcon size={18} />
                 </ToolbarButton>
             </div>
 

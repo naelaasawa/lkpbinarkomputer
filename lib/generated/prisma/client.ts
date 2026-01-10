@@ -99,3 +99,8 @@ export type Review = Prisma.ReviewModel
  * 
  */
 export type Note = Prisma.NoteModel
+/**
+ * Model UserProgress
+ * 
+ */
+export type UserProgress = Prisma.UserProgressModel

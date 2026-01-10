@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { ChevronLeft, PlayCircle, FileText, CheckCircle, Menu, X, Check, ChevronDown, ChevronUp, Star, MessageCircle, Share2, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, PlayCircle, FileText, CheckCircle, Menu, X, Check, ChevronDown, ChevronUp, Star, MessageCircle, Share2, Trophy, Maximize, Minimize } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/components/ui/Loading";
 
@@ -58,6 +58,7 @@ export default function CoursePlayer({ id }: { id: string }) {
     const [activeTab, setActiveTab] = useState("overview");
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
     const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+    const [isFocusMode, setIsFocusMode] = useState(false);
 
     // Notes State
     const [noteContent, setNoteContent] = useState("");
@@ -68,6 +69,71 @@ export default function CoursePlayer({ id }: { id: string }) {
     const [userRating, setUserRating] = useState(0);
     const [userReviewComment, setUserReviewComment] = useState("");
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    // Refs
+    const mainContentRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to top when lesson changes
+    useEffect(() => {
+        if (mainContentRef.current) {
+            mainContentRef.current.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    }, [activeLesson]);
+
+    // Lesson Completion Logic
+    const markLessonComplete = async (lessonId: string) => {
+        // Safe check for course existence (though logic implies it exists if we are here)
+        if (!course) return;
+
+        if (completedLessons.has(lessonId)) return;
+
+        // Optimistic update
+        setCompletedLessons(prev => new Set(prev).add(lessonId));
+
+        try {
+            const res = await fetch(`/api/courses/${course.id}/lessons/${lessonId}/progress`, {
+                method: "POST"
+            });
+            if (!res.ok) throw new Error("API Error");
+        } catch (error) {
+            console.error("Failed to save progress", error);
+            // Revert on failure
+            setCompletedLessons(prev => {
+                const next = new Set(prev);
+                next.delete(lessonId);
+                return next;
+            });
+        }
+    };
+
+    // Load initial progress
+    useEffect(() => {
+        if (!course) return;
+        const fetchProgress = async () => {
+            try {
+                const res = await fetch(`/api/courses/${course.id}/progress`);
+                if (res.ok) {
+                    const completedIds = await res.json();
+                    setCompletedLessons(new Set(completedIds));
+                }
+            } catch (error) {
+                console.error("Failed to load progress", error);
+            }
+        };
+        fetchProgress();
+    }, [course]);
+
+    // Scroll Detection for Completion
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+        // Check if user is near bottom (within 100px)
+        if (scrollTop + clientHeight >= scrollHeight - 100) {
+            if (activeLesson && !completedLessons.has(activeLesson.id)) {
+                markLessonComplete(activeLesson.id);
+            }
+        }
+    };
 
     useEffect(() => {
         if (isLoaded && !user) {
@@ -229,53 +295,109 @@ export default function CoursePlayer({ id }: { id: string }) {
     // Use dynamic student count if available (mocked somewhat in stats fetch if needed, currently reliant on course._count? which might not exist on basic fetch, let's assume valid mock or future implementation)
     const studentCount = course._count?.enrollments || Math.floor(Math.random() * 500) + 100; // Mock fallback if not joined
 
+
+
+
+    // Navigation Logic
+    const handleNavigation = (direction: 'prev' | 'next') => {
+        if (!course || !activeLesson || !activeModuleId) return;
+
+        const currentModuleIndex = course.modules.findIndex(m => m.id === activeModuleId);
+        if (currentModuleIndex === -1) return;
+
+        const currentModule = course.modules[currentModuleIndex];
+        const currentLessonIndex = currentModule.lessons.findIndex(l => l.id === activeLesson.id);
+        if (currentLessonIndex === -1) return;
+
+        if (direction === 'next') {
+            if (currentLessonIndex < currentModule.lessons.length - 1) {
+                // Next lesson in same module
+                setActiveLesson(currentModule.lessons[currentLessonIndex + 1]);
+            } else if (currentModuleIndex < course.modules.length - 1) {
+                // First lesson of next module
+                const nextModule = course.modules[currentModuleIndex + 1];
+                if (nextModule.lessons.length > 0) {
+                    setActiveModuleId(nextModule.id);
+                    setActiveLesson(nextModule.lessons[0]);
+                    // Auto-expand next module
+                    setExpandedModules(prev => new Set(prev).add(nextModule.id));
+                }
+            }
+        } else {
+            if (currentLessonIndex > 0) {
+                // Previous lesson in same module
+                setActiveLesson(currentModule.lessons[currentLessonIndex - 1]);
+            } else if (currentModuleIndex > 0) {
+                // Last lesson of previous module
+                const prevModule = course.modules[currentModuleIndex - 1];
+                if (prevModule.lessons.length > 0) {
+                    setActiveModuleId(prevModule.id);
+                    setActiveLesson(prevModule.lessons[prevModule.lessons.length - 1]);
+                    // Auto-expand prev module
+                    setExpandedModules(prev => new Set(prev).add(prevModule.id));
+                }
+            }
+        }
+    };
+
+
     return (
         <div className="flex flex-col h-screen bg-white">
-            {/* Header / Navbar */}
-            <header className="h-14 bg-slate-900 text-white flex items-center justify-between px-4 shrink-0 z-40 border-b border-slate-800">
-                <div className="flex items-center gap-4">
-                    <Link href="/my-learning" className="flex items-center gap-2 text-slate-300 hover:text-white transition group">
-                        <div className="p-1 rounded bg-slate-800 group-hover:bg-slate-700">
-                            <ChevronLeft size={16} />
-                        </div>
-                        <span className="font-bold text-sm hidden md:inline">Back to courses</span>
-                    </Link>
-                    <div className="w-px h-6 bg-slate-700 mx-2 hidden md:block"></div>
-                    <h1 className="font-bold text-sm md:text-base line-clamp-1">{course.title}</h1>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:flex items-center gap-3 text-xs text-slate-300">
-                        <div className="flex flex-col items-end">
-                            <div className="flex items-center gap-1 font-bold text-white">
-                                <Trophy size={12} className="text-yellow-400" />
-                                <span>{progressPercentage}% Completed</span>
+            {/* Header / Navbar - Hidden in Focus Mode unless hovered (optional) or just hidden */}
+            {!isFocusMode && (
+                <header className="h-14 bg-slate-900 text-white flex items-center justify-between px-4 shrink-0 z-40 border-b border-slate-800">
+                    <div className="flex items-center gap-4">
+                        <Link href="/my-learning" className="flex items-center gap-2 text-slate-300 hover:text-white transition group">
+                            <div className="p-1 rounded bg-slate-800 group-hover:bg-slate-700">
+                                <ChevronLeft size={16} />
                             </div>
-                            <span className="text-[10px] text-slate-400">{completedLessons.size}/{totalLessons} Lessons</span>
-                        </div>
-                        <div className="w-32 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-                            <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${progressPercentage}%` }} />
-                        </div>
+                            <span className="font-bold text-sm hidden md:inline">Back to courses</span>
+                        </Link>
+                        <div className="w-px h-6 bg-slate-700 mx-2 hidden md:block"></div>
+                        <h1 className="font-bold text-sm md:text-base line-clamp-1">{course.title}</h1>
                     </div>
 
-                    <button
-                        className={`text-white hover:bg-slate-800 p-2 rounded-lg transition-colors ${!sidebarOpen ? 'bg-slate-800 text-blue-400' : ''}`}
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        title="Toggle Sidebar"
-                    >
-                        <Menu size={20} />
-                    </button>
-                </div>
-            </header>
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-3 text-xs text-slate-300">
+                            <div className="flex flex-col items-end">
+                                <div className="flex items-center gap-1 font-bold text-white">
+                                    <Trophy size={12} className="text-yellow-400" />
+                                    <span>{progressPercentage}% Completed</span>
+                                </div>
+                                <span className="text-[10px] text-slate-400">{completedLessons.size}/{totalLessons} Lessons</span>
+                            </div>
+                            <div className="w-32 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                                <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${progressPercentage}%` }} />
+                            </div>
+                        </div>
+
+                        <button
+                            className={`text-white hover:bg-slate-800 p-2 rounded-lg transition-colors ${!sidebarOpen ? 'bg-slate-800 text-blue-400' : ''}`}
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            title="Toggle Sidebar"
+                        >
+                            <Menu size={20} />
+                        </button>
+                    </div>
+                </header>
+            )}
+
 
             {/* Main Layout */}
             <div className="flex flex-1 overflow-hidden relative">
 
                 {/* Main Content Area */}
-                <div className="flex-1 flex flex-col overflow-y-auto bg-slate-50 relative">
+                <div
+                    className="flex-1 flex flex-col overflow-y-auto bg-slate-50 relative"
+                    id="main-content"
+                    ref={mainContentRef}
+                    onScroll={handleScroll}
+                >
 
-                    {/* Video Player Stage */}
-                    <div className="bg-black w-full shadow-lg relative aspect-video md:aspect-[21/9] lg:aspect-[16/6] xl:aspect-[21/9] 2xl:aspect-[21/8]">
+                    {/* Video Player Stage - Made Taller */}
+                    {/* Previous classes: relative shrink-0 aspect-video md:aspect-[21/9] lg:aspect-[16/7] xl:aspect-[21/9] 2xl:aspect-[21/8] */}
+                    {/* New classes: Remove the ultra-wide aspects to keep it taller (closer to 16:9 on large screens) */}
+                    <div className="bg-black w-full shadow-lg relative shrink-0 aspect-video md:aspect-[16/9] xl:aspect-[16/9]">
                         <div className="absolute inset-0 flex items-center justify-center">
                             {activeLesson ? (
                                 activeLesson.contentType === 'video' ? (
@@ -296,7 +418,10 @@ export default function CoursePlayer({ id }: { id: string }) {
                                     <div className="absolute inset-0 bg-white overflow-y-auto w-full h-full p-8 md:p-12">
                                         <div className="max-w-3xl mx-auto prose prose-slate lg:prose-lg">
                                             <h1>{activeLesson.title}</h1>
-                                            <div dangerouslySetInnerHTML={{ __html: activeLesson.content }} />
+                                            <div
+                                                className="lesson-content text-slate-700 leading-relaxed [&>p]:mb-6 [&>ul]:mb-6 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-6 [&>ol]:list-decimal [&>ol]:pl-5 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2 [&>img]:rounded-xl [&>img]:my-6 [&>img]:w-full [&>figure]:my-6"
+                                                dangerouslySetInnerHTML={{ __html: activeLesson.content }}
+                                            />
                                         </div>
                                     </div>
                                 )
@@ -317,6 +442,35 @@ export default function CoursePlayer({ id }: { id: string }) {
                                 <span>•</span>
                                 <span>{studentCount} Students Enrolled</span>
                             </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => handleNavigation('prev')}
+                                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition-colors border border-slate-200 hover:border-blue-200"
+                                title="Previous Lesson"
+                            >
+                                <ChevronLeft size={16} />
+                                <span className="hidden md:inline">Previous</span>
+                            </button>
+                            <button
+                                onClick={() => handleNavigation('next')}
+                                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition-colors border border-slate-200 hover:border-blue-200"
+                                title="Next Lesson"
+                            >
+                                <span className="hidden md:inline">Next</span>
+                                <ChevronRight size={16} />
+                            </button>
+
+                            <div className="w-px h-6 bg-slate-200 mx-2 hidden md:block"></div>
+
+                            <button
+                                onClick={() => setIsFocusMode(!isFocusMode)}
+                                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-slate-200 hover:border-blue-200"
+                            >
+                                {isFocusMode ? <Minimize size={16} /> : <Maximize size={16} />}
+                                <span className="hidden md:inline">{isFocusMode ? "Exit Focus" : "Focus Mode"}</span>
+                            </button>
                         </div>
                     </div>
 
@@ -515,8 +669,9 @@ export default function CoursePlayer({ id }: { id: string }) {
                     </div>
                 </div>
 
-                {/* Right Sidebar (Curriculum) */}
-                <div className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white border-l border-slate-200 transform transition-transform duration-300 z-50 flex flex-col md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+
+                {/* Right Sidebar (Curriculum) - Hidden in Focus Mode */}
+                <div className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white border-l border-slate-200 transform transition-transform duration-300 z-50 flex flex-col md:static md:translate-x-0 ${sidebarOpen && !isFocusMode ? 'translate-x-0' : 'translate-x-full'} ${isFocusMode ? 'hidden' : ''}`}>
                     <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white">
                         <h3 className="font-bold text-slate-900">Course Content</h3>
                         <button onClick={() => setSidebarOpen(false)} className="md:hidden p-2 hover:bg-slate-100 rounded-full text-slate-500"><X size={20} /></button>
@@ -591,6 +746,6 @@ export default function CoursePlayer({ id }: { id: string }) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

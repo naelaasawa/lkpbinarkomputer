@@ -62,7 +62,8 @@ export const ModelName = {
   QuizAssignment: 'QuizAssignment',
   File: 'File',
   Review: 'Review',
-  Note: 'Note'
+  Note: 'Note',
+  UserProgress: 'UserProgress'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -262,6 +263,18 @@ export const NoteScalarFieldEnum = {
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
 
 
+export const UserProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  lessonId: 'lessonId',
+  isCompleted: 'isCompleted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserProgressScalarFieldEnum = (typeof UserProgressScalarFieldEnum)[keyof typeof UserProgressScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -419,4 +432,13 @@ export const NoteOrderByRelevanceFieldEnum = {
 } as const
 
 export type NoteOrderByRelevanceFieldEnum = (typeof NoteOrderByRelevanceFieldEnum)[keyof typeof NoteOrderByRelevanceFieldEnum]
+
+
+export const UserProgressOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  lessonId: 'lessonId'
+} as const
+
+export type UserProgressOrderByRelevanceFieldEnum = (typeof UserProgressOrderByRelevanceFieldEnum)[keyof typeof UserProgressOrderByRelevanceFieldEnum]
 

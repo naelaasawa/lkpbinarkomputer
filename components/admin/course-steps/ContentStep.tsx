@@ -39,6 +39,7 @@ interface Module {
 interface ContentStepProps {
     modules: Module[];
     updateModuleLesson: (moduleIdx: number, lessonIdx: number, field: string, value: string) => void;
+    courseId?: string;
 }
 
 const contentTypeConfig = {
@@ -49,7 +50,7 @@ const contentTypeConfig = {
     quiz: { icon: HelpCircle, color: "from-red-500 to-pink-500", bgColor: "bg-red-50 border-red-200", label: "Kuis", description: "Hubungkan dengan quiz yang ada" },
 };
 
-export default function ContentStep({ modules, updateModuleLesson }: ContentStepProps) {
+export default function ContentStep({ modules, updateModuleLesson, courseId }: ContentStepProps) {
     const [uploadingLesson, setUploadingLesson] = useState<string | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const { addToast } = useToast();
@@ -210,6 +211,7 @@ export default function ContentStep({ modules, updateModuleLesson }: ContentStep
                                                         content={lesson.content || ""}
                                                         onChange={(content) => updateModuleLesson(moduleIdx, lessonIdx, "content", content)}
                                                         placeholder="Tulis konten pembelajaran di sini... Gunakan heading, list, bold, italic, dan lainnya..."
+                                                        courseId={courseId}
                                                     />
                                                 </div>
                                             ) : lesson.contentType === "video" ? (
