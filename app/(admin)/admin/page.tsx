@@ -2,14 +2,31 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Search, BookOpen, Eye, FileText } from "lucide-react";
+import { Plus, Trash2, Search, BookOpen, Eye, FileText, TrendingUp, Users, Book } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 import EmptyState from "@/components/ui/EmptyState";
-
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import {
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip
+} from "recharts";
+import { CreateCourseCard, RecentQuizzesWidget, RecentReviewsWidget, RecentUsersWidget, AdminListWidget } from "@/components/admin/DashboardWidgets";
 
 export default function AdminDashboard() {
     const [courses, setCourses] = useState<any[]>([]);
+
+    // Additional Data States
+    const [recentUsers, setRecentUsers] = useState<any[]>([]);
+    const [recentReviews, setRecentReviews] = useState<any[]>([]);
+    const [recentQuizzes, setRecentQuizzes] = useState<any[]>([]);
+    const [admins, setAdmins] = useState<any[]>([]);
+    const [graphData, setGraphData] = useState<any[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ courses: 0, students: 0, enrollments: 0 });
 
@@ -20,9 +37,13 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         try {
-            const [coursesRes, statsRes] = await Promise.all([
+            const [coursesRes, statsRes, usersRes, reviewsRes, quizzesRes, adminsRes] = await Promise.all([
                 fetch("/api/courses"),
-                fetch("/api/stats")
+                fetch("/api/stats"),
+                fetch("/api/admin/users"),
+                fetch("/api/admin/reviews"),
+                fetch("/api/admin/quizzes"),
+                fetch("/api/admin/admins")
             ]);
 
             if (coursesRes.ok) {
@@ -36,7 +57,15 @@ export default function AdminDashboard() {
                     students: data.studentsCount,
                     enrollments: data.enrollmentsCount
                 });
+                if (data.graphData) {
+                    setGraphData(data.graphData);
+                }
             }
+            if (usersRes.ok) setRecentUsers(await usersRes.json());
+            if (reviewsRes.ok) setRecentReviews(await reviewsRes.json());
+            if (quizzesRes.ok) setRecentQuizzes(await quizzesRes.json());
+            if (adminsRes.ok) setAdmins(await adminsRes.json());
+
         } catch (error) {
             console.error("Failed to fetch data", error);
         } finally {
@@ -81,39 +110,98 @@ export default function AdminDashboard() {
     if (loading) return <Loading />;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Course Management</h1>
-                    <p className="text-slate-500 mt-1">Manage and organize your course catalogue</p>
+                    <h1 className="text-2xl font-bold text-slate-800">Dashboard Overview</h1>
+                    <p className="text-slate-500 mt-1">Welcome back! Here's what's happening today.</p>
                 </div>
-                <Link href="/admin/courses/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition shadow-sm w-fit">
-                    <Plus size={20} />
-                    <span>Create Course</span>
-                </Link>
             </div>
 
-            {/* Stats Cards */}
+            {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="text-slate-500 text-sm font-medium">Total Courses</h3>
-                    <p className="text-3xl font-bold text-slate-800 mt-2">{stats.courses}</p>
+                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 className="text-slate-500 text-sm font-medium">Total Courses</h3>
+                        <p className="text-3xl font-bold text-slate-800 mt-2">{stats.courses}</p>
+                    </div>
+                    <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
+                        <Book size={24} />
+                    </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="text-slate-500 text-sm font-medium">Total Students</h3>
-                    <p className="text-3xl font-bold text-slate-800 mt-2">{stats.students}</p>
+                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 className="text-slate-500 text-sm font-medium">Total Students</h3>
+                        <p className="text-3xl font-bold text-slate-800 mt-2">{stats.students}</p>
+                    </div>
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                        <Users size={24} />
+                    </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="text-slate-500 text-sm font-medium">Total Enrollments</h3>
-                    <p className="text-3xl font-bold text-slate-800 mt-2">{stats.enrollments}</p>
+                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 className="text-slate-500 text-sm font-medium">Total Enrollments</h3>
+                        <p className="text-3xl font-bold text-slate-800 mt-2">{stats.enrollments}</p>
+                    </div>
+                    <div className="p-3 bg-fuchsia-50 text-fuchsia-600 rounded-lg">
+                        <TrendingUp size={24} />
+                    </div>
                 </div>
             </div>
 
-            {/* Course List Table */}
+            {/* Middle Section: Chart & Create Course */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Revenue/Enrollment Chart (3 Cols) */}
+                <div className="lg:col-span-3 bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-bold text-slate-800">Enrollment & Revenue Trend</h2>
+                    </div>
+                    <div className="h-[250px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={graphData}>
+                                <defs>
+                                    <linearGradient id="colorEnrollments" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                    </linearGradient>
+                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
+                                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                />
+                                <Area yAxisId="left" type="monotone" dataKey="enrollments" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorEnrollments)" name="Enrollments" />
+                                <Area yAxisId="right" type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" name="Revenue (Rp)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Create Course (1 Col) */}
+                <div className="lg:col-span-1 h-full">
+                    <CreateCourseCard />
+                </div>
+            </div>
+
+            {/* Bottom Widgets Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <RecentUsersWidget users={recentUsers} />
+                <RecentReviewsWidget reviews={recentReviews} />
+                <RecentQuizzesWidget quizzes={recentQuizzes} />
+                <AdminListWidget admins={admins} />
+            </div>
+
+            {/* Courses Table (Full Width) */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                     <h2 className="font-bold text-slate-800">All Courses</h2>
-                    <div className="relative">
+                    <div className="relative hidden md:block">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input type="text" placeholder="Search courses..." className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64" />
                     </div>
@@ -125,17 +213,14 @@ export default function AdminDashboard() {
                             <tr>
                                 <th className="px-6 py-4 font-semibold text-slate-700">Course Title</th>
                                 <th className="px-6 py-4 font-semibold text-slate-700">Status</th>
-                                <th className="px-6 py-4 font-semibold text-slate-700">Category</th>
-                                <th className="px-6 py-4 font-semibold text-slate-700">Students</th>
-                                <th className="px-6 py-4 font-semibold text-slate-700">Price</th>
-                                <th className="px-6 py-4 font-semibold text-slate-700">Level</th>
+                                {/* <th className="px-6 py-4 font-semibold text-slate-700">Price</th> */}
                                 <th className="px-6 py-4 font-semibold text-slate-700 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {courses.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="p-8">
+                                    <td colSpan={4} className="p-8">
                                         <EmptyState
                                             icon={BookOpen}
                                             title="No courses yet"
@@ -150,12 +235,12 @@ export default function AdminDashboard() {
                                     </td>
                                 </tr>
                             ) : (
-                                courses.map((course: any) => (
+                                courses.slice(0, 10).map((course: any) => (
                                     <tr key={course.id} className="hover:bg-slate-50 transition">
                                         <td className="px-6 py-4 font-medium text-slate-900">
                                             <div className="flex flex-col">
                                                 <span>{course.title}</span>
-                                                <span className="text-xs text-slate-400 font-light hidden sm:inline-block">Updated: {new Date(course.updatedAt).toLocaleDateString()}</span>
+                                                <span className="text-xs text-slate-400 font-light hidden sm:inline-block">Rp {Number(course.price).toLocaleString()} • {course.level}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -171,16 +256,6 @@ export default function AdminDashboard() {
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-semibold ${course.category?.color || 'bg-gray-100 text-gray-800'}`}>
-                                                {course.category?.name || 'Uncategorized'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600">
-                                            {course._count?.enrollments || 0}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600">Rp {Number(course.price).toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-slate-600">{course.level}</td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Link
@@ -205,16 +280,11 @@ export default function AdminDashboard() {
                         </tbody>
                     </table>
                 </div>
-
-                {/* Pagination (Visual only for now) */}
-                <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
-                    <span>Showing 1 to {courses.length} of {courses.length} entries</span>
-                    <div className="flex gap-2">
-                        <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Previous</button>
-                        <button className="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-50" disabled>Next</button>
-                    </div>
-                </div>
+                {courses.length > 0 && <div className="bg-slate-50 p-3 text-center border-t border-slate-100">
+                    <Link href="/admin/courses" className="text-sm text-blue-600 hover:underline font-medium">View All Courses</Link>
+                </div>}
             </div>
+
             {/* Delete Confirmation Modal */}
             <ConfirmDialog
                 isOpen={showDeleteModal}

@@ -317,7 +317,7 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
             {/* Header */}
             <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
-                <div className="max-w-6xl mx-auto px-6 py-4">
+                <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         {/* Left: Title & Cancel */}
                         <div className="flex items-center gap-4">
@@ -417,7 +417,7 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-4xl mx-auto p-6 pb-32">
+            <div className="max-w-7xl mx-auto p-6 pb-32">
                 <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 p-8">
                     {currentStep === 1 && (
                         <BasicInfoStep
@@ -458,7 +458,7 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
 
             {/* Footer Navigation */}
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200/50 p-4 z-20">
-                <div className="max-w-4xl mx-auto flex justify-between items-center">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <Button
                         variant="ghost"
                         onClick={handleBack}

@@ -7,14 +7,57 @@ export async function GET() {
         const studentsCount = await prisma.user.count();
         const enrollmentsCount = await prisma.enrollment.count();
 
-        // Calculate estimated revenue (naive: sum of course prices for all enrollments)
-        // This is expensive if we do it naively. Let's just return 0 for now or sum properly if dataset is small.
-        // For now, let's just return counts.
+        // Get enrollments for the last 6 months for the chart
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5); // Go back 5 months to include current month = 6 total
+        sixMonthsAgo.setDate(1); // Start of that month
+
+        const enrollments = await prisma.enrollment.findMany({
+            where: {
+                createdAt: {
+                    gte: sixMonthsAgo,
+                }
+            },
+            include: {
+                course: {
+                    select: {
+                        price: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'asc'
+            }
+        });
+
+        // Group by month
+        const monthlyStats = new Map<string, { name: string, revenue: number, enrollments: number }>();
+
+        // Initialize last 6 months
+        for (let i = 0; i < 6; i++) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - (5 - i));
+            const monthName = d.toLocaleString('default', { month: 'short' });
+            monthlyStats.set(monthName, { name: monthName, revenue: 0, enrollments: 0 });
+        }
+
+        // Fill data
+        enrollments.forEach(enrollment => {
+            const monthName = enrollment.createdAt.toLocaleString('default', { month: 'short' });
+            if (monthlyStats.has(monthName)) {
+                const stat = monthlyStats.get(monthName)!;
+                stat.enrollments += 1;
+                stat.revenue += Number(enrollment.course.price);
+            }
+        });
+
+        const graphData = Array.from(monthlyStats.values());
 
         return NextResponse.json({
             coursesCount,
             studentsCount,
             enrollmentsCount,
+            graphData
         });
     } catch (error) {
         console.error("[STATS_GET]", error);
