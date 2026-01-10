@@ -4,95 +4,169 @@ import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
 
+// Polyfill DOMMatrix for pdf-parse if not available
+if (typeof global.DOMMatrix === "undefined") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).DOMMatrix = class DOMMatrix {
+        a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+        constructor() { }
+    };
+}
+if (typeof global.Path2D === "undefined") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).Path2D = class Path2D { constructor() { } };
+}
+if (typeof global.ImageData === "undefined") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).ImageData = class ImageData { constructor() { } };
+}
+
 // Custom render function to disable canvas requirement
 function renderPage() {
     return Promise.resolve("");
 }
 
-// Parse PDF text to extract structure
+// Parse PDF text to extract structure AND content
 function parseTextToStructure(text: string, filename: string) {
-    const lines = text.split('\n').filter(line => line.trim());
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
     const structure = {
         title: "",
-        modules: [] as { title: string; lessons: { title: string; type: string }[] }[]
+        modules: [] as { title: string; lessons: { title: string; type: string; content?: string }[] }[]
     };
 
-    // Find title from first line
+    // Find title from first few lines (heuristic)
     if (lines.length > 0) {
-        structure.title = lines[0].trim().substring(0, 100);
+        structure.title = lines[0].substring(0, 100);
     }
 
-    let currentModule: { title: string; lessons: { title: string; type: string }[] } | null = null;
+    let currentModule: { title: string; lessons: { title: string; type: string; content?: string }[] } | null = null;
+    let currentLesson: { title: string; type: string; content?: string } | null = null;
+    let currentContentBuffer: string[] = [];
 
-    // Patterns for Indonesian documents
-    const partPattern = /^(🔓|📚|📖)?\s*PART\s*(\d+)\s*[—–-]\s*(.+)/i;
-    const babPattern = /^BAB\s*(\d+)\s*[.:\s]+(.+)/i;
-    const modulPattern = /^MODUL\s*(\d+)\s*[.:\s]+(.+)/i;
-    const praktikPattern = /^PRAKTIK\s*[—–-]?\s*(.+)/i;
-    const numberedPattern = /^(\d+)\.\s*(.+)/;
+    // Helper to flush current lesson content
+    const flushLessonContent = () => {
+        if (currentLesson && currentContentBuffer.length > 0) {
+            // Join lines with breaks, try to preserve paragraphs
+            const content = currentContentBuffer
+                .map(line => {
+                    // Detect lists
+                    if (line.match(/^[•\-\*]\s+/)) return `<li>${line.replace(/^[•\-\*]\s+/, "")}</li>`;
+                    // Detect numbered lists in content (e.g. 1. item)
+                    if (line.match(/^\d+\.\s+/)) return `<p class="mb-2 font-medium">${line}</p>`;
+                    return `<p class="mb-2">${line}</p>`;
+                })
+                .join("");
 
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed.length < 3) continue;
+            currentLesson.content = content.replace(/<\/li><li>/g, "</li><li>"); // optimized list joining could be done but simple logic for now
+            currentContentBuffer = [];
+        }
+    };
 
-        // Check for PART pattern
-        let partMatch = trimmed.match(partPattern);
-        if (!partMatch) partMatch = trimmed.match(babPattern);
-        if (!partMatch) partMatch = trimmed.match(modulPattern);
-        if (!partMatch) partMatch = trimmed.match(praktikPattern);
+    // Save module helper
+    const flushModule = () => {
+        flushLessonContent();
+        if (currentModule) {
+            structure.modules.push(currentModule);
+            currentModule = null;
+            currentLesson = null;
+        }
+    };
 
+    // Patterns based on user sample
+    // PART 1 — PENGENALAN Microsoft Word Akses: UMUM
+    const partPattern = /^(?:🔓|📖|📚|🔒)?\s*(PART|BAB|MODUL)\s*(\d+)\s*[—–-]\s*(.+)/i;
+    // PRAKTIK — HEADER, FOOTER...
+    const praktikPattern = /^(PRAKTIK(?:\s+DASAR)?)\s*[—–-]\s*(.+)/i;
+    // LATIHAN SOAL ...
+    const latihanPattern = /^(LATIHAN SOAL)(.*)/i;
+
+    // Lesson Pattern: 1. Pengertian...
+    const lessonPattern = /^(\d+)\.\s+(.+)/;
+
+    // Patterns to ignore
+    const ignorePattern = /^(Akses:|Answer:|Halaman|Page)/i;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Skip metadata lines
+        if (ignorePattern.test(line)) continue;
+
+        // 1. Check for Module Headers
+        let moduleTitle = null;
+
+        const partMatch = line.match(partPattern);
         if (partMatch) {
-            // Save previous module
-            if (currentModule && currentModule.lessons.length > 0) {
-                structure.modules.push(currentModule);
+            moduleTitle = `${partMatch[1]} ${partMatch[2]} - ${partMatch[3].replace(/Akses:.*$/i, "").trim()}`;
+        } else {
+            const praktikMatch = line.match(praktikPattern);
+            if (praktikMatch) {
+                moduleTitle = `${praktikMatch[1]} - ${praktikMatch[2].trim()}`;
+            } else {
+                const latihanMatch = line.match(latihanPattern);
+                if (latihanMatch) {
+                    moduleTitle = "Latihan Soal & Evaluasi";
+                }
             }
+        }
 
-            // Clean up the title
-            let moduleTitle = trimmed;
-            if (partMatch[3]) {
-                moduleTitle = `PART ${partMatch[2]} - ${partMatch[3].trim()}`;
-            } else if (partMatch[2]) {
-                moduleTitle = partMatch[2].trim();
-            } else if (partMatch[1]) {
-                moduleTitle = partMatch[1].trim();
-            }
-
-            // Remove "Akses:" suffix if present
-            moduleTitle = moduleTitle.replace(/\s*Akses:.+$/i, "").trim();
-
+        if (moduleTitle) {
+            flushModule();
             currentModule = {
-                title: moduleTitle.substring(0, 100),
+                title: moduleTitle,
                 lessons: []
             };
             continue;
         }
 
-        // Check for numbered lessons (1. Title, 2. Title, etc.)
-        const numMatch = trimmed.match(numberedPattern);
-        if (numMatch && currentModule) {
-            const lessonTitle = numMatch[2].trim();
-            // Only add if it looks like a lesson title (not too long, not just content)
-            if (lessonTitle.length > 3 && lessonTitle.length < 100 && !lessonTitle.includes(':')) {
-                currentModule.lessons.push({
-                    title: `${numMatch[1]}. ${lessonTitle}`,
+        // 2. Check for Lesson Headers (only if inside a module)
+        // Heuristic: Must start with number, contain text, and be short enough to be a title
+        const lessonMatch = line.match(lessonPattern);
+        if (currentModule && lessonMatch) {
+            const potentialTitle = lessonMatch[2].trim();
+
+            // Validation to avoid false positives (like numbere list items in content)
+            // If the PREVIOUS line ended with ":" or "ikut:", it's likely a list item, not a header
+            // But we don't have lookbehind easily here.
+            // Let's assume lesson titles are < 100 chars and don't end with "."
+            if (potentialTitle.length < 150) {
+                flushLessonContent();
+
+                currentLesson = {
+                    title: `${lessonMatch[1]}. ${potentialTitle}`,
                     type: "text"
-                });
+                };
+                currentModule.lessons.push(currentLesson);
+                continue;
             }
+        }
+
+        // 3. Content Accumulation
+        // If we are in a lesson, everything else is content
+        if (currentLesson) {
+            currentContentBuffer.push(line);
+        } else if (currentModule && !currentLesson && line.length > 3) {
+            // Implicit lesson if content appears before first numbered lesson
+            // e.g. "Deskripsi singkat..."
+            currentLesson = {
+                title: "Pendahuluan / Deskripsi",
+                type: "text"
+            };
+            currentModule.lessons.push(currentLesson);
+            currentContentBuffer.push(line);
         }
     }
 
-    // Push last module
-    if (currentModule) {
-        structure.modules.push(currentModule);
-    }
+    // Final flush
+    flushModule();
 
-    // If no modules found, create default
+    // Fallback
     if (structure.modules.length === 0) {
-        structure.title = filename.replace(".pdf", "").replace(/_/g, " ");
+        structure.title = filename.replace(".pdf", "");
         structure.modules.push({
-            title: structure.title,
-            lessons: [{ title: "Materi Lengkap", type: "text" }]
+            title: "Discovered Content",
+            lessons: [{ title: "Full Content", type: "text", content: lines.join("<br/>") }]
         });
     }
 
@@ -113,8 +187,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "No file provided" }, { status: 400 });
         }
 
-        if (file.type !== "application/pdf") {
-            return NextResponse.json({ error: "Only PDF files are allowed" }, { status: 400 });
+        if (file.type !== "application/pdf" && file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+            return NextResponse.json({ error: "Only PDF and Word (.docx) files are allowed" }, { status: 400 });
         }
 
         // Convert file to buffer
@@ -129,45 +203,55 @@ export async function POST(req: NextRequest) {
 
         // Generate unique filename
         const timestamp = Date.now();
-        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-        const filename = `${timestamp}_${sanitizedName}`;
+        const extension = path.extname(file.name);
+        const sanitizedName = file.name.replace(extension, "").replace(/[^a-zA-Z0-9.\-_]/g, "_");
+        const filename = `${timestamp}_${sanitizedName}${extension}`;
         const filepath = path.join(uploadDir, filename);
 
-        // Save file
+        // Save file locally
         await writeFile(filepath, buffer);
 
+        // Parse content
         let structure;
         let totalPages = 0;
 
         try {
-            // Try to parse PDF with custom options to avoid canvas
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            const pdf = require("pdf-parse/lib/pdf-parse.js");
+            let extractedText = "";
 
-            const options = {
-                // Disable canvas rendering
-                pagerender: renderPage,
-                max: 0, // No limit on pages
-            };
+            if (file.type === "application/pdf") {
+                // PDF Parsing
+                // eslint-disable-next-line @typescript-eslint/no-require-imports
+                const pdf = require("pdf-parse");
+                const options = {
+                    pagerender: renderPage,
+                    max: 0,
+                };
+                const data = await pdf(buffer, options);
+                totalPages = data.numpages || 0;
+                extractedText = data.text;
+            } else {
+                // DOCX Parsing with Mammoth
+                // eslint-disable-next-line @typescript-eslint/no-require-imports
+                const mammoth = require("mammoth");
+                const result = await mammoth.extractRawText({ buffer });
+                extractedText = result.value;
+                // mammoth doesn't provide page count easily, default to 1 or estimate
+                totalPages = 1;
+            }
 
-            const data = await pdf(buffer, options);
-            totalPages = data.numpages || 0;
+            structure = parseTextToStructure(extractedText, file.name);
+            console.log("[DOC_PARSED] Success. Modules:", structure?.modules?.length);
 
-            // Parse extracted text to get structure
-            structure = parseTextToStructure(data.text, file.name);
-
-            console.log("[PDF_PARSED] Pages:", totalPages, "Modules:", structure.modules.length);
         } catch (parseError) {
-            console.error("[PDF_PARSE_ERROR]", parseError);
-            // Fallback to filename-based structure
+            console.error("[PARSE_ERROR]", parseError);
+            // Fallback structure
             structure = {
-                title: file.name.replace(".pdf", "").replace(/_/g, " "),
+                title: file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
                 modules: [{
-                    title: file.name.replace(".pdf", "").replace(/_/g, " "),
+                    title: file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
                     lessons: [
-                        { title: "Pendahuluan", type: "text" },
-                        { title: "Materi Utama", type: "text" },
-                        { title: "Rangkuman", type: "text" }
+                        { title: "Pendahuluan", type: "text", content: "" },
+                        { title: "Materi Inti", type: "text", content: "" }
                     ]
                 }]
             };
@@ -181,9 +265,9 @@ export async function POST(req: NextRequest) {
             structure
         });
     } catch (error) {
-        console.error("[PDF_UPLOAD_ERROR]", error);
+        console.error("[UPLOAD_ERROR]", error);
         return NextResponse.json(
-            { error: "Failed to upload PDF" },
+            { error: "Failed to upload document" },
             { status: 500 }
         );
     }

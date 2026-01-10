@@ -43,7 +43,7 @@ interface Module {
 interface PDFStructure {
     title: string;
     totalPages: number;
-    modules: { title: string; lessons: { title: string }[] }[];
+    modules: { title: string; lessons: { title: string; type: string; content?: string }[] }[];
 }
 
 interface CurriculumStepProps {
@@ -149,13 +149,13 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
         addToast({ type: "success", title: "Materi dihapus" });
     };
 
-    // PDF Upload Handler
+    // PDF/Word Upload Handler
     const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.type !== "application/pdf") {
-            addToast({ type: "error", title: "Format tidak valid", message: "Hanya file PDF yang diperbolehkan" });
+        if (file.type !== "application/pdf" && file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+            addToast({ type: "error", title: "Format tidak valid", message: "Hanya file PDF atau Word (.docx) yang diperbolehkan" });
             return;
         }
 
@@ -164,7 +164,7 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
         formData.append("file", file);
 
         try {
-            // Use dedicated PDF upload route with parsing
+            // Use dedicated upload route with parsing
             const res = await fetch("/api/upload-pdf", {
                 method: "POST",
                 body: formData,
@@ -175,7 +175,7 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
                 if (data.structure) {
                     // Transform structure for preview
                     const structure = {
-                        title: data.structure.title || file.name.replace(".pdf", ""),
+                        title: data.structure.title || file.name.replace(/\.[^/.]+$/, ""),
                         totalPages: data.structure.modules?.reduce((acc: number, m: any) => acc + (m.lessons?.length || 0), 0) || 0,
                         modules: data.structure.modules || [],
                     };
@@ -187,15 +187,15 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
                     setShowPdfModal(true);
                     addToast({
                         type: "success",
-                        title: "PDF berhasil dianalisis!",
+                        title: "Dokumen berhasil dianalisis!",
                         message: `${structure.modules.length} modul terdeteksi`
                     });
                 } else {
-                    addToast({ type: "warning", title: "Struktur tidak terdeteksi", message: "PDF tidak memiliki struktur modul yang jelas" });
+                    addToast({ type: "warning", title: "Struktur tidak terdeteksi", message: "Dokumen tidak memiliki struktur modul yang jelas" });
                 }
             } else {
                 const errData = await res.json().catch(() => ({}));
-                addToast({ type: "error", title: "Gagal upload PDF", message: errData.error });
+                addToast({ type: "error", title: "Gagal upload dokumen", message: errData.error });
             }
         } catch (err) {
             console.error(err);
@@ -218,8 +218,8 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
             lessons: m.lessons.map((l, lIdx) => ({
                 id: `les-${Date.now()}-${idx}-${lIdx}`,
                 title: l.title,
-                contentType: "file" as const,
-                content: pdfPreview.url,
+                contentType: (l.content ? "text" : "file") as any,
+                content: l.content || pdfPreview.url,
                 order: lIdx,
             })),
         }));
@@ -252,9 +252,9 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
                         <FileUp size={24} className="text-violet-600" />
                     </div>
                     <div className="flex-1">
-                        <h3 className="font-semibold text-slate-800 mb-1">Import dari PDF</h3>
+                        <h3 className="font-semibold text-slate-800 mb-1">Import dari Dokumen</h3>
                         <p className="text-sm text-slate-500 mb-4">
-                            Upload file PDF dan sistem akan otomatis mendeteksi struktur modul & materi
+                            Upload file PDF atau Word (.docx) dan sistem akan otomatis mendeteksi struktur modul & materi
                         </p>
                         <div className="flex items-center gap-3">
                             <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white rounded-xl cursor-pointer hover:bg-violet-700 transition font-medium text-sm">
@@ -266,13 +266,13 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
                                 ) : (
                                     <>
                                         <Upload size={18} />
-                                        Pilih File PDF
+                                        Pilih File
                                     </>
                                 )}
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept="application/pdf"
+                                    accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                     onChange={handlePdfUpload}
                                     className="hidden"
                                     disabled={uploading}
@@ -361,7 +361,7 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
                                                         <GripVertical size={16} />
                                                     </div>
                                                     <div className={`w-8 h-8 rounded-lg ${colorClass} flex items-center justify-center flex-shrink-0`}>
-                                                        <LessonIcon size={16} />
+                                                        {LessonIcon && <LessonIcon size={16} />}
                                                     </div>
                                                     <span className="text-xs text-slate-400 font-mono">
                                                         {moduleIdx + 1}.{lessonIdx + 1}
@@ -462,7 +462,7 @@ export default function CurriculumStep({ modules, setModules }: CurriculumStepPr
                     setShowPdfModal(false);
                     setPdfPreview(null);
                 }}
-                title="Preview Struktur PDF"
+                title="Preview Struktur Dokumen"
                 size="lg"
             >
                 {pdfPreview && (
