@@ -223,3 +223,10 @@ model UserProgress {
   @@index([lessonId])
 }
 
+
+model SiteSettings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}

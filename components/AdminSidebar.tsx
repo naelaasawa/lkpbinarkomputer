@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
     LayoutDashboard,
     BookOpen,
@@ -15,7 +15,12 @@ import {
     ChevronDown,
     ChevronRight,
     TrendingUp,
-    FileQuestion
+    Settings,
+    FileText,
+    MapPin,
+    Building,
+    UserCircle,
+    LayoutTemplate
 } from "lucide-react";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 
@@ -28,6 +33,7 @@ type NavItem = {
 
 export const AdminSidebar = () => {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { user } = useUser();
     const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
@@ -36,7 +42,7 @@ export const AdminSidebar = () => {
         {
             label: "Courses",
             icon: BookOpen,
-            href: "/admin/courses", // Root match
+            href: "/admin/courses",
             subItems: [
                 { href: "/admin/courses", label: "All Courses" },
                 { href: "/admin/courses/create", label: "Create Course" },
@@ -46,7 +52,7 @@ export const AdminSidebar = () => {
         },
         {
             label: "Quizzes",
-            icon: HelpCircle, // or FileQuestion
+            icon: HelpCircle,
             href: "/admin/quizzes",
             subItems: [
                 { href: "/admin/quizzes", label: "All Quizzes" },
@@ -56,17 +62,58 @@ export const AdminSidebar = () => {
         { href: "/admin/users", label: "Users", icon: Users },
         { href: "/admin/activity", label: "Activity", icon: TrendingUp },
         { href: "/admin/reviews", label: "Reviews", icon: Star },
+        {
+            label: "Settings",
+            icon: Settings,
+            href: "/admin/settings",
+            subItems: [
+                { href: "/admin/settings?tab=hero", label: "Hero & Utama" },
+                { href: "/admin/settings?tab=about", label: "Tentang & Visi" },
+                { href: "/admin/settings?tab=profile", label: "Profil & Tim" },
+                { href: "/admin/settings?tab=programs", label: "Program & Fasilitas" },
+                { href: "/admin/settings?tab=contact", label: "Kontak & Footer" },
+            ]
+        },
         { href: "/admin/backup", label: "Backup & Restore", icon: Database },
     ];
+
+    // Helper to check if a link is active considering query params
+    const isActiveLink = (href: string) => {
+        const [path, query] = href.split('?');
+
+        // Check simple path equality
+        if (pathname !== path) return false;
+
+        // If query params exist in the link definition, check match
+        if (query) {
+            const params = new URLSearchParams(query);
+            for (const [key, value] of params.entries()) {
+                if (searchParams.get(key) !== value) return false;
+            }
+            return true;
+        }
+
+        // If link has no query, but current URL has query, it matches if it's the "root" of that tab?
+        // E.g. /admin/settings matches /admin/settings?tab=hero? 
+        // No, strict match creates better UX for subitems.
+        // But for "All Courses" (/admin/courses), it should match /admin/courses even if query params exist?
+        // Let's stick to: if link has no query, it's active if path matches.
+        return true;
+    };
 
     // Auto-expand based on active path
     useEffect(() => {
         navItems.forEach(item => {
-            if (item.subItems && item.subItems.some(sub => pathname === sub.href || pathname.startsWith(sub.href + "/"))) {
-                setExpandedGroups(prev => prev.includes(item.label) ? prev : [...prev, item.label]);
+            if (item.subItems) {
+                const isGroupActive = item.subItems.some(sub => isActiveLink(sub.href)) ||
+                    (item.href && pathname.startsWith(item.href));
+
+                if (isGroupActive) {
+                    setExpandedGroups(prev => prev.includes(item.label) ? prev : [...prev, item.label]);
+                }
             }
         });
-    }, [pathname]);
+    }, [pathname, searchParams]);
 
     const toggleGroup = (label: string) => {
         setExpandedGroups(prev =>
@@ -101,8 +148,8 @@ export const AdminSidebar = () => {
                     const Icon = item.icon;
                     // Check if *any* subitem is active or the item itself
                     const isGroupActive = item.subItems
-                        ? item.subItems.some(sub => pathname === sub.href || pathname.startsWith(sub.href + "/"))
-                        : pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href!));
+                        ? item.subItems.some(sub => isActiveLink(sub.href)) || pathname.startsWith(item.href!)
+                        : isActiveLink(item.href!) || (item.href !== "/admin" && pathname.startsWith(item.href!));
 
                     const isExpanded = expandedGroups.includes(item.label);
 
@@ -112,8 +159,8 @@ export const AdminSidebar = () => {
                                 <button
                                     onClick={() => toggleGroup(item.label)}
                                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isGroupActive
-                                            ? "bg-blue-50/50 text-blue-700 font-semibold"
-                                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                        ? "bg-blue-50/50 text-blue-700 font-semibold"
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -133,14 +180,14 @@ export const AdminSidebar = () => {
                                         <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-100"></div>
 
                                         {item.subItems.map(sub => {
-                                            const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
+                                            const isSubActive = isActiveLink(sub.href);
                                             return (
                                                 <Link
                                                     key={sub.href}
                                                     href={sub.href}
                                                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all relative z-10 ${isSubActive
-                                                            ? "bg-blue-50 text-blue-700 font-medium translate-x-1"
-                                                            : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 hover:translate-x-1"
+                                                        ? "bg-blue-50 text-blue-700 font-medium translate-x-1"
+                                                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 hover:translate-x-1"
                                                         }`}
                                                 >
                                                     {/* Bullet for subitems */}

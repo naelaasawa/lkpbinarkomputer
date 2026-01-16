@@ -104,3 +104,8 @@ export type Note = Prisma.NoteModel
  * 
  */
 export type UserProgress = Prisma.UserProgressModel
+/**
+ * Model SiteSettings
+ * 
+ */
+export type SiteSettings = Prisma.SiteSettingsModel
