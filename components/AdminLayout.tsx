@@ -1,41 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { AdminSidebar } from "./AdminSidebar";
-import { Menu } from "lucide-react";
+import { AdminBottomNavigation } from "./AdminBottomNavigation";
+import { AdminMobileHeader } from "./AdminMobileHeader";
 
 interface AdminLayoutProps {
     children: React.ReactNode;
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
     return (
         <div className="min-h-screen bg-slate-50 flex">
-            {/* Sidebar (Responsive) */}
-            <AdminSidebar
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-            />
+            {/* Sidebar (Desktop only) */}
+            <AdminSidebar />
 
-            {/* Main Content Area */}
-            <main className="flex-1 min-h-screen relative w-full overflow-x-hidden flex flex-col">
+            <div className="flex-1 flex flex-col min-h-screen relative w-full overflow-x-hidden">
                 {/* Mobile Header */}
-                <div className="lg:hidden bg-white border-b border-slate-200 p-4 sticky top-0 z-30 flex items-center justify-between">
-                    <div className="font-bold text-slate-800">Admin Panel</div>
-                    <button
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-lg"
-                    >
-                        <Menu size={24} />
-                    </button>
-                </div>
+                <AdminMobileHeader />
 
-                <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-                    {children}
-                </div>
-            </main>
+                {/* Main Content Area */}
+                <main className="flex-1 w-full pb-24 lg:pb-0">
+                    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+                        {children}
+                    </div>
+                </main>
+            </div>
+
+            {/* Bottom Navigation (Mobile only) */}
+            <AdminBottomNavigation />
         </div>
     );
 };

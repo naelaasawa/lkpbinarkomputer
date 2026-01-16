@@ -124,30 +124,6 @@ export default function TiptapEditor({
         input.click();
     };
 
-    const ToolbarButton = ({
-        onClick,
-        isActive,
-        children,
-        title,
-    }: {
-        onClick: () => void;
-        isActive?: boolean;
-        children: React.ReactNode;
-        title: string;
-    }) => (
-        <button
-            type="button"
-            onClick={onClick}
-            title={title}
-            className={`p-2 rounded-lg transition ${isActive
-                ? "bg-blue-100 text-blue-600"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                }`}
-        >
-            {children}
-        </button>
-    );
-
     return (
         <div className="border-2 border-slate-200 rounded-xl overflow-hidden bg-white focus-within:border-blue-500 transition">
             {/* Toolbar */}
@@ -261,3 +237,30 @@ export default function TiptapEditor({
         </div>
     );
 }
+
+const ToolbarButton = ({
+    onClick,
+    isActive,
+    children,
+    title,
+}: {
+    onClick: () => void;
+    isActive?: boolean;
+    children: React.ReactNode;
+    title: string;
+}) => (
+    <button
+        type="button"
+        onClick={(e) => {
+            e.preventDefault(); // Prevent default action
+            onClick();
+        }}
+        title={title}
+        className={`p-2 rounded-lg transition ${isActive
+            ? "bg-blue-100 text-blue-600"
+            : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            }`}
+    >
+        {children}
+    </button>
+);

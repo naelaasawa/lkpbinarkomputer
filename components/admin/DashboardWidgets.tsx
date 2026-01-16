@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, User, Star, FileQuestion, ArrowRight, BookOpen, Shield } from "lucide-react";
+import { Plus, User, Star, FileQuestion, ArrowRight, BookOpen, Shield, TrendingUp, Users } from "lucide-react";
 
 interface DashboardWidgetProps {
     title: string;
@@ -12,7 +12,7 @@ interface DashboardWidgetProps {
 
 const WidgetContainer = ({ title, icon: Icon, href, children }: DashboardWidgetProps) => {
     return (
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full">
+        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full min-h-[420px]">
             {/* added flex flex-col h-full to make it stretch if needed, though mostly for consistent look */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -56,14 +56,14 @@ export const RecentUsersWidget = ({ users }: { users: any[] }) => {
     if (!users || users.length === 0) {
         return (
             <WidgetContainer title="Recent Users" icon={User} href="/admin/users">
-                <div className="p-8 text-center text-slate-500 text-sm">No users found.</div>
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No users found.</div>
             </WidgetContainer>
         );
     }
     return (
         <WidgetContainer title="Recent Users" icon={User} href="/admin/users">
             <div className="divide-y divide-slate-50">
-                {users.slice(0, 5).map((user) => (
+                {users.slice(0, 4).map((user) => (
                     <div key={user.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 shrink-0">
                             <User size={14} />
@@ -83,14 +83,14 @@ export const AdminListWidget = ({ admins }: { admins: any[] }) => {
     if (!admins || admins.length === 0) {
         return (
             <WidgetContainer title="High Command" icon={Shield}>
-                <div className="p-8 text-center text-slate-500 text-sm">No admins found.</div>
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No admins found.</div>
             </WidgetContainer>
         );
     }
     return (
         <WidgetContainer title="High Command" icon={Shield}>
             <div className="divide-y divide-slate-50">
-                {admins.slice(0, 5).map((admin) => (
+                {admins.slice(0, 4).map((admin) => (
                     <div key={admin.id} className="flex items-center gap-3 p-4 hover:bg-slate-50 transition">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 shrink-0">
                             <Shield size={14} />
@@ -110,7 +110,7 @@ export const RecentReviewsWidget = ({ reviews }: { reviews: any[] }) => {
     if (!reviews || reviews.length === 0) {
         return (
             <WidgetContainer title="Recent Reviews" icon={Star} href="/admin/reviews">
-                <div className="p-8 text-center text-slate-500 text-sm">No reviews yet.</div>
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No reviews yet.</div>
             </WidgetContainer>
         );
     }
@@ -118,7 +118,7 @@ export const RecentReviewsWidget = ({ reviews }: { reviews: any[] }) => {
     return (
         <WidgetContainer title="Recent Reviews" icon={Star} href="/admin/reviews">
             <div className="divide-y divide-slate-50">
-                {reviews.slice(0, 5).map((review) => (
+                {reviews.slice(0, 4).map((review) => (
                     <div key={review.id} className="p-4 hover:bg-slate-50 transition">
                         <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-medium text-slate-900 truncate max-w-[150px]">{review.course?.title}</span>
@@ -143,7 +143,7 @@ export const RecentQuizzesWidget = ({ quizzes }: { quizzes: any[] }) => {
     if (!quizzes || quizzes.length === 0) {
         return (
             <WidgetContainer title="Recent Quizzes" icon={FileQuestion} href="/admin/quizzes">
-                <div className="p-8 text-center text-slate-500 text-sm">No quizzes found.</div>
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No quizzes found.</div>
             </WidgetContainer>
         );
     }
@@ -151,7 +151,7 @@ export const RecentQuizzesWidget = ({ quizzes }: { quizzes: any[] }) => {
     return (
         <WidgetContainer title="Recent Quizzes" icon={FileQuestion} href="/admin/quizzes">
             <div className="divide-y divide-slate-50">
-                {quizzes.map((quiz) => (
+                {quizzes.slice(0, 4).map((quiz) => (
                     <div key={quiz.id} className="p-4 hover:bg-slate-50 transition">
                         <div className="flex items-center justify-between mb-1">
                             <h4 className="text-sm font-medium text-slate-900 truncate">{quiz.title}</h4>
@@ -163,6 +163,150 @@ export const RecentQuizzesWidget = ({ quizzes }: { quizzes: any[] }) => {
                         <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
                             <span>{quiz.type}</span>
                             <span>{quiz._count?.assignments || 0} Assignments</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </WidgetContainer>
+    );
+};
+
+export const RecentEnrollmentsWidget = ({ enrollments }: { enrollments: any[] }) => {
+    if (!enrollments || enrollments.length === 0) {
+        return (
+            <WidgetContainer title="Recent Enrollments" icon={BookOpen} href="/admin/enrollments">
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No enrollments yet.</div>
+            </WidgetContainer>
+        );
+    }
+    return (
+        <WidgetContainer title="Recent Enrollments" icon={BookOpen} href="/admin/enrollments">
+            <div className="divide-y divide-slate-50">
+                {enrollments.slice(0, 4).map((enrollment) => (
+                    <div key={enrollment.id} className="p-4 hover:bg-slate-50 transition">
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-medium text-slate-900 truncate max-w-[150px]">
+                                {enrollment.course?.title}
+                            </span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                                Rp {Number(enrollment.course?.price || 0).toLocaleString()}
+                            </span>
+                        </div>
+                        <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
+                            <span className="truncate">{enrollment.user?.email}</span>
+                            <span>{new Date(enrollment.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </WidgetContainer>
+    );
+};
+
+export const TopCoursesWidget = ({ courses }: { courses: any[] }) => {
+    if (!courses || courses.length === 0) {
+        return (
+            <WidgetContainer title="Top Courses" icon={TrendingUp} href="/admin/top-courses">
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No courses data available.</div>
+            </WidgetContainer>
+        );
+    }
+    return (
+        <WidgetContainer title="Top Performing Courses" icon={TrendingUp} href="/admin/top-courses">
+            <div className="divide-y divide-slate-50">
+                {courses.slice(0, 4).map((course, index) => (
+                    <div key={course.id} className="p-4 hover:bg-slate-50 transition flex items-center gap-3">
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-sm shrink-0 ${index === 0 ? 'bg-amber-100 text-amber-600' :
+                            index === 1 ? 'bg-slate-100 text-slate-600' :
+                                index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-slate-50 text-slate-400'
+                            }`}>
+                            #{index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-slate-900 truncate">{course.title}</h4>
+                            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                                <span className="flex items-center gap-1">
+                                    <Users size={12} />
+                                    {course._count?.enrollments || 0} Students
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <Star size={12} />
+                                    {course._count?.reviews || 0} Reviews
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                                Rp {Number(course.price).toLocaleString('id-ID', { notation: 'compact' })}
+                            </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </WidgetContainer>
+    );
+};
+
+export const RecentAssignmentsWidget = ({ assignments }: { assignments: any[] }) => {
+    if (!assignments || assignments.length === 0) {
+        return (
+            <WidgetContainer title="Recent Assignments" icon={FileQuestion} href="/admin/assignments">
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No assignments found.</div>
+            </WidgetContainer>
+        );
+    }
+    return (
+        <WidgetContainer title="Recent Assignments" icon={FileQuestion} href="/admin/assignments">
+            <div className="divide-y divide-slate-50">
+                {assignments.slice(0, 4).map((assignment) => (
+                    <div key={assignment.id} className="p-4 hover:bg-slate-50 transition">
+                        <div className="flex items-center justify-between mb-1">
+                            <h4 className="text-sm font-medium text-slate-900 truncate">{assignment.quiz?.title}</h4>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full capitalize border ${assignment.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                assignment.status === 'in_progress' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                    'bg-slate-50 text-slate-500 border-slate-100'
+                                }`}>
+                                {assignment.status.replace('_', ' ')}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-slate-500 mt-1">
+                            <span className="truncate max-w-[120px]">{assignment.user?.email}</span>
+                            <span>{assignment.score !== null ? `Score: ${assignment.score}` : 'Pending'}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </WidgetContainer>
+    );
+};
+
+export const RecentActivityWidget = ({ activity }: { activity: any[] }) => {
+    if (!activity || activity.length === 0) {
+        return (
+            <WidgetContainer title="Recent Activity" icon={TrendingUp} href="/admin/activity">
+                <div className="h-full flex items-center justify-center p-8 text-center text-slate-500 text-sm">No activity recorded.</div>
+            </WidgetContainer>
+        );
+    }
+    return (
+        <WidgetContainer title="Recent Activity" icon={TrendingUp} href="/admin/activity">
+            <div className="divide-y divide-slate-50">
+                {activity.slice(0, 4).map((item) => (
+                    <div key={item.id} className="p-4 hover:bg-slate-50 transition">
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-medium text-slate-900 truncate max-w-[180px]">
+                                {item.lesson?.title}
+                            </span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                Completed
+                            </span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 truncate mb-1">
+                            {item.lesson?.module?.course?.title}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-slate-500">
+                            <span className="truncate">{item.user?.email}</span>
+                            <span>{new Date(item.updatedAt).toLocaleDateString()}</span>
                         </div>
                     </div>
                 ))}

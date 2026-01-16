@@ -15,7 +15,7 @@ import {
     CartesianGrid,
     Tooltip
 } from "recharts";
-import { CreateCourseCard, RecentQuizzesWidget, RecentReviewsWidget, RecentUsersWidget, AdminListWidget } from "@/components/admin/DashboardWidgets";
+import { CreateCourseCard, RecentQuizzesWidget, RecentReviewsWidget, RecentUsersWidget, AdminListWidget, RecentEnrollmentsWidget, TopCoursesWidget, RecentAssignmentsWidget, RecentActivityWidget } from "@/components/admin/DashboardWidgets";
 
 export default function AdminDashboard() {
     const [courses, setCourses] = useState<any[]>([]);
@@ -24,6 +24,10 @@ export default function AdminDashboard() {
     const [recentUsers, setRecentUsers] = useState<any[]>([]);
     const [recentReviews, setRecentReviews] = useState<any[]>([]);
     const [recentQuizzes, setRecentQuizzes] = useState<any[]>([]);
+    const [recentEnrollments, setRecentEnrollments] = useState<any[]>([]);
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [topCourses, setTopCourses] = useState<any[]>([]);
+    const [recentAssignments, setRecentAssignments] = useState<any[]>([]);
     const [admins, setAdmins] = useState<any[]>([]);
     const [graphData, setGraphData] = useState<any[]>([]);
 
@@ -37,13 +41,17 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         try {
-            const [coursesRes, statsRes, usersRes, reviewsRes, quizzesRes, adminsRes] = await Promise.all([
+            const [coursesRes, statsRes, usersRes, reviewsRes, quizzesRes, adminsRes, enrollmentsRes, topCoursesRes, assignmentsRes, activityRes] = await Promise.all([
                 fetch("/api/courses"),
                 fetch("/api/stats"),
                 fetch("/api/admin/users"),
                 fetch("/api/admin/reviews"),
                 fetch("/api/admin/quizzes"),
-                fetch("/api/admin/admins")
+                fetch("/api/admin/admins"),
+                fetch("/api/admin/enrollments"),
+                fetch("/api/admin/top-courses"),
+                fetch("/api/admin/assignments"),
+                fetch("/api/admin/progress")
             ]);
 
             if (coursesRes.ok) {
@@ -65,6 +73,10 @@ export default function AdminDashboard() {
             if (reviewsRes.ok) setRecentReviews(await reviewsRes.json());
             if (quizzesRes.ok) setRecentQuizzes(await quizzesRes.json());
             if (adminsRes.ok) setAdmins(await adminsRes.json());
+            if (enrollmentsRes.ok) setRecentEnrollments(await enrollmentsRes.json());
+            if (topCoursesRes.ok) setTopCourses(await topCoursesRes.json());
+            if (assignmentsRes.ok) setRecentAssignments(await assignmentsRes.json());
+            if (activityRes.ok) setRecentActivity(await activityRes.json());
 
         } catch (error) {
             console.error("Failed to fetch data", error);
@@ -113,8 +125,8 @@ export default function AdminDashboard() {
         <div className="space-y-6 pb-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Dashboard Overview</h1>
-                    <p className="text-slate-500 mt-1">Welcome back! Here's what's happening today.</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Dashboard Overview</h1>
+                    <p className="text-slate-500 mt-1 text-sm sm:text-base">Welcome back! Here's what's happening today.</p>
                 </div>
             </div>
 
@@ -190,14 +202,17 @@ export default function AdminDashboard() {
             </div>
 
             {/* Bottom Widgets Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <RecentUsersWidget users={recentUsers} />
+                <RecentEnrollmentsWidget enrollments={recentEnrollments} />
                 <RecentReviewsWidget reviews={recentReviews} />
                 <RecentQuizzesWidget quizzes={recentQuizzes} />
                 <AdminListWidget admins={admins} />
+                <RecentActivityWidget activity={recentActivity} />
             </div>
 
-            {/* Courses Table (Full Width) */}
+
+
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                     <h2 className="font-bold text-slate-800">All Courses</h2>
@@ -211,10 +226,10 @@ export default function AdminDashboard() {
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 border-b border-slate-100">
                             <tr>
-                                <th className="px-6 py-4 font-semibold text-slate-700">Course Title</th>
-                                <th className="px-6 py-4 font-semibold text-slate-700">Status</th>
-                                {/* <th className="px-6 py-4 font-semibold text-slate-700">Price</th> */}
-                                <th className="px-6 py-4 font-semibold text-slate-700 text-right">Actions</th>
+                                <th className="px-4 sm:px-6 py-4 font-semibold text-slate-700">Course Title</th>
+                                <th className="px-4 sm:px-6 py-4 font-semibold text-slate-700">Status</th>
+                                {/* <th className="px-4 sm:px-6 py-4 font-semibold text-slate-700">Price</th> */}
+                                <th className="px-4 sm:px-6 py-4 font-semibold text-slate-700 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -237,13 +252,13 @@ export default function AdminDashboard() {
                             ) : (
                                 courses.slice(0, 10).map((course: any) => (
                                     <tr key={course.id} className="hover:bg-slate-50 transition">
-                                        <td className="px-6 py-4 font-medium text-slate-900">
+                                        <td className="px-4 sm:px-6 py-4 font-medium text-slate-900">
                                             <div className="flex flex-col">
                                                 <span>{course.title}</span>
                                                 <span className="text-xs text-slate-400 font-light hidden sm:inline-block">Rp {Number(course.price).toLocaleString()} • {course.level}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-4 sm:px-6 py-4">
                                             {course.published || course.visibility === "public" ? (
                                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -256,7 +271,7 @@ export default function AdminDashboard() {
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-4 sm:px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Link
                                                     href={`/courses/${course.id}`}
@@ -283,6 +298,12 @@ export default function AdminDashboard() {
                 {courses.length > 0 && <div className="bg-slate-50 p-3 text-center border-t border-slate-100">
                     <Link href="/admin/courses" className="text-sm text-blue-600 hover:underline font-medium">View All Courses</Link>
                 </div>}
+            </div>
+
+            {/* Top Courses & Recent Assignments Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TopCoursesWidget courses={topCourses} />
+                <RecentAssignmentsWidget assignments={recentAssignments} />
             </div>
 
             {/* Delete Confirmation Modal */}
