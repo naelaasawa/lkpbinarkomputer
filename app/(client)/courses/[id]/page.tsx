@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { Monitor, BookOpen, Clock, PlayCircle, Lock, ChevronDown, ChevronUp, Check, Star, FileText, ArrowLeft, User } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/components/ui/Loading";
+import { CheckoutButton } from "@/components/checkout-button";
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -202,13 +203,38 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                         <ChevronDown className="rotate-[-90deg] group-hover:translate-x-1 transition-transform" size={18} />
                                     </Link>
                                 ) : (
-                                    <button
-                                        onClick={handleEnroll}
-                                        disabled={enrolling}
-                                        className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-                                    >
-                                        {enrolling ? "Enrolling..." : (course.price === 0 ? "Enroll Now" : "Buy Course")}
-                                    </button>
+                                    !user ? (
+                                        <button
+                                            onClick={() => router.push("/sign-in")}
+                                            className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        >
+                                            Sign in to Enroll
+                                        </button>
+                                    ) : course.price > 0 ? (
+                                        <CheckoutButton
+                                            amount={Number(course.price)}
+                                            courseId={course.id}
+                                            userId={user.id}
+                                            customerDetails={{
+                                                first_name: user.firstName || "User",
+                                                email: user.primaryEmailAddress?.emailAddress || "user@test.com",
+                                            }}
+                                            itemDetails={[{
+                                                id: course.id,
+                                                price: Number(course.price),
+                                                quantity: 1,
+                                                name: course.title ? course.title.substring(0, 50) : "Course",
+                                            }]}
+                                        />
+                                    ) : (
+                                        <button
+                                            onClick={handleEnroll}
+                                            disabled={enrolling}
+                                            className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        >
+                                            {enrolling ? "Enrolling..." : "Enroll Now"}
+                                        </button>
+                                    )
                                 )}
 
                                 <p className="text-center text-xs text-slate-400 mt-3">

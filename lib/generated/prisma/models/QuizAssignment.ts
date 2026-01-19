@@ -232,8 +232,8 @@ export type QuizAssignmentWhereInput = {
   score?: Prisma.IntNullableFilter<"QuizAssignment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"QuizAssignment"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   quiz?: Prisma.XOR<Prisma.QuizScalarRelationFilter, Prisma.QuizWhereInput>
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type QuizAssignmentOrderByWithRelationInput = {
@@ -244,8 +244,8 @@ export type QuizAssignmentOrderByWithRelationInput = {
   score?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
   quiz?: Prisma.QuizOrderByWithRelationInput
+  user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.QuizAssignmentOrderByRelevanceInput
 }
 
@@ -261,8 +261,8 @@ export type QuizAssignmentWhereUniqueInput = Prisma.AtLeast<{
   score?: Prisma.IntNullableFilter<"QuizAssignment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"QuizAssignment"> | Date | string
   completedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   quiz?: Prisma.XOR<Prisma.QuizScalarRelationFilter, Prisma.QuizWhereInput>
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId_quizId">
 
 export type QuizAssignmentOrderByWithAggregationInput = {
@@ -299,8 +299,8 @@ export type QuizAssignmentCreateInput = {
   score?: number | null
   createdAt?: Date | string
   completedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutQuizAssignmentsInput
   quiz: Prisma.QuizCreateNestedOneWithoutAssignmentsInput
+  user: Prisma.UserCreateNestedOneWithoutQuizAssignmentsInput
 }
 
 export type QuizAssignmentUncheckedCreateInput = {
@@ -319,8 +319,8 @@ export type QuizAssignmentUpdateInput = {
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutQuizAssignmentsNestedInput
   quiz?: Prisma.QuizUpdateOneRequiredWithoutAssignmentsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutQuizAssignmentsNestedInput
 }
 
 export type QuizAssignmentUncheckedUpdateInput = {
@@ -691,8 +691,8 @@ export type QuizAssignmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   score?: boolean
   createdAt?: boolean
   completedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   quiz?: boolean | Prisma.QuizDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["quizAssignment"]>
 
 
@@ -709,15 +709,15 @@ export type QuizAssignmentSelectScalar = {
 
 export type QuizAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "quizId" | "status" | "score" | "createdAt" | "completedAt", ExtArgs["result"]["quizAssignment"]>
 export type QuizAssignmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   quiz?: boolean | Prisma.QuizDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $QuizAssignmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "QuizAssignment"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
     quiz: Prisma.$QuizPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1067,8 +1067,8 @@ readonly fields: QuizAssignmentFieldRefs;
  */
 export interface Prisma__QuizAssignmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   quiz<T extends Prisma.QuizDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.QuizDefaultArgs<ExtArgs>>): Prisma.Prisma__QuizClient<runtime.Types.Result.GetResult<Prisma.$QuizPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -87,3 +87,8 @@ export type UserProgress = Prisma.UserProgressModel
  * 
  */
 export type SiteSettings = Prisma.SiteSettingsModel
+/**
+ * Model Purchase
+ * 
+ */
+export type Purchase = Prisma.PurchaseModel

@@ -27,12 +27,14 @@ export type AggregateSiteSettings = {
 export type SiteSettingsMinAggregateOutputType = {
   id: string | null
   key: string | null
+  value: string | null
   updatedAt: Date | null
 }
 
 export type SiteSettingsMaxAggregateOutputType = {
   id: string | null
   key: string | null
+  value: string | null
   updatedAt: Date | null
 }
 
@@ -48,12 +50,14 @@ export type SiteSettingsCountAggregateOutputType = {
 export type SiteSettingsMinAggregateInputType = {
   id?: true
   key?: true
+  value?: true
   updatedAt?: true
 }
 
 export type SiteSettingsMaxAggregateInputType = {
   id?: true
   key?: true
+  value?: true
   updatedAt?: true
 }
 
@@ -140,7 +144,7 @@ export type SiteSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type SiteSettingsGroupByOutputType = {
   id: string
   key: string
-  value: runtime.JsonValue
+  value: string
   updatedAt: Date
   _count: SiteSettingsCountAggregateOutputType | null
   _min: SiteSettingsMinAggregateOutputType | null
@@ -168,7 +172,7 @@ export type SiteSettingsWhereInput = {
   NOT?: Prisma.SiteSettingsWhereInput | Prisma.SiteSettingsWhereInput[]
   id?: Prisma.StringFilter<"SiteSettings"> | string
   key?: Prisma.StringFilter<"SiteSettings"> | string
-  value?: Prisma.JsonFilter<"SiteSettings">
+  value?: Prisma.StringFilter<"SiteSettings"> | string
   updatedAt?: Prisma.DateTimeFilter<"SiteSettings"> | Date | string
 }
 
@@ -186,7 +190,7 @@ export type SiteSettingsWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SiteSettingsWhereInput | Prisma.SiteSettingsWhereInput[]
   OR?: Prisma.SiteSettingsWhereInput[]
   NOT?: Prisma.SiteSettingsWhereInput | Prisma.SiteSettingsWhereInput[]
-  value?: Prisma.JsonFilter<"SiteSettings">
+  value?: Prisma.StringFilter<"SiteSettings"> | string
   updatedAt?: Prisma.DateTimeFilter<"SiteSettings"> | Date | string
 }, "id" | "key">
 
@@ -206,56 +210,56 @@ export type SiteSettingsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SiteSettingsScalarWhereWithAggregatesInput | Prisma.SiteSettingsScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SiteSettings"> | string
   key?: Prisma.StringWithAggregatesFilter<"SiteSettings"> | string
-  value?: Prisma.JsonWithAggregatesFilter<"SiteSettings">
+  value?: Prisma.StringWithAggregatesFilter<"SiteSettings"> | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SiteSettings"> | Date | string
 }
 
 export type SiteSettingsCreateInput = {
   id?: string
   key: string
-  value: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value: string
   updatedAt?: Date | string
 }
 
 export type SiteSettingsUncheckedCreateInput = {
   id?: string
   key: string
-  value: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value: string
   updatedAt?: Date | string
 }
 
 export type SiteSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SiteSettingsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SiteSettingsCreateManyInput = {
   id?: string
   key: string
-  value: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value: string
   updatedAt?: Date | string
 }
 
 export type SiteSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SiteSettingsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  value?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -275,12 +279,14 @@ export type SiteSettingsCountOrderByAggregateInput = {
 export type SiteSettingsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
+  value?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SiteSettingsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   key?: Prisma.SortOrder
+  value?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -310,7 +316,7 @@ export type $SiteSettingsPayload<ExtArgs extends runtime.Types.Extensions.Intern
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     key: string
-    value: runtime.JsonValue
+    value: string
     updatedAt: Date
   }, ExtArgs["result"]["siteSettings"]>
   composites: {}
@@ -683,7 +689,7 @@ export interface Prisma__SiteSettingsClient<T, Null = never, ExtArgs extends run
 export interface SiteSettingsFieldRefs {
   readonly id: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly key: Prisma.FieldRef<"SiteSettings", 'String'>
-  readonly value: Prisma.FieldRef<"SiteSettings", 'Json'>
+  readonly value: Prisma.FieldRef<"SiteSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"SiteSettings", 'DateTime'>
 }
     
