@@ -114,7 +114,7 @@ export default async function LandingPage() {
                 {settings.hero.description}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
-                <Link href={settings.hero.ctaPrimary.link} className="min-h-[48px] px-6 md:px-8 py-3 md:py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 touch-manipulation">
+                <Link href="/daftar-program" className="min-h-[48px] px-6 md:px-8 py-3 md:py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 active:bg-blue-800 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 touch-manipulation">
                   {settings.hero.ctaPrimary.text} <ArrowRight size={18} />
                 </Link>
                 <Link href={settings.hero.ctaSecondary.link} className="min-h-[48px] px-6 md:px-8 py-3 md:py-3.5 bg-white text-slate-700 border-2 border-slate-200 rounded-xl font-bold hover:bg-slate-50 active:bg-slate-100 transition-all flex items-center justify-center touch-manipulation">
@@ -400,7 +400,7 @@ export default async function LandingPage() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link href="/program" className="inline-flex items-center gap-2 px-8 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+            <Link href="/daftar-program" className="inline-flex items-center gap-2 px-8 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
               Lihat Detail Program <ArrowRight size={18} />
             </Link>
           </div>
