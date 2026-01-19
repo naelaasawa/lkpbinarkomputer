@@ -249,6 +249,6 @@ model Purchase {
 
   @@index([userId])
   @@index([courseId])
-  @@unique([userId, courseId]) // Prevent double purchase of same course? Maybe not if we want to allow re-purchase if expired? But usually one active purchase. Let's not make it unique for now to allow retries easily, or handle it in logic. Actually logic should handle it.
+
 }
 
