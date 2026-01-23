@@ -32,12 +32,10 @@ jobs:
             IdentitiesOnly yes
             ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
             StrictHostKeyChecking no
-            ServerAliveInterval 30
           EOF
           chmod 600 ~/.ssh/config
 
-      - run: |
-          ssh ubuntu "echo ok"
+      - run: ssh -T ubuntu "echo ok"
 
   prisma:
     needs: prepare
@@ -65,17 +63,16 @@ jobs:
             IdentitiesOnly yes
             ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
             StrictHostKeyChecking no
-            ServerAliveInterval 30
           EOF
           chmod 600 ~/.ssh/config
 
       - run: |
-          ssh -tt ubuntu << 'EOF'
+          ssh -T ubuntu << 'EOF'
             set -e
             cd ~/lkpbinarkomputer
             npm install --force
-            npx prisma generate
             npx prisma db pull
+            npx prisma generate
           EOF
 
   build:
@@ -104,12 +101,11 @@ jobs:
             IdentitiesOnly yes
             ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
             StrictHostKeyChecking no
-            ServerAliveInterval 30
           EOF
           chmod 600 ~/.ssh/config
 
       - run: |
-          ssh -tt ubuntu << 'EOF'
+          ssh -T ubuntu << 'EOF'
             set -e
             cd ~/lkpbinarkomputer
             git fetch origin main
@@ -143,15 +139,13 @@ jobs:
             IdentitiesOnly yes
             ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
             StrictHostKeyChecking no
-            ServerAliveInterval 30
           EOF
           chmod 600 ~/.ssh/config
 
       - run: |
-          ssh -tt ubuntu << 'EOF'
+          ssh -T ubuntu << 'EOF'
             set -e
             cd ~/lkpbinarkomputer
-            pm2 status || true
             if pm2 list | grep -q next-lkpbinar; then
               pm2 restart next-lkpbinar
             else
