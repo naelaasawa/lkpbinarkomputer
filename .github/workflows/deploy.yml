@@ -43,6 +43,11 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/cloudflared
+
       - env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
@@ -65,7 +70,7 @@ jobs:
           chmod 600 ~/.ssh/config
 
       - run: |
-          ssh ubuntu << 'EOF'
+          ssh -tt ubuntu << 'EOF'
             set -e
             cd ~/lkpbinarkomputer
             npm install --force
@@ -77,6 +82,11 @@ jobs:
     needs: prisma
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/cloudflared
+
       - env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
@@ -99,7 +109,7 @@ jobs:
           chmod 600 ~/.ssh/config
 
       - run: |
-          ssh ubuntu << 'EOF'
+          ssh -tt ubuntu << 'EOF'
             set -e
             cd ~/lkpbinarkomputer
             git fetch origin main
@@ -111,6 +121,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/cloudflared
+
       - env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
@@ -133,7 +148,7 @@ jobs:
           chmod 600 ~/.ssh/config
 
       - run: |
-          ssh ubuntu << 'EOF'
+          ssh -tt ubuntu << 'EOF'
             set -e
             cd ~/lkpbinarkomputer
             pm2 status || true
