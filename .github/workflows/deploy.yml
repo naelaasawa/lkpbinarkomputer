@@ -39,7 +39,10 @@ jobs:
           ssh \
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
-            -o ProxyCommand="sh -c 'CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID} CF_ACCESS_CLIENT_SECRET=${CF_ACCESS_CLIENT_SECRET} cloudflared access ssh --hostname %h'" \
+            -o ProxyCommand="cloudflared access ssh \
+            --hostname %h \
+            --access-client-id ${CF_ACCESS_CLIENT_ID} \
+            --access-client-secret ${CF_ACCESS_CLIENT_SECRET}"
             clinet@ssh.abyandimas.me << 'EOF'
 
               set -e
