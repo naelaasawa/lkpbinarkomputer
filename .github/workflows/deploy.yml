@@ -30,7 +30,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ssh.abyandimas.me >> ~/.ssh/known_hosts
 
       - name: Deploy Next.js application
         env:
@@ -38,7 +37,7 @@ jobs:
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           ssh \
-            -o StrictHostKeyChecking=yes \
+            -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ProxyCommand="cloudflared access ssh --hostname %h" \
             clinet@ssh.abyandimas.me << 'EOF'
