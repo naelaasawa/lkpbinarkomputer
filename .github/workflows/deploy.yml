@@ -43,6 +43,10 @@ jobs:
             StrictHostKeyChecking no
             ServerAliveInterval 30
           EOF
+      - name: Debug SSH key
+        run: |
+          ls -l ~/.ssh
+          ssh-keygen -lf ~/.ssh/id_ed25519
 
       - name: Deploy application
         run: |
