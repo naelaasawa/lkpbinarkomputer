@@ -32,7 +32,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
 
           cat <<EOF > ~/.ssh/config
-          Host proxmox
+          Host ubuntu
             HostName ssh1.abyandimas.me
             User clinet
             IdentityFile ~/.ssh/id_ed25519
@@ -43,14 +43,10 @@ jobs:
             StrictHostKeyChecking no
             ServerAliveInterval 30
           EOF
-      - name: Debug SSH key
-        run: |
-          ls -l ~/.ssh
-          ssh-keygen -lf ~/.ssh/id_ed25519
 
       - name: Deploy application
         run: |
-          ssh -T proxmox << 'EOF'
+          ssh -T ubuntu << 'EOF'
             set -e
 
             echo "Connected to server"
