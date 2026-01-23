@@ -3,11 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const category = await prisma.category.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 _count: {
                     select: { courses: true }
@@ -28,9 +29,10 @@ export async function GET(
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const { name, icon, color } = await req.json();
 
         if (!name) {
@@ -38,7 +40,7 @@ export async function PATCH(
         }
 
         const category = await prisma.category.update({
-            where: { id: params.id },
+            where: { id },
             data: {
                 name,
                 ...(icon && { icon }),
@@ -55,12 +57,13 @@ export async function PATCH(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         // Check if category has courses
         const category = await prisma.category.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 _count: {
                     select: { courses: true }
@@ -80,7 +83,7 @@ export async function DELETE(
         }
 
         await prisma.category.delete({
-            where: { id: params.id },
+            where: { id },
         });
 
         return NextResponse.json({ message: "Category deleted successfully" });
