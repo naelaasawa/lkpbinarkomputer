@@ -8,7 +8,7 @@ const landingPageData = {
         subtitle: "Rumah belajar komputer berbasis privat",
         description: "Mengembangkan keterampilan digital, kesiapan kerja, dan kemandirian peserta didik.",
         ctaPrimary: { text: "Lihat Program", link: "#courses" },
-        ctaSecondary: { text: "Daftar Konsultasi", link: "https://wa.me/6281234567890" }
+        ctaSecondary: { text: "Daftar Konsultasi", link: "https://wa.me/6285601730788" }
     },
     about: {
         badge: "Tentang Kami",
@@ -154,14 +154,14 @@ const landingPageData = {
     },
     contact: {
         address: "Jl. Sipelem No. 22, Tegal Barat, Kota Tegal, Jawa Tengah",
-        phone: "+62 812-3456-7890",
+        phone: "+62 856-0173-0788",
         email: "info@binarkomputer.com",
         googleMapsUrl: ""
     },
     cta: {
         title: "Mulai belajar dan berkembang bersama Binar Komputer Tegal.",
-        primaryButton: { text: "Lihat Kursus", link: "/courses" },
-        secondaryButton: { text: "Chat Admin", link: "https://wa.me/6281234567890" }
+        primaryButton: { text: "Lihat Kursus", link: "/daftar-program" },
+        secondaryButton: { text: "Chat Admin", link: "https://wa.me/6285601730788" }
     },
     footer: {
         description: "Lembaga Kursus dan Pelatihan Komputer yang berfokus pada kualitas dan pendekatan kekeluargaan untuk mencetak generasi digital yang kompeten.",

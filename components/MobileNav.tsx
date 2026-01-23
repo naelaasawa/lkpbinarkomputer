@@ -57,7 +57,7 @@ export default function MobileNav({ isLoggedIn }: MobileNavProps) {
             {/* Mobile Menu Panel */}
             <div
                 className={`fixed top-16 right-0 w-64 h-[calc(100vh-4rem)] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-                    }`}
+                    } ${!isMenuOpen ? 'pointer-events-none' : ''}`}
             >
                 <nav className="flex flex-col p-6 space-y-6">
                     <Link

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Monitor, Star, ArrowUpRight, BookOpen, Users, PlayCircle, GraduationCap, Trophy, TrendingUp, ArrowLeft } from "lucide-react";
+import { Search, Monitor, Star, ArrowUpRight, BookOpen, Users, PlayCircle, GraduationCap, Trophy, TrendingUp, Target, Palette } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/components/ui/Loading";
 import EmptyState from "@/components/ui/EmptyState";
@@ -71,123 +71,108 @@ export default function ProgramPage() {
     const totalLessons = courses.reduce((acc, c) => acc + (c.modules?.reduce((sum: number, m: any) => sum + m.lessons.length, 0) || 0), 0);
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            {/* Simple Header with Back Button */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 font-semibold transition-colors text-sm"
-                    >
-                        <ArrowLeft size={18} />
-                        Kembali ke Beranda
-                    </Link>
+        <div className="pb-20 md:pb-12 max-w-7xl mx-auto w-full px-4 md:px-6 space-y-8">
+            {/* Hero Section */}
+            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 to-blue-900 shadow-2xl mt-4 md:mt-8">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                <div className="relative p-8 md:p-12 lg:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
+                    <div className="flex-1 space-y-6">
+                        <div className="space-y-2">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-500/30">
+                                <Target size={14} /> Program Pelatihan Komputer
+                            </div>
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
+                                Tingkatkan<br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Skill Komputer</span><br />
+                                Anda Sekarang
+                            </h1>
+                        </div>
+
+                        <div className="flex flex-wrap gap-4 md:gap-8 text-slate-300 text-sm font-medium">
+                            <div className="flex items-center gap-2">
+                                <PlayCircle size={18} className="text-blue-400" />
+                                <span>{courses.length} Program</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <BookOpen size={18} className="text-blue-400" />
+                                <span>{totalLessons} Materi</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Users size={18} className="text-blue-400" />
+                                <span>{totalStudents} Peserta</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Decorative 3D Elements (CSS/Icons) */}
+                    <div className="hidden md:flex gap-6 relative">
+                        {/* Card 1 */}
+                        <div className="w-32 h-32 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-2xl transform -rotate-12 translate-y-4 flex items-center justify-center border-t border-white/20">
+                            <Palette size={48} className="text-white opacity-90" />
+                            <div className="absolute bottom-3 text-white text-xs font-bold opacity-80">Design</div>
+                        </div>
+                        {/* Card 2 */}
+                        <div className="w-32 h-32 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-2xl transform rotate-6 -translate-x-4 flex items-center justify-center border-t border-white/20 z-10">
+                            <TrendingUp size={48} className="text-white opacity-90" />
+                            <div className="absolute bottom-3 text-white text-xs font-bold opacity-80">Finance</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="pb-12 max-w-7xl mx-auto w-full px-4 md:px-6 space-y-6">
-                {/* Compact Hero Section */}
-                <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 shadow-lg mt-6">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                    <div className="relative p-6 md:p-8">
-                        <div className="max-w-4xl">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider border border-white/30 mb-3">
-                                <GraduationCap size={14} /> Program Pelatihan Komputer
-                            </div>
-
-                            <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-3">
-                                Tingkatkan
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300"> Skill Komputer </span>
-                                Anda Sekarang
-                            </h1>
-
-                            <p className="text-base text-white/90 font-medium leading-relaxed mb-4">
-                                Pilih dari {courses.length} program pelatihan berkualitas dengan harga terjangkau. Belajar langsung dari para ahli!
-                            </p>
-
-                            <div className="flex flex-wrap gap-4">
-                                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20">
-                                    <PlayCircle size={18} className="text-white" />
-                                    <div>
-                                        <div className="text-xl font-black text-white">{courses.length}+</div>
-                                        <div className="text-xs text-white/80 font-medium">Program</div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20">
-                                    <Users size={18} className="text-white" />
-                                    <div>
-                                        <div className="text-xl font-black text-white">{totalStudents}+</div>
-                                        <div className="text-xs text-white/80 font-medium">Peserta</div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20">
-                                    <Trophy size={18} className="text-white" />
-                                    <div>
-                                        <div className="text-xl font-black text-white">{totalLessons}+</div>
-                                        <div className="text-xs text-white/80 font-medium">Materi</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Filter & Search */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-                            {categories.map((category) => (
-                                <button
-                                    key={category}
-                                    onClick={() => setSelectedCategory(category)}
-                                    className={`whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${selectedCategory === category
-                                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                        }`}
-                                >
-                                    {category}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="relative w-full md:w-80">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input
-                                type="text"
-                                placeholder="Cari program..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-white border-2 border-slate-200 pl-12 pr-4 py-3 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Course Grid */}
-                <div>
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-black text-slate-900">
-                            {selectedCategory === "All" ? "Semua Program" : `Program ${selectedCategory}`}
-                            <span className="text-slate-400 ml-2">({filteredCourses.length})</span>
-                        </h2>
+            {/* Filter & Search Bar */}
+            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-xl py-4 -mx-4 px-4 md:mx-0 md:px-0 border-b md:border-none border-slate-100">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
+                        {categories.map((category) => (
+                            <button
+                                key={category}
+                                onClick={() => setSelectedCategory(category)}
+                                className={`whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${selectedCategory === category
+                                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    }`}
+                            >
+                                {category}
+                            </button>
+                        ))}
                     </div>
 
-                    {filteredCourses.length === 0 ? (
-                        <EmptyState
-                            icon={BookOpen}
-                            title="Tidak ada program"
-                            description="Coba ubah filter atau kata kunci pencarian Anda."
+                    <div className="relative w-full md:w-80">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Cari program..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-white border-2 border-slate-200 pl-12 pr-4 py-3 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         />
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredCourses.map((course) => (
-                                <ProgramCard key={course.id} course={course} />
-                            ))}
-                        </div>
-                    )}
+                    </div>
                 </div>
+            </div>
+
+            {/* Course Grid */}
+            <div>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-black text-slate-900">
+                        {selectedCategory === "All" ? "Semua Program" : `Program ${selectedCategory}`}
+                        <span className="text-slate-400 ml-2">({filteredCourses.length})</span>
+                    </h2>
+                </div>
+
+                {filteredCourses.length === 0 ? (
+                    <EmptyState
+                        icon={BookOpen}
+                        title="Tidak ada program"
+                        description="Coba ubah filter atau kata kunci pencarian Anda."
+                    />
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCourses.map((course) => (
+                            <ProgramCard key={course.id} course={course} />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

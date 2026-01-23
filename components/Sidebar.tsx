@@ -54,13 +54,6 @@ export const Sidebar = () => {
                     </Link>
                 )}
             </nav>
-
-            <div className="p-4 border-t border-slate-100">
-                <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-500 hover:bg-red-50 transition-colors">
-                    <LogOut size={20} />
-                    <span className="text-sm font-medium">Log Out</span>
-                </button>
-            </div>
         </aside>
     );
 };

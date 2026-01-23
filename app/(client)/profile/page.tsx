@@ -127,15 +127,6 @@ export default async function Profile() {
                         <ChevronRight size={16} className="text-gray-300" />
                     </Link>
                 </div>
-
-                <div className="md:flex md:justify-end">
-                    <SignOutButton>
-                        <button className="mt-4 flex items-center justify-center gap-2 p-4 bg-red-50 text-red-500 rounded-xl font-medium text-sm md:text-base hover:bg-red-100 transition-colors md:w-auto md:px-8 w-full">
-                            <LogOut size={18} className="md:w-5 md:h-5" />
-                            Log Out
-                        </button>
-                    </SignOutButton>
-                </div>
             </div>
         </div>
     );

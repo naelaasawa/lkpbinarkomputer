@@ -28,7 +28,12 @@ export async function GET() {
             return NextResponse.json({});
         }
 
-        return NextResponse.json(settings.value);
+        // Parse the JSON string back to object
+        const parsedValue = typeof settings.value === 'string'
+            ? JSON.parse(settings.value)
+            : settings.value;
+
+        return NextResponse.json(parsedValue);
     } catch (error) {
         console.error("[SITE_SETTINGS_GET]", error);
         return new NextResponse("Internal Error", { status: 500 });
@@ -53,16 +58,22 @@ export async function PUT(req: NextRequest) {
 
         const body = await req.json();
 
+        // Convert JSON object to string for database storage
         const settings = await prisma.siteSettings.upsert({
             where: { key: "landing_page" },
-            update: { value: body },
+            update: { value: JSON.stringify(body) },
             create: {
                 key: "landing_page",
-                value: body,
+                value: JSON.stringify(body),
             },
         });
 
-        return NextResponse.json(settings.value);
+        // Parse back to object for response
+        const parsedValue = typeof settings.value === 'string'
+            ? JSON.parse(settings.value)
+            : settings.value;
+
+        return NextResponse.json(parsedValue);
     } catch (error) {
         console.error("[SITE_SETTINGS_PUT]", error);
         return new NextResponse("Internal Error", { status: 500 });

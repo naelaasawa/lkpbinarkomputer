@@ -39,7 +39,11 @@ export default async function LandingPage() {
         where: { key: "landing_page" },
       });
       if (dbSettings?.value) {
-        settings = { ...DEFAULT_LANDING_PAGE_DATA, ...(dbSettings.value as any) };
+        // Parse JSON string to object
+        const parsedValue = typeof dbSettings.value === 'string'
+          ? JSON.parse(dbSettings.value)
+          : dbSettings.value;
+        settings = { ...DEFAULT_LANDING_PAGE_DATA, ...parsedValue };
       }
     }
   } catch (error) {
@@ -126,11 +130,13 @@ export default async function LandingPage() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full blur-3xl opacity-70"></div>
                 {settings.hero?.imageUrl ? (
-                  <img
-                    src={settings.hero.imageUrl}
-                    alt={settings.hero.title}
-                    className="rounded-3xl shadow-2xl border border-slate-100 relative z-10 w-full object-cover"
-                  />
+                  <div className="aspect-[4/3] rounded-3xl shadow-2xl border border-slate-100 relative overflow-hidden">
+                    <img
+                      src={settings.hero.imageUrl}
+                      alt={settings.hero.title}
+                      className="w-full h-full object-cover relative z-10"
+                    />
+                  </div>
                 ) : (
                   <div className="relative bg-white rounded-3xl shadow-2xl p-4 md:p-6 border border-slate-100">
                     {/* Abstract Educational Illustration */}
