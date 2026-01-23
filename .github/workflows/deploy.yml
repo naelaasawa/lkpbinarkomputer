@@ -46,7 +46,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ProxyCommand="cloudflared access ssh --hostname %h --access-client-id ${CF_ACCESS_CLIENT_ID} --access-client-secret ${CF_ACCESS_CLIENT_SECRET}" \
-            client@ssh.abyandimas.me << 'EOF'
+            client@ssh1.abyandimas.me << 'EOF'
               set -e
               
               echo "Connected to server"
