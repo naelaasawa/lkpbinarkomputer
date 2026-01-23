@@ -28,14 +28,17 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
+          # write private key
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          cat <<EOF > ~/.ssh/config
+          # ssh config
+          cat > ~/.ssh/config <<EOF
           Host ubuntu
             HostName ssh1.abyandimas.me
             User clinet
             IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
             ProxyCommand cloudflared access ssh \
               --hostname %h \
               --service-token-id ${CF_SERVICE_TOKEN_ID} \
@@ -44,9 +47,15 @@ jobs:
             ServerAliveInterval 30
           EOF
 
+          chmod 600 ~/.ssh/config
+
+      - name: Test SSH connection
+        run: |
+          ssh -v ubuntu "echo SSH connection successful"
+
       - name: Deploy application
         run: |
-          ssh -T ubuntu << 'EOF'
+          ssh ubuntu << 'EOF'
             set -e
 
             echo "Connected to server"
