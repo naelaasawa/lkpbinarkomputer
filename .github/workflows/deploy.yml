@@ -5,91 +5,142 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  prepare:
     runs-on: ubuntu-latest
-
     steps:
-      
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install cloudflared
-        run: |
-          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
-            -o cloudflared
+      - run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
           chmod +x cloudflared
           sudo mv cloudflared /usr/local/bin/cloudflared
-          cloudflared --version
 
-      - name: Setup SSH
-        env:
+      - env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
           CF_SERVICE_TOKEN_SECRET: ${{ secrets.CF_SERVICE_TOKEN_SECRET }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-
           cat > ~/.ssh/config <<EOF
           Host ubuntu
             HostName ssh1.abyandimas.me
             User clinet
             IdentityFile ~/.ssh/id_ed25519
             IdentitiesOnly yes
-            ProxyCommand cloudflared access ssh \
-              --hostname %h \
-              --service-token-id ${CF_SERVICE_TOKEN_ID} \
-              --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
+            ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
             StrictHostKeyChecking no
             ServerAliveInterval 30
           EOF
-
           chmod 600 ~/.ssh/config
 
-      - name: Test SSH connection
-        run: |
-          ssh ubuntu "echo 'SSH connection successful' && hostname"
+      - run: |
+          ssh ubuntu "echo ok"
 
-      - name: Deploy application
+  prisma:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
+          CF_SERVICE_TOKEN_SECRET: ${{ secrets.CF_SERVICE_TOKEN_SECRET }}
         run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config <<EOF
+          Host ubuntu
+            HostName ssh1.abyandimas.me
+            User clinet
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
+            StrictHostKeyChecking no
+            ServerAliveInterval 30
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - run: |
           ssh ubuntu << 'EOF'
             set -e
-
-            echo "Connected to server"
-            hostname
-
             cd ~/lkpbinarkomputer
+            npm install --force
+            npx prisma generate
+            npx prisma db pull
+          EOF
 
-            echo "Pull latest code"
+  build:
+    needs: prisma
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
+          CF_SERVICE_TOKEN_SECRET: ${{ secrets.CF_SERVICE_TOKEN_SECRET }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config <<EOF
+          Host ubuntu
+            HostName ssh1.abyandimas.me
+            User clinet
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
+            StrictHostKeyChecking no
+            ServerAliveInterval 30
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - run: |
+          ssh ubuntu << 'EOF'
+            set -e
+            cd ~/lkpbinarkomputer
             git fetch origin main
             git reset --hard origin/main
-
-            echo "Install dependencies"
-            npm install --force
-
-            echo "Prisma generate"
-            npx prisma generate
-
-            echo "Prisma db pull"
-            npx prisma db pull
-
-            echo "Build application"
             npm run build
+          EOF
 
-            echo "PM2 deploy"
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CF_SERVICE_TOKEN_ID: ${{ secrets.CF_SERVICE_TOKEN_ID }}
+          CF_SERVICE_TOKEN_SECRET: ${{ secrets.CF_SERVICE_TOKEN_SECRET }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config <<EOF
+          Host ubuntu
+            HostName ssh1.abyandimas.me
+            User clinet
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            ProxyCommand cloudflared access ssh --hostname %h --service-token-id ${CF_SERVICE_TOKEN_ID} --service-token-secret ${CF_SERVICE_TOKEN_SECRET}
+            StrictHostKeyChecking no
+            ServerAliveInterval 30
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - run: |
+          ssh ubuntu << 'EOF'
+            set -e
+            cd ~/lkpbinarkomputer
             pm2 status || true
-
             if pm2 list | grep -q next-lkpbinar; then
               pm2 restart next-lkpbinar
             else
               pm2 start npm --name next-lkpbinar -- start
             fi
-
             pm2 save
-            pm2 status
-
-            echo "✅ Deploy finished"
           EOF
