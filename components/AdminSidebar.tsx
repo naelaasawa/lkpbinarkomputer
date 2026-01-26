@@ -245,12 +245,12 @@ export const AdminSidebar = () => {
                     </div>
                 </div>
 
-                <SignOutButton>
-                    <button className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 rounded-xl transition-all text-sm font-medium shadow-sm transition-all active:scale-[0.98]">
-                        <LogOut size={16} />
-                        <span>Sign Out</span>
+                <Link href="/dashboard">
+                    <button className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 rounded-xl transition-all text-sm font-medium shadow-sm transition-all active:scale-[0.98]">
+                        <LayoutDashboard size={16} />
+                        <span>Back to Dashboard</span>
                     </button>
-                </SignOutButton>
+                </Link>
             </div>
         </aside>
     );

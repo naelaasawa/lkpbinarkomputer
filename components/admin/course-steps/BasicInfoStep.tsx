@@ -5,7 +5,7 @@ import Input, { Textarea, Select } from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
-import { Plus, Image as ImageIcon, Upload, Loader2, X, Check } from "lucide-react";
+import { Plus, Image as ImageIcon, Upload, Loader2, X, Check, Trash2 } from "lucide-react";
 
 interface Category {
     id: string;
@@ -74,6 +74,39 @@ export default function BasicInfoStep({
                 addToast({
                     type: "error",
                     title: "Gagal menambahkan kategori",
+                });
+            }
+        } catch {
+            addToast({
+                type: "error",
+                title: "Terjadi kesalahan",
+            });
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId: string, categoryName: string) => {
+        if (!confirm(`Hapus kategori "${categoryName}"?`)) return;
+
+        try {
+            const res = await fetch(`/api/categories/${categoryId}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                addToast({
+                    type: "success",
+                    title: "Kategori dihapus!",
+                    message: categoryName,
+                });
+                // If deleted category was selected, clear selection
+                if (data.categoryId === categoryId) {
+                    onChange({ ...data, categoryId: "" });
+                }
+                onCategoryAdded(); // Refresh categories list
+            } else {
+                addToast({
+                    type: "error",
+                    title: "Gagal menghapus kategori",
                 });
             }
         } catch {
@@ -316,6 +349,25 @@ export default function BasicInfoStep({
                                 <Plus size={20} />
                             </button>
                         </div>
+
+                        {/* Category List with Delete Buttons */}
+                        {categories.length > 0 && (
+                            <div className="mt-3 space-y-2 max-h-48 overflow-y-auto bg-slate-50 rounded-xl p-3 border border-slate-200">
+                                {categories.map((c) => (
+                                    <div key={c.id} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100 hover:border-blue-200 transition">
+                                        <span className="text-sm font-medium text-slate-700">{c.name}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteCategory(c.id, c.name)}
+                                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition"
+                                            title="Hapus kategori"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <Select

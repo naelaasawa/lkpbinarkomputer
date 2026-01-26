@@ -33,7 +33,22 @@ export async function GET(
             return new NextResponse("Not Found", { status: 404 });
         }
 
-        return NextResponse.json(course);
+        // Transform lessons to populate content field with quizId for quiz lessons
+        const transformedCourse = {
+            ...course,
+            modules: course.modules.map(module => ({
+                ...module,
+                lessons: module.lessons.map(lesson => ({
+                    ...lesson,
+                    // For quiz lessons, use quizId as content if content is empty
+                    content: lesson.contentType === 'quiz'
+                        ? (lesson.quizId || lesson.content || '')
+                        : (lesson.content || ''),
+                }))
+            }))
+        };
+
+        return NextResponse.json(transformedCourse);
     } catch (error) {
         console.error("[COURSE_GET]", error);
         return new NextResponse("Internal Error", { status: 500 });

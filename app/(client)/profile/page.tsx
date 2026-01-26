@@ -119,13 +119,22 @@ export default async function Profile() {
                         </div>
                         <ChevronRight size={16} className="text-gray-300" />
                     </Link>
-                    <Link href="/support" className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-gray-50 transition-colors">
+                    <Link href="/support" className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-gray-50 transition-colors border-b border-gray-50 md:border-gray-100">
                         <div className="flex items-center gap-3 text-gray-700">
                             <HelpCircle size={18} className="text-gray-400 md:w-6 md:h-6" />
                             <span className="text-sm md:text-base font-medium">Help Center</span>
                         </div>
                         <ChevronRight size={16} className="text-gray-300" />
                     </Link>
+                    <SignOutButton redirectUrl="/">
+                        <button className="w-full flex items-center justify-between p-4 md:p-5 hover:bg-red-50 transition-colors">
+                            <div className="flex items-center gap-3 text-red-600">
+                                <LogOut size={18} className="md:w-6 md:h-6" />
+                                <span className="text-sm md:text-base font-medium">Log Out</span>
+                            </div>
+                            <ChevronRight size={16} className="text-red-300" />
+                        </button>
+                    </SignOutButton>
                 </div>
             </div>
         </div>

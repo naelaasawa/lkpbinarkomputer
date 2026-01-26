@@ -447,7 +447,7 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
                         />
                     )}
                     {currentStep === 5 && (
-                        <AssessmentStep modules={modules} updateModuleLesson={updateModuleLesson} />
+                        <AssessmentStep modules={modules} setModules={setModules} updateModuleLesson={updateModuleLesson} />
                     )}
                     {currentStep === 6 && (
                         <SettingsStep settings={settings} setSettings={setSettings} />

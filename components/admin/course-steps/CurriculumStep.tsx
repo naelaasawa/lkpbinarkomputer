@@ -56,7 +56,7 @@ const contentTypeIcons = {
     text: FileText,
     file: Upload,
     link: LinkIcon,
-    quiz: HelpCircle,
+    quiz: HelpCircle, // Keep for backward compatibility with existing quiz lessons
 };
 
 const contentTypeLabels = {
@@ -64,7 +64,6 @@ const contentTypeLabels = {
     text: "Artikel",
     file: "File",
     link: "Link",
-    quiz: "Kuis",
 };
 
 const contentTypeColors = {
@@ -72,7 +71,7 @@ const contentTypeColors = {
     text: "text-emerald-500 bg-emerald-50",
     file: "text-purple-500 bg-purple-50",
     link: "text-orange-500 bg-orange-50",
-    quiz: "text-red-500 bg-red-50",
+    quiz: "text-red-500 bg-red-50", // Keep for backward compatibility
 };
 
 export default function CurriculumStep({ modules, setModules }: CurriculumStepProps) {

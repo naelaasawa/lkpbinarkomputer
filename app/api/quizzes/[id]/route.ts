@@ -30,7 +30,16 @@ export async function GET(
             return new NextResponse("Quiz not found", { status: 404 });
         }
 
-        return NextResponse.json(quiz);
+        // Transform questions to parse options from JSON string to array
+        const transformedQuiz = {
+            ...quiz,
+            questions: quiz.questions.map(q => ({
+                ...q,
+                options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
+            }))
+        };
+
+        return NextResponse.json(transformedQuiz);
     } catch (error) {
         console.error("[QUIZ_GET]", error);
         return new NextResponse("Internal Error", { status: 500 });

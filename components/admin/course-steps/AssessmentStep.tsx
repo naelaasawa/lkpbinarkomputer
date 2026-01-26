@@ -8,21 +8,27 @@ import Button from "@/components/ui/Button";
 interface Quiz {
     id: string;
     title: string;
-    questionsCount: number;
+    description?: string | null;
+    _count: {
+        questions: number;
+    };
 }
 
 interface Module {
     id: string;
     title: string;
-    lessons: { id: string; title: string; contentType: string; content?: string }[];
+    description: string;
+    order: number;
+    lessons: { id: string; title: string; contentType: "video" | "text" | "file" | "link" | "quiz"; content?: string; order: number; }[];
 }
 
 interface AssessmentStepProps {
     modules: Module[];
+    setModules: (modules: Module[]) => void;
     updateModuleLesson: (moduleIdx: number, lessonIdx: number, field: string, value: string) => void;
 }
 
-export default function AssessmentStep({ modules, updateModuleLesson }: AssessmentStepProps) {
+export default function AssessmentStep({ modules, setModules, updateModuleLesson }: AssessmentStepProps) {
     const [showQuizModal, setShowQuizModal] = useState(false);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [loading, setLoading] = useState(false);
@@ -59,6 +65,40 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
     const openQuizSelector = (moduleIdx: number, lessonIdx: number) => {
         setSelectedTarget({ moduleIdx, lessonIdx });
         setShowQuizModal(true);
+    };
+
+    // Add quiz directly without needing quiz lesson in curriculum
+    const addQuizModule = (quizId: string) => {
+        // Find or create Asesmen module
+        let assessmentModuleIdx = modules.findIndex(m => m.title === "Asesmen" || m.title.toLowerCase().includes("asesmen"));
+
+        const newLesson = {
+            id: `quiz-${Date.now()}`,
+            title: quizzes.find(q => q.id === quizId)?.title || "Kuis",
+            contentType: "quiz" as const,
+            content: quizId,
+            order: 0,
+        };
+
+        if (assessmentModuleIdx === -1) {
+            // Create new Asesmen module
+            const newModule: Module = {
+                id: `asm-${Date.now()}`,
+                title: "Asesmen",
+                description: "Quiz dan evaluasi pembelajaran",
+                order: modules.length,
+                lessons: [newLesson],
+            };
+            setModules([...modules, newModule]);
+        } else {
+            // Add to existing module
+            const newModules = [...modules];
+            newLesson.order = newModules[assessmentModuleIdx].lessons.length;
+            newModules[assessmentModuleIdx].lessons.push(newLesson);
+            setModules(newModules);
+        }
+
+        setShowQuizModal(false);
     };
 
     const parseDocxQuestions = (text: string) => {
@@ -235,9 +275,17 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
 
     const selectQuiz = (quizId: string) => {
         if (selectedTarget) {
+            // Update existing lesson with new quiz ID and title
+            const selectedQuiz = quizzes.find(q => q.id === quizId);
             updateModuleLesson(selectedTarget.moduleIdx, selectedTarget.lessonIdx, "content", quizId);
+            if (selectedQuiz) {
+                updateModuleLesson(selectedTarget.moduleIdx, selectedTarget.lessonIdx, "title", selectedQuiz.title);
+            }
             setShowQuizModal(false);
             setSelectedTarget(null);
+        } else {
+            // Add new quiz lesson
+            addQuizModule(quizId);
         }
     };
 
@@ -264,17 +312,27 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
                     <div className="flex-1">
                         <h3 className="font-semibold text-slate-800 mb-1">Quiz Manager</h3>
                         <p className="text-sm text-slate-500 mb-4">
-                            Buat dan kelola kuis di Quiz Manager, lalu hubungkan ke materi di kursus ini.
+                            Buat dan kelola kuis di Quiz Manager, lalu hubungkan ke kursus ini.
                         </p>
-                        <a
-                            href="/admin/quizzes"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-red-200 rounded-xl text-red-600 font-medium hover:bg-red-50 transition text-sm"
-                        >
-                            <ExternalLink size={16} />
-                            Buka Quiz Manager
-                        </a>
+                        <div className="flex gap-2">
+                            <a
+                                href="/admin/quizzes"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-red-200 rounded-xl text-red-600 font-medium hover:bg-red-50 transition text-sm"
+                            >
+                                <ExternalLink size={16} />
+                                Buka Quiz Manager
+                            </a>
+                            <button
+                                type="button"
+                                onClick={() => setShowQuizModal(true)}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition text-sm"
+                            >
+                                <Plus size={16} />
+                                Tambah Quiz
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -315,38 +373,17 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="secondary"
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                openQuizSelector(lesson.moduleIdx, lesson.lessonIdx);
-                                            }}
-                                        >
-                                            Pilih Kuis
-                                        </Button>
-                                        <div className="relative">
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                icon={<Upload size={14} />}
-                                                onClick={() => {
-                                                    document.getElementById(`upload-quiz-${lesson.id}`)?.click();
-                                                }}
-                                            >
-                                                Buat dari Docx
-                                            </Button>
-                                            <input
-                                                id={`upload-quiz-${lesson.id}`}
-                                                type="file"
-                                                accept=".docx"
-                                                className="hidden"
-                                                onChange={(e) => handleCreateFromDocx(e, lesson.moduleIdx, lesson.lessonIdx)}
-                                            />
-                                        </div>
-                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            openQuizSelector(lesson.moduleIdx, lesson.lessonIdx);
+                                        }}
+                                    >
+                                        Pilih Kuis
+                                    </Button>
                                 )}
                             </div>
                         );
@@ -357,9 +394,9 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
                     <div className="w-16 h-16 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
                         <HelpCircle size={28} className="text-slate-400" />
                     </div>
-                    <h3 className="font-semibold text-slate-700 mb-2">Belum ada materi kuis</h3>
-                    <p className="text-sm text-slate-500 max-w-md mx-auto">
-                        Tambahkan materi dengan tipe "Kuis" di langkah Kurikulum untuk menghubungkan kuis
+                    <h3 className="font-semibold text-slate-700 mb-2">Belum ada kuis</h3>
+                    <p className="text-sm text-slate-500 max-w-md mx-auto mb-4">
+                        Klik tombol "Tambah Quiz" di atas untuk menghubungkan kuis ke kursus ini
                     </p>
                 </div>
             )}
@@ -401,7 +438,7 @@ export default function AssessmentStep({ modules, updateModuleLesson }: Assessme
                                     </div>
                                     <div className="flex-1">
                                         <p className="font-medium text-slate-800">{quiz.title}</p>
-                                        <p className="text-xs text-slate-500">{quiz.questionsCount || 0} pertanyaan</p>
+                                        <p className="text-xs text-slate-500">{quiz._count.questions} pertanyaan</p>
                                     </div>
                                 </button>
                             ))

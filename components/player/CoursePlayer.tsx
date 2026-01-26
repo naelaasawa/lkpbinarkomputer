@@ -3,9 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { ChevronLeft, ChevronRight, PlayCircle, FileText, CheckCircle, Menu, X, Check, ChevronDown, ChevronUp, Star, MessageCircle, Share2, Trophy, Maximize, Minimize } from "lucide-react";
+import { ChevronLeft, ChevronRight, PlayCircle, FileText, CheckCircle, Menu, X, Check, ChevronDown, ChevronUp, Star, MessageCircle, Share2, Trophy, Maximize, Minimize, BookOpen } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/components/ui/Loading";
+import QuizPlayer from "@/components/player/QuizPlayer";
 
 interface Lesson {
     id: string;
@@ -388,58 +389,57 @@ export default function CoursePlayer({ id }: { id: string }) {
 
                 {/* Main Content Area */}
                 <div
-                    className="flex-1 flex flex-col overflow-y-auto bg-slate-50 relative"
+                    className="flex-1 flex flex-col overflow-y-auto bg-white relative"
                     id="main-content"
                     ref={mainContentRef}
                     onScroll={handleScroll}
                 >
 
-                    {/* Video Player Stage - Made Taller */}
-                    {/* Previous classes: relative shrink-0 aspect-video md:aspect-[21/9] lg:aspect-[16/7] xl:aspect-[21/9] 2xl:aspect-[21/8] */}
-                    {/* New classes: Remove the ultra-wide aspects to keep it taller (closer to 16:9 on large screens) */}
-                    <div className="bg-black w-full shadow-lg relative shrink-0 aspect-video md:aspect-[16/9] xl:aspect-[16/9]">
-                        <div className="absolute inset-0 flex items-center justify-center">
+                    {/* Content Stage - Full Width */}
+                    <div className="w-full relative shrink-0 min-h-[600px]">
+                        <div className="w-full h-full flex items-center justify-center">
                             {activeLesson ? (
-                                activeLesson.contentType === 'video' ? (
+                                activeLesson.contentType === 'quiz' ? (
+                                    <QuizPlayer
+                                        quizId={activeLesson.content}
+                                        onComplete={() => markLessonComplete(activeLesson.id)}
+                                    />
+                                ) : activeLesson.contentType === 'video' ? (
                                     activeLesson.content.includes('youtube') || activeLesson.content.includes('youtu.be') ? (
                                         <iframe
                                             src={activeLesson.content.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                                            className="w-full h-full"
+                                            className="w-full aspect-video"
                                             allowFullScreen
                                             title={activeLesson.title}
                                         />
                                     ) : (
-                                        <div className="text-white text-center">
+                                        <div className="text-slate-600 text-center p-8">
                                             <PlayCircle size={64} className="mx-auto mb-4 opacity-50" />
                                             <p>Video Source Unavailable</p>
                                         </div>
                                     )
                                 ) : (
-                                    <div className="absolute inset-0 bg-white overflow-y-auto w-full h-full p-8 md:p-12">
-                                        <div className="max-w-3xl mx-auto prose prose-slate lg:prose-lg">
-                                            <h1>{activeLesson.title}</h1>
+                                    <div className="w-full bg-white overflow-y-auto p-8 md:p-12">
+                                        <div className="w-full">
                                             <div
-                                                className="lesson-content text-slate-700 leading-relaxed [&>p]:mb-6 [&>ul]:mb-6 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-6 [&>ol]:list-decimal [&>ol]:pl-5 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2 [&>img]:rounded-xl [&>img]:my-6 [&>img]:w-full [&>figure]:my-6"
+                                                className="text-slate-900 leading-7 text-[17px] [&>p]:mb-5 [&>ul]:mb-5 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2 [&>img]:max-w-full [&>figure]:my-4"
                                                 dangerouslySetInnerHTML={{ __html: activeLesson.content }}
                                             />
                                         </div>
                                     </div>
                                 )
                             ) : (
-                                <div className="text-white">Select a lesson</div>
+                                <div className="text-slate-600">Select a lesson</div>
                             )}
+
                         </div>
                     </div>
 
                     {/* Navigation Bar */}
-                    <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20 shadow-sm">
+                    <div className="bg-white px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-20">
                         <div className="flex-1">
                             <h2 className="font-bold text-xl text-slate-900 mb-1">{activeLesson?.title || "Course Overview"}</h2>
                             <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                                <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100 uppercase tracking-wide">
-                                    {activeLesson?.contentType || "Lesson"}
-                                </span>
-                                <span>•</span>
                                 <span>{studentCount} Students Enrolled</span>
                             </div>
                         </div>
@@ -667,11 +667,12 @@ export default function CoursePlayer({ id }: { id: string }) {
                             </div>
                         )}
                     </div>
-                </div>
+                </div >
 
 
                 {/* Right Sidebar (Curriculum) - Hidden in Focus Mode */}
-                <div className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white border-l border-slate-200 transform transition-transform duration-300 z-50 flex flex-col md:static md:translate-x-0 ${sidebarOpen && !isFocusMode ? 'translate-x-0' : 'translate-x-full'} ${isFocusMode ? 'hidden' : ''}`}>
+                < div className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white border-l border-slate-200 transform transition-transform duration-300 z-50 flex flex-col md:static md:translate-x-0 ${sidebarOpen && !isFocusMode ? 'translate-x-0' : 'translate-x-full'} ${isFocusMode ? 'hidden' : ''}`
+                }>
                     <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white">
                         <h3 className="font-bold text-slate-900">Course Content</h3>
                         <button onClick={() => setSidebarOpen(false)} className="md:hidden p-2 hover:bg-slate-100 rounded-full text-slate-500"><X size={20} /></button>
@@ -744,8 +745,8 @@ export default function CoursePlayer({ id }: { id: string }) {
                             )
                         })}
                     </div>
-                </div>
-            </div>
+                </div >
+            </div >
         </div >
     );
 }
