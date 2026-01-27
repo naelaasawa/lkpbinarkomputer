@@ -61,7 +61,6 @@ export const AdminSidebar = () => {
         },
         { href: "/admin/users", label: "Users", icon: Users },
         { href: "/admin/activity", label: "Activity", icon: TrendingUp },
-        { href: "/admin/reviews", label: "Reviews", icon: Star },
         {
             label: "Settings",
             icon: Settings,

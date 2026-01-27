@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastProvider } from "@/components/ui/Toast";
+import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import "./globals.css";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
             strategy="lazyOnload"
           />
           <ToastProvider>
+            <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
             {children}
           </ToastProvider>
         </body>

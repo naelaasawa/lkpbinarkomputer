@@ -8,7 +8,10 @@ export async function POST(
 ) {
     try {
         const { userId: clerkUserId } = await auth();
+        console.log("[PROGRESS_API] Auth check:", clerkUserId);
+
         if (!clerkUserId) {
+            console.log("[PROGRESS_API] Unauthorized");
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
@@ -17,12 +20,14 @@ export async function POST(
         });
 
         if (!loggedInUser) {
+            console.log("[PROGRESS_API] User not found in DB");
             return new NextResponse("User not found in database", { status: 404 });
         }
 
         const userId = loggedInUser.id;
 
         const { id, lessonId } = await params;
+        console.log("[PROGRESS_API] Processing:", { courseId: id, lessonId, userId });
 
         // Use transaction to ensure consistency
         const { progressPercentage, completedLessonId } = await prisma.$transaction(async (tx) => {
@@ -57,6 +62,7 @@ export async function POST(
             });
 
             if (!course) {
+                console.log("[PROGRESS_API] Course not found inside tx");
                 throw new Error("Course not found");
             }
 
@@ -74,6 +80,7 @@ export async function POST(
             });
 
             const progressPercentage = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+            console.log("[PROGRESS_API] Calculated progress:", progressPercentage, "%");
 
             // 3. Update or Create Enrollment (Safe)
             await tx.enrollment.upsert({
@@ -96,6 +103,7 @@ export async function POST(
             return { progressPercentage, completedLessonId: lessonId };
         });
 
+        console.log("[PROGRESS_API] Success");
         return NextResponse.json({
             success: true,
             progress: progressPercentage,
@@ -103,7 +111,7 @@ export async function POST(
         });
 
     } catch (error) {
-        console.error("[LESSON_PROGRESS]", error);
+        console.error("[LESSON_PROGRESS] Error details:", error);
         return new NextResponse("Internal Error", { status: 500 });
     }
 }

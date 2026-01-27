@@ -12,7 +12,6 @@ export const Sidebar = () => {
     const navItems = [
         { label: "Home", href: "/dashboard", icon: Home },
         { label: "Courses", href: "/courses", icon: BookOpen },
-        { label: "Quizzes", href: "/quizzes", icon: HelpCircle },
         { label: "My Learning", href: "/my-learning", icon: GraduationCap },
         { label: "Profile", href: "/profile", icon: User },
         { label: "Settings", href: "/settings", icon: Settings },

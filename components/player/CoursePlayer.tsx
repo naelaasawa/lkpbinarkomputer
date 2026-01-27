@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { ChevronLeft, ChevronRight, PlayCircle, FileText, CheckCircle, Menu, X, Check, ChevronDown, ChevronUp, Star, MessageCircle, Share2, Trophy, Maximize, Minimize, BookOpen } from "lucide-react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import Loading from "@/components/ui/Loading";
 import QuizPlayer from "@/components/player/QuizPlayer";
 
@@ -95,9 +96,15 @@ export default function CoursePlayer({ id }: { id: string }) {
             const res = await fetch(`/api/courses/${course.id}/lessons/${lessonId}/progress`, {
                 method: "POST"
             });
-            if (!res.ok) throw new Error("API Error");
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`API Error: ${text}`);
+            }
+            toast.success("Lesson Completed!");
         } catch (error) {
             console.error("Failed to save progress", error);
+            // @ts-ignore
+            toast.error(`Failed to save progress: ${error.message}`);
             // Revert on failure
             setCompletedLessons(prev => {
                 const next = new Set(prev);
@@ -124,17 +131,17 @@ export default function CoursePlayer({ id }: { id: string }) {
         fetchProgress();
     }, [course]);
 
-    // Scroll Detection for Completion
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    // Auto-complete lesson immediately when loaded
+    useEffect(() => {
+        if (!activeLesson || !course) return;
 
-        // Check if user is near bottom (within 100px)
-        if (scrollTop + clientHeight >= scrollHeight - 100) {
-            if (activeLesson && !completedLessons.has(activeLesson.id)) {
-                markLessonComplete(activeLesson.id);
-            }
-        }
-    };
+        // If already completed, do nothing
+        if (completedLessons.has(activeLesson.id)) return;
+
+        // Immediate completion
+        markLessonComplete(activeLesson.id);
+
+    }, [activeLesson, course, completedLessons]);
 
     useEffect(() => {
         if (isLoaded && !user) {
@@ -392,12 +399,11 @@ export default function CoursePlayer({ id }: { id: string }) {
                     className="flex-1 flex flex-col overflow-y-auto bg-white relative"
                     id="main-content"
                     ref={mainContentRef}
-                    onScroll={handleScroll}
                 >
 
                     {/* Content Stage - Full Width */}
-                    <div className="w-full relative shrink-0 min-h-[600px]">
-                        <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full relative shrink-0 min-h-full">
+                        <div className="w-full h-full flex flex-col">
                             {activeLesson ? (
                                 activeLesson.contentType === 'quiz' ? (
                                     <QuizPlayer
@@ -413,7 +419,7 @@ export default function CoursePlayer({ id }: { id: string }) {
                                             title={activeLesson.title}
                                         />
                                     ) : (
-                                        <div className="text-slate-600 text-center p-8">
+                                        <div className="text-slate-600 text-center p-8 flex-1 flex flex-col items-center justify-center">
                                             <PlayCircle size={64} className="mx-auto mb-4 opacity-50" />
                                             <p>Video Source Unavailable</p>
                                         </div>
@@ -425,11 +431,13 @@ export default function CoursePlayer({ id }: { id: string }) {
                                                 className="text-slate-900 leading-7 text-[17px] [&>p]:mb-5 [&>ul]:mb-5 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2 [&>img]:max-w-full [&>figure]:my-4"
                                                 dangerouslySetInnerHTML={{ __html: activeLesson.content }}
                                             />
+
+
                                         </div>
                                     </div>
                                 )
                             ) : (
-                                <div className="text-slate-600">Select a lesson</div>
+                                <div className="text-slate-600 flex-1 flex flex-col items-center justify-center">Select a lesson</div>
                             )}
 
                         </div>
@@ -459,8 +467,18 @@ export default function CoursePlayer({ id }: { id: string }) {
                                 title="Next Lesson"
                             >
                                 <span className="hidden md:inline">Next</span>
-                                <ChevronRight size={16} />
                             </button>
+
+                            {course && (completedLessons.size / (course.modules.reduce((acc, m) => acc + m.lessons.length, 0) || 1)) >= 1 && (
+                                <button
+                                    onClick={() => window.open(`/certificate/${course.id}`, "_blank")}
+                                    className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg shadow-sm transition-colors animate-pulse font-bold text-sm"
+                                    title="Get Certificate"
+                                >
+                                    <Trophy size={16} />
+                                    <span className="hidden md:inline">Get Certificate</span>
+                                </button>
+                            )}
 
                             <div className="w-px h-6 bg-slate-200 mx-2 hidden md:block"></div>
 
@@ -750,3 +768,5 @@ export default function CoursePlayer({ id }: { id: string }) {
         </div >
     );
 }
+
+
