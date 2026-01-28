@@ -110,6 +110,7 @@ jobs:
             cd ~/lkpbinarkomputer
             git fetch origin main
             git reset --hard origin/main
+            npm i --force
             npm run build
           EOF
 
