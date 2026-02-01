@@ -65,7 +65,8 @@ export const ModelName = {
   Note: 'Note',
   UserProgress: 'UserProgress',
   SiteSettings: 'SiteSettings',
-  Purchase: 'Purchase'
+  Purchase: 'Purchase',
+  Certificate: 'Certificate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -302,6 +303,17 @@ export const PurchaseScalarFieldEnum = {
 export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typeof PurchaseScalarFieldEnum]
 
 
+export const CertificateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  courseId: 'courseId',
+  issuedAt: 'issuedAt',
+  uniqueId: 'uniqueId'
+} as const
+
+export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -489,4 +501,14 @@ export const PurchaseOrderByRelevanceFieldEnum = {
 } as const
 
 export type PurchaseOrderByRelevanceFieldEnum = (typeof PurchaseOrderByRelevanceFieldEnum)[keyof typeof PurchaseOrderByRelevanceFieldEnum]
+
+
+export const CertificateOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  courseId: 'courseId',
+  uniqueId: 'uniqueId'
+} as const
+
+export type CertificateOrderByRelevanceFieldEnum = (typeof CertificateOrderByRelevanceFieldEnum)[keyof typeof CertificateOrderByRelevanceFieldEnum]
 

@@ -18,17 +18,17 @@ export default async function Profile() {
         include: {
             enrollments: {
                 include: {
-                    course: true // Include course to check certificateEnabled
+                    course: true
                 }
-            }
+            },
+            certificates: true,
         }
     });
 
     const enrollments = dbUser?.enrollments || [];
     const totalCourses = enrollments.length;
     const completedCourses = enrollments.filter(e => e.progress === 100).length;
-    // Assume 1 course ~ 5 hours on average for estimation, or just show Completed count
-    const totalCertificates = enrollments.filter(e => e.progress === 100 && e.course.certificateEnabled).length;
+    const totalCertificates = dbUser?.certificates.length || 0;
 
     return (
         <div className="flex flex-col min-h-screen bg-slate-50">

@@ -471,8 +471,8 @@ export default function CoursePlayer({ id }: { id: string }) {
 
                             {course && (completedLessons.size / (course.modules.reduce((acc, m) => acc + m.lessons.length, 0) || 1)) >= 1 && (
                                 <button
-                                    onClick={() => window.open(`/certificate/${course.id}`, "_blank")}
-                                    className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg shadow-sm transition-colors animate-pulse font-bold text-sm"
+                                    onClick={() => router.push(`/certificate/${course.id}`)}
+                                    className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg shadow-sm transition-colors font-bold text-sm"
                                     title="Get Certificate"
                                 >
                                     <Trophy size={16} />
@@ -763,6 +763,20 @@ export default function CoursePlayer({ id }: { id: string }) {
                             )
                         })}
                     </div>
+
+
+                    {/* Sidebar Footer: Certificate Button */}
+                    {course && (completedLessons.size / (course.modules.reduce((acc, m) => acc + m.lessons.length, 0) || 1)) >= 1 && (
+                        <div className="p-4 border-t border-slate-200 bg-white">
+                            <button
+                                onClick={() => router.push(`/certificate/${course.id}`)}
+                                className="w-full flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg shadow-sm transition-colors font-bold text-sm"
+                            >
+                                <Trophy size={18} />
+                                <span>Get Certificate</span>
+                            </button>
+                        </div>
+                    )}
                 </div >
             </div >
         </div >

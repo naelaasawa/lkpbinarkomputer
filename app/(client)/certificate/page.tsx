@@ -1,140 +1,109 @@
-"use client";
-
-import { Award, Download, Share2, FileText, Calendar } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { Award, Calendar, ArrowRight, ExternalLink } from "lucide-react";
 
-export default function Certificate() {
-    const [filter, setFilter] = useState("All");
+export default async function CertificateListPage() {
+    const user = await currentUser();
 
-    const certificates = [
-        {
-            id: "CERT-001",
-            course: "Introduction to Data Science",
-            date: "Dec 15, 2024",
-            instructor: "Dr. Budi Santoso",
-            grade: "A",
-            skills: ["Python", "Pandas", "Data Visualization"],
-            color: "from-green-500 to-emerald-700"
+    if (!user) {
+        return redirect("/sign-in");
+    }
+
+    const certificates = await prisma.certificate.findMany({
+        where: {
+            user: {
+                clerkId: user.id
+            }
         },
-        {
-            id: "CERT-002",
-            course: "Basic Office Productivity",
-            date: "Nov 20, 2024",
-            instructor: "Siti Rahma",
-            grade: "A",
-            skills: ["Word", "Excel", "PowerPoint"],
-            color: "from-orange-400 to-red-500"
+        include: {
+            course: true
+        },
+        orderBy: {
+            issuedAt: 'desc'
         }
-    ];
+    });
 
     return (
-        <div className="flex flex-col gap-6 px-6 pt-8 min-h-screen bg-slate-50">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-slate-800">My Certificates</h1>
-                <p className="text-sm text-gray-500">Showcase your achievements.</p>
-            </div>
+        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-slate-900">My Certificates</h1>
+                    <p className="text-slate-600 mt-2">View and manage your earned certificates.</p>
+                </div>
 
-            {/* Filter Chips - Simplified for now as there are few items */}
-            <div className="flex gap-2">
-                {["All", "Coding", "Design", "Office"].map((f) => (
-                    <button
-                        key={f}
-                        onClick={() => setFilter(f)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${filter === f
-                                ? "bg-slate-800 text-white border-slate-800"
-                                : "bg-white text-gray-500 border-gray-200"
-                            }`}
-                    >
-                        {f}
-                    </button>
-                ))}
-            </div>
-
-            {/* Certificate List */}
-            <div className="flex flex-col gap-5 pb-4">
-                {certificates.map((cert) => (
-                    <div key={cert.id} className="relative group">
-                        {/* Certificate Card */}
-                        <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${cert.color} rounded-2xl shadow-lg relative overflow-hidden p-5 flex flex-col justify-between text-white`}>
-
-                            {/* Background Pattern */}
-                            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 2px, transparent 2.5px)', backgroundSize: '20px 20px' }}></div>
-                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
-
-                            <div className="relative z-10 flex justify-between items-start">
-                                <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg">
-                                    <Award size={16} className="text-white" />
-                                    <span className="text-xs font-bold tracking-wide">CERTIFIED</span>
-                                </div>
-                                <span className="text-[10px] font-mono opacity-80 pt-1">ID: {cert.id}</span>
-                            </div>
-
-                            <div className="relative z-10 text-center">
-                                <h3 className="text-lg font-bold leading-tight mb-1 font-serif tracking-wide">{cert.course}</h3>
-                                <p className="text-xs opacity-90">Completed by Student Binar</p>
-                            </div>
-
-                            <div className="relative z-10 flex justify-between items-end">
-                                <div className="text-left">
-                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Date</p>
-                                    <p className="text-xs font-medium">{cert.date}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Instructor</p>
-                                    <div className="h-6 w-auto bg-white/20 mt-1 rounded px-2 flex items-center justify-center">
-                                        <span className="text-[10px] font-signature italic">{cert.instructor}</span>
-                                    </div>
-                                </div>
-                            </div>
+                {certificates.length === 0 ? (
+                    <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
+                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <Award size={32} />
                         </div>
-
-                        {/* Actions */}
-                        <div className="flex bg-white rounded-xl shadow-sm border border-gray-100 p-3 mt-3 justify-between items-center">
-                            <div className="flex gap-3 text-sm text-slate-700">
-                                <button className="flex flex-col items-center gap-1 hover:text-blue-600 transition-colors">
-                                    <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-600">
-                                        <Download size={16} />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Download</span>
-                                </button>
-                                <button className="flex flex-col items-center gap-1 hover:text-blue-600 transition-colors">
-                                    <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-600">
-                                        <Share2 size={16} />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Share</span>
-                                </button>
-                                <button className="flex flex-col items-center gap-1 hover:text-blue-600 transition-colors">
-                                    <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-600">
-                                        <FileText size={16} />
-                                    </div>
-                                    <span className="text-[10px] font-medium">Details</span>
-                                </button>
-                            </div>
-
-                            <Link href={`/certificate/${cert.id}`} className="text-xs font-bold text-blue-600 hover:underline">
-                                View Full
-                            </Link>
-                        </div>
-                    </div>
-                ))}
-
-                {/* Empty State hint */}
-                <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 flex gap-3 items-start">
-                    <div className="bg-blue-100 p-2 rounded-full text-blue-600 mt-0.5">
-                        <Calendar size={18} />
-                    </div>
-                    <div>
-                        <h4 className="text-sm font-bold text-slate-800">Want more certificates?</h4>
-                        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                            Complete your ongoing courses to earn more badges and certificates for your portfolio.
-                        </p>
-                        <Link href="/my-learning" className="inline-block mt-2 text-xs font-bold text-blue-600">
-                            Go to My Learning
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">No certificates yet</h3>
+                        <p className="text-slate-500 mb-6">Complete courses to earn certificates.</p>
+                        <Link
+                            href="/courses"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition"
+                        >
+                            Browse Courses
+                            <ArrowRight size={18} />
                         </Link>
                     </div>
-                </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {certificates.map((cert) => (
+                            <div key={cert.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                                {/* Thumbnail Preview */}
+                                <div className="aspect-[16/9] relative border-b border-slate-100 bg-white p-4 flex items-center justify-center overflow-hidden group-hover:bg-slate-50 transition-colors">
+                                    <div className="w-full h-full border-[6px] double border-slate-800 bg-white relative flex flex-col items-center justify-center text-center p-2 shadow-sm transform group-hover:scale-[1.02] transition-transform duration-500">
+                                        {/* Decorative Corner */}
+                                        <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-yellow-500"></div>
+                                        <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-yellow-500"></div>
+
+                                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mb-2">
+                                            <Award size={16} />
+                                        </div>
+                                        <h4 className="text-[10px] uppercase tracking-widest text-blue-600 font-bold mb-1">Certificate</h4>
+                                        <div className="text-[14px] font-serif font-bold text-slate-900 line-clamp-1 leading-tight mb-1 px-4">
+                                            {cert.course.title}
+                                        </div>
+                                        <div className="text-[8px] text-slate-500 italic">
+                                            Awarded to {user.fullName}
+                                        </div>
+                                        <div className="text-[8px] text-slate-400 mt-2 font-mono">
+                                            {cert.issuedAt.toLocaleDateString()}
+                                        </div>
+                                    </div>
+
+                                    {/* Overlay Action */}
+                                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors flex items-center justify-center">
+                                        <span className="bg-white text-slate-900 px-4 py-2 rounded-full text-xs font-bold shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                            View Details
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="p-6">
+                                    <h3 className="font-bold text-lg text-slate-900 mb-2 line-clamp-2" title={cert.course.title}>
+                                        {cert.course.title}
+                                    </h3>
+
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
+                                        <Calendar size={14} />
+                                        <span>Issued on {cert.issuedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                    </div>
+
+                                    <Link
+                                        href={`/certificate/${cert.courseId}`}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                                    >
+                                        <ExternalLink size={16} />
+                                        View Details
+                                    </Link>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

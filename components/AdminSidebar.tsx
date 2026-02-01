@@ -20,7 +20,8 @@ import {
     MapPin,
     Building,
     UserCircle,
-    LayoutTemplate
+    LayoutTemplate,
+    Award
 } from "lucide-react";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 
@@ -59,6 +60,7 @@ export const AdminSidebar = () => {
                 { href: "/admin/assignments", label: "Assignments" },
             ]
         },
+        { href: "/admin/certificates", label: "Certificates", icon: Award },
         { href: "/admin/users", label: "Users", icon: Users },
         { href: "/admin/activity", label: "Activity", icon: TrendingUp },
         {

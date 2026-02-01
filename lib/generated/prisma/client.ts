@@ -114,3 +114,8 @@ export type SiteSettings = Prisma.SiteSettingsModel
  * 
  */
 export type Purchase = Prisma.PurchaseModel
+/**
+ * Model Certificate
+ * 
+ */
+export type Certificate = Prisma.CertificateModel

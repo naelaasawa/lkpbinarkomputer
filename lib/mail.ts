@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-export const sendCertificateEmail = async (to: string, userName: string, courseName: string) => {
+export const sendCertificateEmail = async (to: string, userName: string, courseName: string, attachmentBuffer?: Buffer) => {
     // 1. Simulation Mode (Fallback)
     if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
         console.log("==================================================================");
@@ -8,6 +8,9 @@ export const sendCertificateEmail = async (to: string, userName: string, courseN
         console.log(` To: ${to}`);
         console.log(` Subject: Certificate of Completion - ${courseName}`);
         console.log(" Content: Congratulations! You have completed the course.");
+        if (attachmentBuffer) {
+            console.log(` [Attachment] Certificate PDF present (${attachmentBuffer.length} bytes)`);
+        }
         console.log(" (To send real emails, set GMAIL_USER and GMAIL_PASS in .env)");
         console.log("==================================================================");
         return true; // Pretend it succeeded
@@ -21,7 +24,7 @@ export const sendCertificateEmail = async (to: string, userName: string, courseN
         }
     });
 
-    const mailOptions = {
+    const mailOptions: any = {
         from: process.env.GMAIL_USER,
         to: to,
         subject: `Certificate of Completion - ${courseName}`,
@@ -33,7 +36,7 @@ export const sendCertificateEmail = async (to: string, userName: string, courseN
                 </p>
                 <div style="margin: 30px 0; text-align: center;">
                     <p style="font-size: 14px; color: #6b7280;">
-                        This creates a formal record of your achievement.
+                        Attached is your official certificate.
                     </p>
                 </div>
                 <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
@@ -43,6 +46,15 @@ export const sendCertificateEmail = async (to: string, userName: string, courseN
             </div>
         `
     };
+
+    if (attachmentBuffer) {
+        mailOptions.attachments = [
+            {
+                filename: `Certificate - ${courseName}.pdf`,
+                content: attachmentBuffer
+            }
+        ];
+    }
 
     try {
         await transporter.sendMail(mailOptions);

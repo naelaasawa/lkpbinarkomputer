@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { sendCertificateEmail } from "@/lib/mail";
+import { generateCertificate } from "@/lib/certificate";
 
 export async function POST(
     req: Request,
@@ -46,6 +47,32 @@ export async function POST(
             return new NextResponse("Course not found", { status: 404 });
         }
 
+        // Generate Certificate
+        const fullName = user.fullName || "Student";
+        const certificateBuffer = await generateCertificate(fullName, course.title);
+
+        // Save to Database
+        // Check if certificate already exists to avoid duplicates
+        let certificate = await prisma.certificate.findUnique({
+            where: {
+                userId_courseId: {
+                    userId: loggedInUser.id,
+                    courseId: id
+                }
+            }
+        });
+
+        if (!certificate) {
+            const uniqueId = Math.random().toString(36).substring(2, 10).toUpperCase();
+            certificate = await prisma.certificate.create({
+                data: {
+                    userId: loggedInUser.id,
+                    courseId: id,
+                    uniqueId: uniqueId
+                }
+            });
+        }
+
         // Get email from body if provided, otherwise use login email
         let targetEmail = user.emailAddresses[0].emailAddress;
         try {
@@ -59,15 +86,20 @@ export async function POST(
 
         const emailSent = await sendCertificateEmail(
             targetEmail,
-            user.fullName || "Student",
-            course.title
+            fullName,
+            course.title,
+            certificateBuffer
         );
 
         if (!emailSent) {
             return new NextResponse("Failed to send email", { status: 500 });
         }
 
-        return NextResponse.json({ success: true, email: targetEmail });
+        return NextResponse.json({
+            success: true,
+            email: targetEmail,
+            certificateId: certificate.uniqueId
+        });
 
     } catch (error) {
         console.error("[CERTIFICATE_API]", error);
