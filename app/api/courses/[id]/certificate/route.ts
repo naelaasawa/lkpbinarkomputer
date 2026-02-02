@@ -49,7 +49,14 @@ export async function POST(
 
         // Generate Certificate
         const fullName = user.fullName || "Student";
-        const certificateBuffer = await generateCertificate(fullName, course.title);
+        let certificateBuffer: Buffer;
+        try {
+            certificateBuffer = await generateCertificate(fullName, course.title);
+            console.log("✅ Certificate generated successfully");
+        } catch (certError) {
+            console.error("❌ Certificate generation failed:", certError);
+            return new NextResponse("Failed to generate certificate", { status: 500 });
+        }
 
         // Save to Database
         // Check if certificate already exists to avoid duplicates
@@ -84,6 +91,7 @@ export async function POST(
             // Ignore if no body
         }
 
+        console.log(`📧 Attempting to send certificate to: ${targetEmail}`);
         const emailSent = await sendCertificateEmail(
             targetEmail,
             fullName,
@@ -92,9 +100,11 @@ export async function POST(
         );
 
         if (!emailSent) {
+            console.error("❌ Email sending failed");
             return new NextResponse("Failed to send email", { status: 500 });
         }
 
+        console.log("✅ Certificate claim completed successfully");
         return NextResponse.json({
             success: true,
             email: targetEmail,
@@ -102,7 +112,10 @@ export async function POST(
         });
 
     } catch (error) {
-        console.error("[CERTIFICATE_API]", error);
+        console.error("[CERTIFICATE_API] Unexpected error:", error);
+        if (error instanceof Error) {
+            console.error("Error details:", error.message);
+        }
         return new NextResponse("Internal Error", { status: 500 });
     }
 }

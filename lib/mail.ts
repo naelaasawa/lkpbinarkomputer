@@ -58,10 +58,15 @@ export const sendCertificateEmail = async (to: string, userName: string, courseN
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Email sent to ${to}`);
+        console.log(`✅ Email sent successfully to ${to}`);
         return true;
     } catch (error) {
-        console.error("Error sending email:", error);
+        console.error("❌ Error sending email:", error);
+        // Log more details for debugging
+        if (error instanceof Error) {
+            console.error("Error message:", error.message);
+            console.error("Error stack:", error.stack);
+        }
         return false;
     }
 };
