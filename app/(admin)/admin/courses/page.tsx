@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, BookOpen, Plus, Edit, Trash2, MoreVertical, Eye } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Search, BookOpen, Plus, Edit, Trash2, MoreVertical, Eye, Upload, Download } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 import EmptyState from "@/components/ui/EmptyState";
 import Link from "next/link";
@@ -16,10 +16,116 @@ export default function CoursesPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
-    // Delete State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Import State
+    const [isImporting, setIsImporting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Bulk Action State
+    const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            setSelectedCourses(courses.map(c => c.id));
+        } else {
+            setSelectedCourses([]);
+        }
+    };
+
+    const handleSelectCourse = (courseId: string, checked: boolean) => {
+        if (checked) {
+            setSelectedCourses(prev => [...prev, courseId]);
+        } else {
+            setSelectedCourses(prev => prev.filter(id => id !== courseId));
+        }
+    };
+
+    const handleBulkExport = async () => {
+        if (selectedCourses.length === 0) return;
+        setIsExporting(true);
+        try {
+            const res = await fetch("/api/courses/export/bulk", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ courseIds: selectedCourses }),
+            });
+
+            if (!res.ok) throw new Error("Export failed");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+
+            // Determine filename
+            if (selectedCourses.length === 1) {
+                const course = courses.find(c => c.id === selectedCourses[0]);
+                const title = course ? course.title.replace(/[^a-z0-9]/gi, '_') : 'course';
+                a.download = `course_${title}.zip`;
+            } else {
+                a.download = `bulk_export_${selectedCourses.length}_courses.zip`;
+            }
+
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            toast.success(`Exported ${selectedCourses.length} course(s) successfully`);
+            setSelectedCourses([]); // Clear selection after export
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to export courses");
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.name.endsWith(".zip")) {
+            toast.error("Please select a ZIP file");
+            return;
+        }
+
+        setIsImporting(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch("/api/courses/import", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                toast.success("Course imported successfully!");
+                fetchCourses();
+            } else {
+                throw new Error(data.error || "Failed to import course");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Failed to import course");
+        } finally {
+            setIsImporting(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        }
+    };
 
     // Debounce search
     useEffect(() => {
@@ -98,6 +204,38 @@ export default function CoursesPage() {
                         Create New Course
                     </button>
                 </Link>
+
+                {selectedCourses.length > 0 && (
+                    <button
+                        onClick={handleBulkExport}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium transition w-full sm:w-auto justify-center"
+                    >
+                        <Download size={18} />
+                        {isExporting
+                            ? "Exporting..."
+                            : selectedCourses.length === 1
+                                ? "Export Selected"
+                                : `Export Selected (${selectedCourses.length})`
+                        }
+                    </button>
+                )}
+
+                <button
+                    onClick={handleImportClick}
+                    disabled={isImporting}
+                    className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition w-full sm:w-auto justify-center"
+                >
+                    <Upload size={18} />
+                    {isImporting ? "Importing..." : "Import Course"}
+                </button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept=".zip"
+                    onChange={handleFileChange}
+                />
             </div>
 
             {/* Search */}
@@ -141,6 +279,14 @@ export default function CoursesPage() {
                             <table className="w-full text-left text-sm">
                                 <thead className="bg-slate-50 border-b border-slate-100">
                                     <tr>
+                                        <th className="px-6 py-4 w-10">
+                                            <input
+                                                type="checkbox"
+                                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                checked={courses.length > 0 && selectedCourses.length === courses.length}
+                                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                            />
+                                        </th>
                                         <th className="px-6 py-4 font-semibold text-slate-700">Title</th>
                                         <th className="px-6 py-4 font-semibold text-slate-700">Category</th>
                                         <th className="px-6 py-4 font-semibold text-slate-700">Status</th>
@@ -151,7 +297,15 @@ export default function CoursesPage() {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {courses.map((course) => (
-                                        <tr key={course.id} className="hover:bg-slate-50 transition group cursor-pointer" onClick={() => router.push(`/admin/courses/${course.id}/edit`)}>
+                                        <tr key={course.id} className={`hover:bg-slate-50 transition group cursor-pointer ${selectedCourses.includes(course.id) ? "bg-blue-50/50" : ""}`} onClick={() => router.push(`/admin/courses/${course.id}/edit`)}>
+                                            <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                    checked={selectedCourses.includes(course.id)}
+                                                    onChange={(e) => handleSelectCourse(course.id, e.target.checked)}
+                                                />
+                                            </td>
                                             <td className="px-6 py-4 font-medium text-slate-900">
                                                 <div className="flex items-center gap-3">
                                                     {course.imageUrl ? (
