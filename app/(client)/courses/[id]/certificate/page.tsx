@@ -65,10 +65,10 @@ export default function CertificatePage({ params }: CertificatePageProps) {
             for (const entry of entries) {
                 const { width, height } = entry.contentRect;
                 if (width && height) {
-                    // 16:9 Landscape Dimensions: 1280px x 720px
-                    const widthRatio = width / 1280;
-                    const heightRatio = height / 720;
-                    const newScale = Math.min(widthRatio, heightRatio) * 0.50; // Reduced to 0.50
+                    // Template Dimensions: 1024px x 682px
+                    const widthRatio = width / 1024;
+                    const heightRatio = height / 682;
+                    const newScale = Math.min(widthRatio, heightRatio) * 0.85; // Adjusted for better fit
                     setScale(newScale);
                 }
             }
@@ -176,14 +176,14 @@ export default function CertificatePage({ params }: CertificatePageProps) {
                         className="w-full relative flex items-center justify-center"
                         style={{
                             maxWidth: '900px',
-                            aspectRatio: '16/9',
+                            aspectRatio: '1024/682',
                             overflow: 'visible',
                         }}
                     >
                         <div
                             style={{
-                                width: '1280px',
-                                height: '720px',
+                                width: '1024px',
+                                height: '682px',
                                 transform: `scale(${scale})`,
                                 transformOrigin: 'center center',
                                 position: 'absolute',
@@ -265,7 +265,7 @@ export default function CertificatePage({ params }: CertificatePageProps) {
 
             {/* HIDDEN EXPORT DOM */}
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', visibility: 'hidden', overflow: 'hidden' }}>
-                <div ref={exportRef} style={{ width: '1280px', height: '720px', backgroundColor: '#ffffff' }}>
+                <div ref={exportRef} style={{ width: '1024px', height: '682px', backgroundColor: '#ffffff' }}>
                     <CertificateContent user={user} course={course} />
                 </div>
             </div>
@@ -273,60 +273,156 @@ export default function CertificatePage({ params }: CertificatePageProps) {
     );
 }
 
-// Certificate Content Component (16:9 - 1280x720)
+// Certificate Content Component (1024x682 - matching template)
 function CertificateContent({ user, course }: { user: any, course: any }) {
+    const currentDate = new Date();
+    const periodStr = currentDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long' });
+    const issueDateStr = currentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
     return (
         <div
             style={{
-                width: '1280px',
-                height: '720px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                textAlign: 'center',
-                padding: '48px',
-                border: '12px double #0f172a',
-                backgroundImage: "radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%)",
-                boxSizing: 'border-box',
+                width: '1024px',
+                height: '682px',
                 position: 'relative',
+                overflow: 'hidden',
                 backgroundColor: '#ffffff'
             }}
         >
-            {/* Ornamental Corners */}
-            <div style={{ position: 'absolute', top: '20px', left: '20px', width: '70px', height: '70px', borderTop: '4px solid #eab308', borderLeft: '4px solid #eab308' }}></div>
-            <div style={{ position: 'absolute', top: '20px', right: '20px', width: '70px', height: '70px', borderTop: '4px solid #eab308', borderRight: '4px solid #eab308' }}></div>
-            <div style={{ position: 'absolute', bottom: '20px', left: '20px', width: '70px', height: '70px', borderBottom: '4px solid #eab308', borderLeft: '4px solid #eab308' }}></div>
-            <div style={{ position: 'absolute', bottom: '20px', right: '20px', width: '70px', height: '70px', borderBottom: '4px solid #eab308', borderRight: '4px solid #eab308' }}></div>
+            {/* Background Template Image */}
+            <Image
+                src="/template-sertifikat.png.jpeg"
+                alt="Certificate Template"
+                fill
+                style={{ objectFit: 'cover' }}
+                priority
+            />
 
-            <div style={{ marginBottom: '32px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: "#2563eb", color: "#ffffff", display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
-                    <Trophy size={36} />
+            {/* Text Overlays */}
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '48px'
+                }}
+            >
+                {/* User Name - Center, ~290px from top */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '290px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        textAlign: 'center',
+                        width: '80%'
+                    }}
+                >
+                    <p
+                        style={{
+                            fontSize: '38px',
+                            fontWeight: 'bold',
+                            color: '#1a1a2e',
+                            margin: 0,
+                            textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        {user?.fullName || "Student Name"}
+                    </p>
                 </div>
-                <h2 style={{ color: '#2563eb', fontWeight: 'bold', letterSpacing: '0.25em', textTransform: 'uppercase', fontSize: '14px', margin: 0 }}>Certificate of Completion</h2>
-                <h1 style={{ fontSize: '48px', fontFamily: 'serif', color: '#0f172a', fontWeight: 'bold', margin: '16px 0' }}>LKP BINAR KOMPUTER</h1>
-            </div>
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', alignItems: 'center' }}>
-                <p style={{ color: '#64748b', fontStyle: 'italic', fontSize: '16px', margin: 0 }}>This is to certify that</p>
-                <p style={{ fontSize: '36px', fontFamily: 'serif', fontWeight: 'bold', color: '#0f172a', borderBottom: '2px solid #e2e8f0', paddingBottom: '16px', marginTop: '12px', marginBottom: '12px', minWidth: '400px' }}>
-                    {user?.fullName || "Student Name"}
-                </p>
-                <p style={{ color: '#64748b', fontStyle: 'italic', fontSize: '16px', margin: '12px 0' }}>has successfully completed the course</p>
-                <h3 style={{ fontSize: '30px', fontWeight: 'bold', color: '#1d4ed8', textTransform: 'uppercase', margin: 0 }}>
-                    {course.title}
-                </h3>
-            </div>
-
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '32px', borderTop: '1px solid #e2e8f0', paddingTop: '20px', paddingLeft: '20px', paddingRight: '20px' }}>
-                <div style={{ textAlign: 'left' }}>
-                    <div style={{ height: '32px', marginBottom: '8px' }}></div>
-                    <p style={{ color: '#0f172a', fontWeight: 'bold', fontSize: '16px', margin: 0 }}>Instructor Name</p>
-                    <p style={{ color: '#64748b', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Instructor</p>
+                {/* Course Name - Center, ~370px from top */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '370px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        textAlign: 'center',
+                        width: '80%'
+                    }}
+                >
+                    <p
+                        style={{
+                            fontSize: '28px',
+                            fontWeight: 'bold',
+                            color: '#1e40af',
+                            margin: 0,
+                            textTransform: 'uppercase',
+                            textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        {course.title}
+                    </p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                    <p style={{ color: '#0f172a', fontWeight: 'bold', fontSize: '16px', margin: 0 }}>{new Date().toLocaleDateString()}</p>
-                    <p style={{ color: '#64748b', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Date</p>
+
+                {/* Predicate - Center, ~415px from top */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '415px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        textAlign: 'center'
+                    }}
+                >
+                    <p
+                        style={{
+                            fontSize: '16px',
+                            color: '#1e40af',
+                            margin: 0
+                        }}
+                    >
+                        {/* Predicate can be added here if available */}
+                        {/* Dengan predikat {predicate} */}
+                    </p>
+                </div>
+
+                {/* Period - Left bottom, ~565px from top */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '565px',
+                        left: '190px',
+                        textAlign: 'center'
+                    }}
+                >
+                    <p
+                        style={{
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#1a1a2e',
+                            margin: 0
+                        }}
+                    >
+                        {periodStr}
+                    </p>
+                </div>
+
+                {/* Issue Date - Right bottom, ~565px from top */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '565px',
+                        right: '190px',
+                        textAlign: 'center'
+                    }}
+                >
+                    <p
+                        style={{
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#1a1a2e',
+                            margin: 0
+                        }}
+                    >
+                        {issueDateStr}
+                    </p>
                 </div>
             </div>
         </div>

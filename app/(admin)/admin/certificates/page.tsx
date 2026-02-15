@@ -68,7 +68,7 @@ export default async function CertificatesPage() {
                                     <tr key={cert.id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="font-mono text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                                                {cert.uniqueId}
+                                                {cert.certificateNumber}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">

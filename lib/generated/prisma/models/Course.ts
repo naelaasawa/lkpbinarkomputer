@@ -56,6 +56,7 @@ export type CourseMinAggregateOutputType = {
   targetAudience: string | null
   visibility: string | null
   whatYouLearn: string | null
+  courseCode: string | null
 }
 
 export type CourseMaxAggregateOutputType = {
@@ -80,6 +81,7 @@ export type CourseMaxAggregateOutputType = {
   targetAudience: string | null
   visibility: string | null
   whatYouLearn: string | null
+  courseCode: string | null
 }
 
 export type CourseCountAggregateOutputType = {
@@ -104,6 +106,7 @@ export type CourseCountAggregateOutputType = {
   targetAudience: number
   visibility: number
   whatYouLearn: number
+  courseCode: number
   _all: number
 }
 
@@ -138,6 +141,7 @@ export type CourseMinAggregateInputType = {
   targetAudience?: true
   visibility?: true
   whatYouLearn?: true
+  courseCode?: true
 }
 
 export type CourseMaxAggregateInputType = {
@@ -162,6 +166,7 @@ export type CourseMaxAggregateInputType = {
   targetAudience?: true
   visibility?: true
   whatYouLearn?: true
+  courseCode?: true
 }
 
 export type CourseCountAggregateInputType = {
@@ -186,6 +191,7 @@ export type CourseCountAggregateInputType = {
   targetAudience?: true
   visibility?: true
   whatYouLearn?: true
+  courseCode?: true
   _all?: true
 }
 
@@ -297,6 +303,7 @@ export type CourseGroupByOutputType = {
   targetAudience: string | null
   visibility: string
   whatYouLearn: string | null
+  courseCode: string | null
   _count: CourseCountAggregateOutputType | null
   _avg: CourseAvgAggregateOutputType | null
   _sum: CourseSumAggregateOutputType | null
@@ -344,6 +351,7 @@ export type CourseWhereInput = {
   targetAudience?: Prisma.StringNullableFilter<"Course"> | string | null
   visibility?: Prisma.StringFilter<"Course"> | string
   whatYouLearn?: Prisma.StringNullableFilter<"Course"> | string | null
+  courseCode?: Prisma.StringNullableFilter<"Course"> | string | null
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   enrollments?: Prisma.EnrollmentListRelationFilter
   modules?: Prisma.ModuleListRelationFilter
@@ -374,6 +382,7 @@ export type CourseOrderByWithRelationInput = {
   targetAudience?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
   whatYouLearn?: Prisma.SortOrderInput | Prisma.SortOrder
+  courseCode?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
   enrollments?: Prisma.EnrollmentOrderByRelationAggregateInput
   modules?: Prisma.ModuleOrderByRelationAggregateInput
@@ -408,6 +417,7 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<{
   targetAudience?: Prisma.StringNullableFilter<"Course"> | string | null
   visibility?: Prisma.StringFilter<"Course"> | string
   whatYouLearn?: Prisma.StringNullableFilter<"Course"> | string | null
+  courseCode?: Prisma.StringNullableFilter<"Course"> | string | null
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   enrollments?: Prisma.EnrollmentListRelationFilter
   modules?: Prisma.ModuleListRelationFilter
@@ -438,6 +448,7 @@ export type CourseOrderByWithAggregationInput = {
   targetAudience?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
   whatYouLearn?: Prisma.SortOrderInput | Prisma.SortOrder
+  courseCode?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CourseCountOrderByAggregateInput
   _avg?: Prisma.CourseAvgOrderByAggregateInput
   _max?: Prisma.CourseMaxOrderByAggregateInput
@@ -470,6 +481,7 @@ export type CourseScalarWhereWithAggregatesInput = {
   targetAudience?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
   visibility?: Prisma.StringWithAggregatesFilter<"Course"> | string
   whatYouLearn?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
+  courseCode?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null
 }
 
 export type CourseCreateInput = {
@@ -493,6 +505,7 @@ export type CourseCreateInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   category: Prisma.CategoryCreateNestedOneWithoutCoursesInput
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
@@ -523,6 +536,7 @@ export type CourseUncheckedCreateInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
@@ -551,6 +565,7 @@ export type CourseUpdateInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.CategoryUpdateOneRequiredWithoutCoursesNestedInput
   enrollments?: Prisma.EnrollmentUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
@@ -581,6 +596,7 @@ export type CourseUncheckedUpdateInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
@@ -610,6 +626,7 @@ export type CourseCreateManyInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
 }
 
 export type CourseUpdateManyMutationInput = {
@@ -633,6 +650,7 @@ export type CourseUpdateManyMutationInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CourseUncheckedUpdateManyInput = {
@@ -657,6 +675,7 @@ export type CourseUncheckedUpdateManyInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CourseListRelationFilter = {
@@ -697,6 +716,7 @@ export type CourseCountOrderByAggregateInput = {
   targetAudience?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
   whatYouLearn?: Prisma.SortOrder
+  courseCode?: Prisma.SortOrder
 }
 
 export type CourseAvgOrderByAggregateInput = {
@@ -725,6 +745,7 @@ export type CourseMaxOrderByAggregateInput = {
   targetAudience?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
   whatYouLearn?: Prisma.SortOrder
+  courseCode?: Prisma.SortOrder
 }
 
 export type CourseMinOrderByAggregateInput = {
@@ -749,6 +770,7 @@ export type CourseMinOrderByAggregateInput = {
   targetAudience?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
   whatYouLearn?: Prisma.SortOrder
+  courseCode?: Prisma.SortOrder
 }
 
 export type CourseSumOrderByAggregateInput = {
@@ -909,6 +931,7 @@ export type CourseCreateWithoutCategoryInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseCreateNestedManyWithoutCourseInput
@@ -937,6 +960,7 @@ export type CourseUncheckedCreateWithoutCategoryInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
@@ -995,6 +1019,7 @@ export type CourseScalarWhereInput = {
   targetAudience?: Prisma.StringNullableFilter<"Course"> | string | null
   visibility?: Prisma.StringFilter<"Course"> | string
   whatYouLearn?: Prisma.StringNullableFilter<"Course"> | string | null
+  courseCode?: Prisma.StringNullableFilter<"Course"> | string | null
 }
 
 export type CourseCreateWithoutModulesInput = {
@@ -1018,6 +1043,7 @@ export type CourseCreateWithoutModulesInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   category: Prisma.CategoryCreateNestedOneWithoutCoursesInput
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseCreateNestedManyWithoutCourseInput
@@ -1047,6 +1073,7 @@ export type CourseUncheckedCreateWithoutModulesInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutCourseInput
@@ -1090,6 +1117,7 @@ export type CourseUpdateWithoutModulesInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.CategoryUpdateOneRequiredWithoutCoursesNestedInput
   enrollments?: Prisma.EnrollmentUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUpdateManyWithoutCourseNestedInput
@@ -1119,6 +1147,7 @@ export type CourseUncheckedUpdateWithoutModulesInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutCourseNestedInput
@@ -1146,6 +1175,7 @@ export type CourseCreateWithoutEnrollmentsInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   category: Prisma.CategoryCreateNestedOneWithoutCoursesInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseCreateNestedManyWithoutCourseInput
@@ -1175,6 +1205,7 @@ export type CourseUncheckedCreateWithoutEnrollmentsInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutCourseInput
@@ -1218,6 +1249,7 @@ export type CourseUpdateWithoutEnrollmentsInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.CategoryUpdateOneRequiredWithoutCoursesNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUpdateManyWithoutCourseNestedInput
@@ -1247,6 +1279,7 @@ export type CourseUncheckedUpdateWithoutEnrollmentsInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutCourseNestedInput
@@ -1274,6 +1307,7 @@ export type CourseCreateWithoutReviewsInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   category: Prisma.CategoryCreateNestedOneWithoutCoursesInput
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
@@ -1303,6 +1337,7 @@ export type CourseUncheckedCreateWithoutReviewsInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
@@ -1346,6 +1381,7 @@ export type CourseUpdateWithoutReviewsInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.CategoryUpdateOneRequiredWithoutCoursesNestedInput
   enrollments?: Prisma.EnrollmentUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
@@ -1375,6 +1411,7 @@ export type CourseUncheckedUpdateWithoutReviewsInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
@@ -1402,6 +1439,7 @@ export type CourseCreateWithoutPurchasesInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   category: Prisma.CategoryCreateNestedOneWithoutCoursesInput
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
@@ -1431,6 +1469,7 @@ export type CourseUncheckedCreateWithoutPurchasesInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutCourseInput
@@ -1474,6 +1513,7 @@ export type CourseUpdateWithoutPurchasesInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.CategoryUpdateOneRequiredWithoutCoursesNestedInput
   enrollments?: Prisma.EnrollmentUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
@@ -1503,6 +1543,7 @@ export type CourseUncheckedUpdateWithoutPurchasesInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutCourseNestedInput
@@ -1530,6 +1571,7 @@ export type CourseCreateWithoutCertificatesInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   category: Prisma.CategoryCreateNestedOneWithoutCoursesInput
   enrollments?: Prisma.EnrollmentCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleCreateNestedManyWithoutCourseInput
@@ -1559,6 +1601,7 @@ export type CourseUncheckedCreateWithoutCertificatesInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
   enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutCourseInput
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCourseInput
@@ -1602,6 +1645,7 @@ export type CourseUpdateWithoutCertificatesInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.CategoryUpdateOneRequiredWithoutCoursesNestedInput
   enrollments?: Prisma.EnrollmentUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
@@ -1631,6 +1675,7 @@ export type CourseUncheckedUpdateWithoutCertificatesInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
@@ -1658,6 +1703,7 @@ export type CourseCreateManyCategoryInput = {
   targetAudience?: string | null
   visibility?: string
   whatYouLearn?: string | null
+  courseCode?: string | null
 }
 
 export type CourseUpdateWithoutCategoryInput = {
@@ -1681,6 +1727,7 @@ export type CourseUpdateWithoutCategoryInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUpdateManyWithoutCourseNestedInput
@@ -1709,6 +1756,7 @@ export type CourseUncheckedUpdateWithoutCategoryInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutCourseNestedInput
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutCourseNestedInput
@@ -1737,6 +1785,7 @@ export type CourseUncheckedUpdateManyWithoutCategoryInput = {
   targetAudience?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.StringFieldUpdateOperationsInput | string
   whatYouLearn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1828,6 +1877,7 @@ export type CourseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   targetAudience?: boolean
   visibility?: boolean
   whatYouLearn?: boolean
+  courseCode?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   enrollments?: boolean | Prisma.Course$enrollmentsArgs<ExtArgs>
   modules?: boolean | Prisma.Course$modulesArgs<ExtArgs>
@@ -1861,9 +1911,10 @@ export type CourseSelectScalar = {
   targetAudience?: boolean
   visibility?: boolean
   whatYouLearn?: boolean
+  courseCode?: boolean
 }
 
-export type CourseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "price" | "level" | "imageUrl" | "published" | "categoryId" | "createdAt" | "updatedAt" | "certificateEnabled" | "completionRule" | "enrollmentType" | "fullDescription" | "language" | "prerequisites" | "shortDescription" | "slug" | "targetAudience" | "visibility" | "whatYouLearn", ExtArgs["result"]["course"]>
+export type CourseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "price" | "level" | "imageUrl" | "published" | "categoryId" | "createdAt" | "updatedAt" | "certificateEnabled" | "completionRule" | "enrollmentType" | "fullDescription" | "language" | "prerequisites" | "shortDescription" | "slug" | "targetAudience" | "visibility" | "whatYouLearn" | "courseCode", ExtArgs["result"]["course"]>
 export type CourseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   enrollments?: boolean | Prisma.Course$enrollmentsArgs<ExtArgs>
@@ -1906,6 +1957,7 @@ export type $CoursePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     targetAudience: string | null
     visibility: string
     whatYouLearn: string | null
+    courseCode: string | null
   }, ExtArgs["result"]["course"]>
   composites: {}
 }
@@ -2302,6 +2354,7 @@ export interface CourseFieldRefs {
   readonly targetAudience: Prisma.FieldRef<"Course", 'String'>
   readonly visibility: Prisma.FieldRef<"Course", 'String'>
   readonly whatYouLearn: Prisma.FieldRef<"Course", 'String'>
+  readonly courseCode: Prisma.FieldRef<"Course", 'String'>
 }
     
 

@@ -48,6 +48,7 @@ export type QuizMinAggregateOutputType = {
   passingScore: number | null
   randomize: boolean | null
   status: string | null
+  isFinalQuiz: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +63,7 @@ export type QuizMaxAggregateOutputType = {
   passingScore: number | null
   randomize: boolean | null
   status: string | null
+  isFinalQuiz: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -76,6 +78,7 @@ export type QuizCountAggregateOutputType = {
   passingScore: number
   randomize: number
   status: number
+  isFinalQuiz: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -104,6 +107,7 @@ export type QuizMinAggregateInputType = {
   passingScore?: true
   randomize?: true
   status?: true
+  isFinalQuiz?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +122,7 @@ export type QuizMaxAggregateInputType = {
   passingScore?: true
   randomize?: true
   status?: true
+  isFinalQuiz?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -132,6 +137,7 @@ export type QuizCountAggregateInputType = {
   passingScore?: true
   randomize?: true
   status?: true
+  isFinalQuiz?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -233,6 +239,7 @@ export type QuizGroupByOutputType = {
   passingScore: number
   randomize: boolean
   status: string
+  isFinalQuiz: boolean
   createdAt: Date
   updatedAt: Date
   _count: QuizCountAggregateOutputType | null
@@ -270,6 +277,7 @@ export type QuizWhereInput = {
   passingScore?: Prisma.IntFilter<"Quiz"> | number
   randomize?: Prisma.BoolFilter<"Quiz"> | boolean
   status?: Prisma.StringFilter<"Quiz"> | string
+  isFinalQuiz?: Prisma.BoolFilter<"Quiz"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Quiz"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Quiz"> | Date | string
   lessons?: Prisma.LessonListRelationFilter
@@ -287,6 +295,7 @@ export type QuizOrderByWithRelationInput = {
   passingScore?: Prisma.SortOrder
   randomize?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isFinalQuiz?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   lessons?: Prisma.LessonOrderByRelationAggregateInput
@@ -308,6 +317,7 @@ export type QuizWhereUniqueInput = Prisma.AtLeast<{
   passingScore?: Prisma.IntFilter<"Quiz"> | number
   randomize?: Prisma.BoolFilter<"Quiz"> | boolean
   status?: Prisma.StringFilter<"Quiz"> | string
+  isFinalQuiz?: Prisma.BoolFilter<"Quiz"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Quiz"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Quiz"> | Date | string
   lessons?: Prisma.LessonListRelationFilter
@@ -325,6 +335,7 @@ export type QuizOrderByWithAggregationInput = {
   passingScore?: Prisma.SortOrder
   randomize?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isFinalQuiz?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.QuizCountOrderByAggregateInput
@@ -347,6 +358,7 @@ export type QuizScalarWhereWithAggregatesInput = {
   passingScore?: Prisma.IntWithAggregatesFilter<"Quiz"> | number
   randomize?: Prisma.BoolWithAggregatesFilter<"Quiz"> | boolean
   status?: Prisma.StringWithAggregatesFilter<"Quiz"> | string
+  isFinalQuiz?: Prisma.BoolWithAggregatesFilter<"Quiz"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Quiz"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Quiz"> | Date | string
 }
@@ -361,6 +373,7 @@ export type QuizCreateInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lessons?: Prisma.LessonCreateNestedManyWithoutQuizInput
@@ -378,6 +391,7 @@ export type QuizUncheckedCreateInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lessons?: Prisma.LessonUncheckedCreateNestedManyWithoutQuizInput
@@ -395,6 +409,7 @@ export type QuizUpdateInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessons?: Prisma.LessonUpdateManyWithoutQuizNestedInput
@@ -412,6 +427,7 @@ export type QuizUncheckedUpdateInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessons?: Prisma.LessonUncheckedUpdateManyWithoutQuizNestedInput
@@ -429,6 +445,7 @@ export type QuizCreateManyInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -443,6 +460,7 @@ export type QuizUpdateManyMutationInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -457,6 +475,7 @@ export type QuizUncheckedUpdateManyInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -482,6 +501,7 @@ export type QuizCountOrderByAggregateInput = {
   passingScore?: Prisma.SortOrder
   randomize?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isFinalQuiz?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -502,6 +522,7 @@ export type QuizMaxOrderByAggregateInput = {
   passingScore?: Prisma.SortOrder
   randomize?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isFinalQuiz?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -516,6 +537,7 @@ export type QuizMinOrderByAggregateInput = {
   passingScore?: Prisma.SortOrder
   randomize?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  isFinalQuiz?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -585,6 +607,7 @@ export type QuizCreateWithoutLessonsInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   questions?: Prisma.QuestionCreateNestedManyWithoutQuizInput
@@ -601,6 +624,7 @@ export type QuizUncheckedCreateWithoutLessonsInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   questions?: Prisma.QuestionUncheckedCreateNestedManyWithoutQuizInput
@@ -633,6 +657,7 @@ export type QuizUpdateWithoutLessonsInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUpdateManyWithoutQuizNestedInput
@@ -649,6 +674,7 @@ export type QuizUncheckedUpdateWithoutLessonsInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.QuestionUncheckedUpdateManyWithoutQuizNestedInput
@@ -665,6 +691,7 @@ export type QuizCreateWithoutQuestionsInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lessons?: Prisma.LessonCreateNestedManyWithoutQuizInput
@@ -681,6 +708,7 @@ export type QuizUncheckedCreateWithoutQuestionsInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lessons?: Prisma.LessonUncheckedCreateNestedManyWithoutQuizInput
@@ -713,6 +741,7 @@ export type QuizUpdateWithoutQuestionsInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessons?: Prisma.LessonUpdateManyWithoutQuizNestedInput
@@ -729,6 +758,7 @@ export type QuizUncheckedUpdateWithoutQuestionsInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessons?: Prisma.LessonUncheckedUpdateManyWithoutQuizNestedInput
@@ -745,6 +775,7 @@ export type QuizCreateWithoutAssignmentsInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lessons?: Prisma.LessonCreateNestedManyWithoutQuizInput
@@ -761,6 +792,7 @@ export type QuizUncheckedCreateWithoutAssignmentsInput = {
   passingScore?: number
   randomize?: boolean
   status?: string
+  isFinalQuiz?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   lessons?: Prisma.LessonUncheckedCreateNestedManyWithoutQuizInput
@@ -793,6 +825,7 @@ export type QuizUpdateWithoutAssignmentsInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessons?: Prisma.LessonUpdateManyWithoutQuizNestedInput
@@ -809,6 +842,7 @@ export type QuizUncheckedUpdateWithoutAssignmentsInput = {
   passingScore?: Prisma.IntFieldUpdateOperationsInput | number
   randomize?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  isFinalQuiz?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lessons?: Prisma.LessonUncheckedUpdateManyWithoutQuizNestedInput
@@ -874,6 +908,7 @@ export type QuizSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   passingScore?: boolean
   randomize?: boolean
   status?: boolean
+  isFinalQuiz?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   lessons?: boolean | Prisma.Quiz$lessonsArgs<ExtArgs>
@@ -894,11 +929,12 @@ export type QuizSelectScalar = {
   passingScore?: boolean
   randomize?: boolean
   status?: boolean
+  isFinalQuiz?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type QuizOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "type" | "timeLimit" | "attemptLimit" | "passingScore" | "randomize" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["quiz"]>
+export type QuizOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "type" | "timeLimit" | "attemptLimit" | "passingScore" | "randomize" | "status" | "isFinalQuiz" | "createdAt" | "updatedAt", ExtArgs["result"]["quiz"]>
 export type QuizInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lessons?: boolean | Prisma.Quiz$lessonsArgs<ExtArgs>
   questions?: boolean | Prisma.Quiz$questionsArgs<ExtArgs>
@@ -923,6 +959,7 @@ export type $QuizPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     passingScore: number
     randomize: boolean
     status: string
+    isFinalQuiz: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["quiz"]>
@@ -1306,6 +1343,7 @@ export interface QuizFieldRefs {
   readonly passingScore: Prisma.FieldRef<"Quiz", 'Int'>
   readonly randomize: Prisma.FieldRef<"Quiz", 'Boolean'>
   readonly status: Prisma.FieldRef<"Quiz", 'String'>
+  readonly isFinalQuiz: Prisma.FieldRef<"Quiz", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Quiz", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Quiz", 'DateTime'>
 }

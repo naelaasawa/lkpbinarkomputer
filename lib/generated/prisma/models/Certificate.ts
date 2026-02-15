@@ -20,58 +20,128 @@ export type CertificateModel = runtime.Types.Result.DefaultSelection<Prisma.$Cer
 
 export type AggregateCertificate = {
   _count: CertificateCountAggregateOutputType | null
+  _avg: CertificateAvgAggregateOutputType | null
+  _sum: CertificateSumAggregateOutputType | null
   _min: CertificateMinAggregateOutputType | null
   _max: CertificateMaxAggregateOutputType | null
 }
 
+export type CertificateAvgAggregateOutputType = {
+  sequenceNumber: number | null
+  finalScore: number | null
+}
+
+export type CertificateSumAggregateOutputType = {
+  sequenceNumber: number | null
+  finalScore: number | null
+}
+
 export type CertificateMinAggregateOutputType = {
   id: string | null
+  certificateNumber: string | null
+  sequenceNumber: number | null
   userId: string | null
   courseId: string | null
+  courseName: string | null
+  userName: string | null
+  predicate: string | null
+  finalScore: number | null
+  completedAt: Date | null
   issuedAt: Date | null
-  uniqueId: string | null
+  pdfUrl: string | null
+  qrCodeData: string | null
 }
 
 export type CertificateMaxAggregateOutputType = {
   id: string | null
+  certificateNumber: string | null
+  sequenceNumber: number | null
   userId: string | null
   courseId: string | null
+  courseName: string | null
+  userName: string | null
+  predicate: string | null
+  finalScore: number | null
+  completedAt: Date | null
   issuedAt: Date | null
-  uniqueId: string | null
+  pdfUrl: string | null
+  qrCodeData: string | null
 }
 
 export type CertificateCountAggregateOutputType = {
   id: number
+  certificateNumber: number
+  sequenceNumber: number
   userId: number
   courseId: number
+  courseName: number
+  userName: number
+  predicate: number
+  finalScore: number
+  completedAt: number
   issuedAt: number
-  uniqueId: number
+  pdfUrl: number
+  qrCodeData: number
   _all: number
 }
 
 
+export type CertificateAvgAggregateInputType = {
+  sequenceNumber?: true
+  finalScore?: true
+}
+
+export type CertificateSumAggregateInputType = {
+  sequenceNumber?: true
+  finalScore?: true
+}
+
 export type CertificateMinAggregateInputType = {
   id?: true
+  certificateNumber?: true
+  sequenceNumber?: true
   userId?: true
   courseId?: true
+  courseName?: true
+  userName?: true
+  predicate?: true
+  finalScore?: true
+  completedAt?: true
   issuedAt?: true
-  uniqueId?: true
+  pdfUrl?: true
+  qrCodeData?: true
 }
 
 export type CertificateMaxAggregateInputType = {
   id?: true
+  certificateNumber?: true
+  sequenceNumber?: true
   userId?: true
   courseId?: true
+  courseName?: true
+  userName?: true
+  predicate?: true
+  finalScore?: true
+  completedAt?: true
   issuedAt?: true
-  uniqueId?: true
+  pdfUrl?: true
+  qrCodeData?: true
 }
 
 export type CertificateCountAggregateInputType = {
   id?: true
+  certificateNumber?: true
+  sequenceNumber?: true
   userId?: true
   courseId?: true
+  courseName?: true
+  userName?: true
+  predicate?: true
+  finalScore?: true
+  completedAt?: true
   issuedAt?: true
-  uniqueId?: true
+  pdfUrl?: true
+  qrCodeData?: true
   _all?: true
 }
 
@@ -113,6 +183,18 @@ export type CertificateAggregateArgs<ExtArgs extends runtime.Types.Extensions.In
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CertificateAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CertificateSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CertificateMinAggregateInputType
@@ -143,17 +225,29 @@ export type CertificateGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   _count?: CertificateCountAggregateInputType | true
+  _avg?: CertificateAvgAggregateInputType
+  _sum?: CertificateSumAggregateInputType
   _min?: CertificateMinAggregateInputType
   _max?: CertificateMaxAggregateInputType
 }
 
 export type CertificateGroupByOutputType = {
   id: string
+  certificateNumber: string
+  sequenceNumber: number
   userId: string
   courseId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date
   issuedAt: Date
-  uniqueId: string
+  pdfUrl: string | null
+  qrCodeData: string | null
   _count: CertificateCountAggregateOutputType | null
+  _avg: CertificateAvgAggregateOutputType | null
+  _sum: CertificateSumAggregateOutputType | null
   _min: CertificateMinAggregateOutputType | null
   _max: CertificateMaxAggregateOutputType | null
 }
@@ -178,20 +272,36 @@ export type CertificateWhereInput = {
   OR?: Prisma.CertificateWhereInput[]
   NOT?: Prisma.CertificateWhereInput | Prisma.CertificateWhereInput[]
   id?: Prisma.StringFilter<"Certificate"> | string
+  certificateNumber?: Prisma.StringFilter<"Certificate"> | string
+  sequenceNumber?: Prisma.IntFilter<"Certificate"> | number
   userId?: Prisma.StringFilter<"Certificate"> | string
   courseId?: Prisma.StringFilter<"Certificate"> | string
+  courseName?: Prisma.StringFilter<"Certificate"> | string
+  userName?: Prisma.StringFilter<"Certificate"> | string
+  predicate?: Prisma.StringFilter<"Certificate"> | string
+  finalScore?: Prisma.IntFilter<"Certificate"> | number
+  completedAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
   issuedAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
-  uniqueId?: Prisma.StringFilter<"Certificate"> | string
+  pdfUrl?: Prisma.StringNullableFilter<"Certificate"> | string | null
+  qrCodeData?: Prisma.StringNullableFilter<"Certificate"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
 }
 
 export type CertificateOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  certificateNumber?: Prisma.SortOrder
+  sequenceNumber?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  courseName?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
+  predicate?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
-  uniqueId?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  qrCodeData?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   course?: Prisma.CourseOrderByWithRelationInput
   _relevance?: Prisma.CertificateOrderByRelevanceInput
@@ -199,27 +309,45 @@ export type CertificateOrderByWithRelationInput = {
 
 export type CertificateWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  uniqueId?: string
+  certificateNumber?: string
   userId_courseId?: Prisma.CertificateUserIdCourseIdCompoundUniqueInput
   AND?: Prisma.CertificateWhereInput | Prisma.CertificateWhereInput[]
   OR?: Prisma.CertificateWhereInput[]
   NOT?: Prisma.CertificateWhereInput | Prisma.CertificateWhereInput[]
+  sequenceNumber?: Prisma.IntFilter<"Certificate"> | number
   userId?: Prisma.StringFilter<"Certificate"> | string
   courseId?: Prisma.StringFilter<"Certificate"> | string
+  courseName?: Prisma.StringFilter<"Certificate"> | string
+  userName?: Prisma.StringFilter<"Certificate"> | string
+  predicate?: Prisma.StringFilter<"Certificate"> | string
+  finalScore?: Prisma.IntFilter<"Certificate"> | number
+  completedAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
   issuedAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
+  pdfUrl?: Prisma.StringNullableFilter<"Certificate"> | string | null
+  qrCodeData?: Prisma.StringNullableFilter<"Certificate"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   course?: Prisma.XOR<Prisma.CourseScalarRelationFilter, Prisma.CourseWhereInput>
-}, "id" | "uniqueId" | "userId_courseId">
+}, "id" | "certificateNumber" | "userId_courseId">
 
 export type CertificateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  certificateNumber?: Prisma.SortOrder
+  sequenceNumber?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  courseName?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
+  predicate?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
-  uniqueId?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  qrCodeData?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CertificateCountOrderByAggregateInput
+  _avg?: Prisma.CertificateAvgOrderByAggregateInput
   _max?: Prisma.CertificateMaxOrderByAggregateInput
   _min?: Prisma.CertificateMinOrderByAggregateInput
+  _sum?: Prisma.CertificateSumOrderByAggregateInput
 }
 
 export type CertificateScalarWhereWithAggregatesInput = {
@@ -227,64 +355,128 @@ export type CertificateScalarWhereWithAggregatesInput = {
   OR?: Prisma.CertificateScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CertificateScalarWhereWithAggregatesInput | Prisma.CertificateScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  certificateNumber?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  sequenceNumber?: Prisma.IntWithAggregatesFilter<"Certificate"> | number
   userId?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
   courseId?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  courseName?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  userName?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  predicate?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  finalScore?: Prisma.IntWithAggregatesFilter<"Certificate"> | number
+  completedAt?: Prisma.DateTimeWithAggregatesFilter<"Certificate"> | Date | string
   issuedAt?: Prisma.DateTimeWithAggregatesFilter<"Certificate"> | Date | string
-  uniqueId?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
+  pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
+  qrCodeData?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
 }
 
 export type CertificateCreateInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
   user: Prisma.UserCreateNestedOneWithoutCertificatesInput
   course: Prisma.CourseCreateNestedOneWithoutCertificatesInput
 }
 
 export type CertificateUncheckedCreateInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
   userId: string
   courseId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
 }
 
 export type CertificateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutCertificatesNestedInput
   course?: Prisma.CourseUpdateOneRequiredWithoutCertificatesNestedInput
 }
 
 export type CertificateUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CertificateCreateManyInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
   userId: string
   courseId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
 }
 
 export type CertificateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CertificateUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CertificateListRelationFilter = {
@@ -310,26 +502,60 @@ export type CertificateUserIdCourseIdCompoundUniqueInput = {
 
 export type CertificateCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  certificateNumber?: Prisma.SortOrder
+  sequenceNumber?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  courseName?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
+  predicate?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
-  uniqueId?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrder
+  qrCodeData?: Prisma.SortOrder
+}
+
+export type CertificateAvgOrderByAggregateInput = {
+  sequenceNumber?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
 }
 
 export type CertificateMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  certificateNumber?: Prisma.SortOrder
+  sequenceNumber?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  courseName?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
+  predicate?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
-  uniqueId?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrder
+  qrCodeData?: Prisma.SortOrder
 }
 
 export type CertificateMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  certificateNumber?: Prisma.SortOrder
+  sequenceNumber?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  courseName?: Prisma.SortOrder
+  userName?: Prisma.SortOrder
+  predicate?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
-  uniqueId?: Prisma.SortOrder
+  pdfUrl?: Prisma.SortOrder
+  qrCodeData?: Prisma.SortOrder
+}
+
+export type CertificateSumOrderByAggregateInput = {
+  sequenceNumber?: Prisma.SortOrder
+  finalScore?: Prisma.SortOrder
 }
 
 export type CertificateCreateNestedManyWithoutUserInput = {
@@ -418,16 +644,32 @@ export type CertificateUncheckedUpdateManyWithoutCourseNestedInput = {
 
 export type CertificateCreateWithoutUserInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
   course: Prisma.CourseCreateNestedOneWithoutCertificatesInput
 }
 
 export type CertificateUncheckedCreateWithoutUserInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
   courseId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
 }
 
 export type CertificateCreateOrConnectWithoutUserInput = {
@@ -461,24 +703,48 @@ export type CertificateScalarWhereInput = {
   OR?: Prisma.CertificateScalarWhereInput[]
   NOT?: Prisma.CertificateScalarWhereInput | Prisma.CertificateScalarWhereInput[]
   id?: Prisma.StringFilter<"Certificate"> | string
+  certificateNumber?: Prisma.StringFilter<"Certificate"> | string
+  sequenceNumber?: Prisma.IntFilter<"Certificate"> | number
   userId?: Prisma.StringFilter<"Certificate"> | string
   courseId?: Prisma.StringFilter<"Certificate"> | string
+  courseName?: Prisma.StringFilter<"Certificate"> | string
+  userName?: Prisma.StringFilter<"Certificate"> | string
+  predicate?: Prisma.StringFilter<"Certificate"> | string
+  finalScore?: Prisma.IntFilter<"Certificate"> | number
+  completedAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
   issuedAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
-  uniqueId?: Prisma.StringFilter<"Certificate"> | string
+  pdfUrl?: Prisma.StringNullableFilter<"Certificate"> | string | null
+  qrCodeData?: Prisma.StringNullableFilter<"Certificate"> | string | null
 }
 
 export type CertificateCreateWithoutCourseInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
   user: Prisma.UserCreateNestedOneWithoutCertificatesInput
 }
 
 export type CertificateUncheckedCreateWithoutCourseInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
   userId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
 }
 
 export type CertificateCreateOrConnectWithoutCourseInput = {
@@ -509,68 +775,140 @@ export type CertificateUpdateManyWithWhereWithoutCourseInput = {
 
 export type CertificateCreateManyUserInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
   courseId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
 }
 
 export type CertificateUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   course?: Prisma.CourseUpdateOneRequiredWithoutCertificatesNestedInput
 }
 
 export type CertificateUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CertificateUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
   courseId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CertificateCreateManyCourseInput = {
   id?: string
+  certificateNumber: string
+  sequenceNumber: number
   userId: string
+  courseName: string
+  userName: string
+  predicate: string
+  finalScore: number
+  completedAt: Date | string
   issuedAt?: Date | string
-  uniqueId: string
+  pdfUrl?: string | null
+  qrCodeData?: string | null
 }
 
 export type CertificateUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutCertificatesNestedInput
 }
 
 export type CertificateUncheckedUpdateWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CertificateUncheckedUpdateManyWithoutCourseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  sequenceNumber?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseName?: Prisma.StringFieldUpdateOperationsInput | string
+  userName?: Prisma.StringFieldUpdateOperationsInput | string
+  predicate?: Prisma.StringFieldUpdateOperationsInput | string
+  finalScore?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  uniqueId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCodeData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
 
 export type CertificateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  certificateNumber?: boolean
+  sequenceNumber?: boolean
   userId?: boolean
   courseId?: boolean
+  courseName?: boolean
+  userName?: boolean
+  predicate?: boolean
+  finalScore?: boolean
+  completedAt?: boolean
   issuedAt?: boolean
-  uniqueId?: boolean
+  pdfUrl?: boolean
+  qrCodeData?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["certificate"]>
@@ -579,13 +917,21 @@ export type CertificateSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type CertificateSelectScalar = {
   id?: boolean
+  certificateNumber?: boolean
+  sequenceNumber?: boolean
   userId?: boolean
   courseId?: boolean
+  courseName?: boolean
+  userName?: boolean
+  predicate?: boolean
+  finalScore?: boolean
+  completedAt?: boolean
   issuedAt?: boolean
-  uniqueId?: boolean
+  pdfUrl?: boolean
+  qrCodeData?: boolean
 }
 
-export type CertificateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "courseId" | "issuedAt" | "uniqueId", ExtArgs["result"]["certificate"]>
+export type CertificateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "certificateNumber" | "sequenceNumber" | "userId" | "courseId" | "courseName" | "userName" | "predicate" | "finalScore" | "completedAt" | "issuedAt" | "pdfUrl" | "qrCodeData", ExtArgs["result"]["certificate"]>
 export type CertificateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   course?: boolean | Prisma.CourseDefaultArgs<ExtArgs>
@@ -599,10 +945,18 @@ export type $CertificatePayload<ExtArgs extends runtime.Types.Extensions.Interna
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    certificateNumber: string
+    sequenceNumber: number
     userId: string
     courseId: string
+    courseName: string
+    userName: string
+    predicate: string
+    finalScore: number
+    completedAt: Date
     issuedAt: Date
-    uniqueId: string
+    pdfUrl: string | null
+    qrCodeData: string | null
   }, ExtArgs["result"]["certificate"]>
   composites: {}
 }
@@ -975,10 +1329,18 @@ export interface Prisma__CertificateClient<T, Null = never, ExtArgs extends runt
  */
 export interface CertificateFieldRefs {
   readonly id: Prisma.FieldRef<"Certificate", 'String'>
+  readonly certificateNumber: Prisma.FieldRef<"Certificate", 'String'>
+  readonly sequenceNumber: Prisma.FieldRef<"Certificate", 'Int'>
   readonly userId: Prisma.FieldRef<"Certificate", 'String'>
   readonly courseId: Prisma.FieldRef<"Certificate", 'String'>
+  readonly courseName: Prisma.FieldRef<"Certificate", 'String'>
+  readonly userName: Prisma.FieldRef<"Certificate", 'String'>
+  readonly predicate: Prisma.FieldRef<"Certificate", 'String'>
+  readonly finalScore: Prisma.FieldRef<"Certificate", 'Int'>
+  readonly completedAt: Prisma.FieldRef<"Certificate", 'DateTime'>
   readonly issuedAt: Prisma.FieldRef<"Certificate", 'DateTime'>
-  readonly uniqueId: Prisma.FieldRef<"Certificate", 'String'>
+  readonly pdfUrl: Prisma.FieldRef<"Certificate", 'String'>
+  readonly qrCodeData: Prisma.FieldRef<"Certificate", 'String'>
 }
     
 

@@ -128,7 +128,8 @@ export const CourseScalarFieldEnum = {
   slug: 'slug',
   targetAudience: 'targetAudience',
   visibility: 'visibility',
-  whatYouLearn: 'whatYouLearn'
+  whatYouLearn: 'whatYouLearn',
+  courseCode: 'courseCode'
 } as const
 
 export type CourseScalarFieldEnum = (typeof CourseScalarFieldEnum)[keyof typeof CourseScalarFieldEnum]
@@ -173,6 +174,7 @@ export const QuizScalarFieldEnum = {
   passingScore: 'passingScore',
   randomize: 'randomize',
   status: 'status',
+  isFinalQuiz: 'isFinalQuiz',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -202,6 +204,10 @@ export const EnrollmentScalarFieldEnum = {
   userId: 'userId',
   courseId: 'courseId',
   progress: 'progress',
+  courseCompleted: 'courseCompleted',
+  courseCompletedAt: 'courseCompletedAt',
+  finalScore: 'finalScore',
+  finalPredicate: 'finalPredicate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -215,8 +221,12 @@ export const QuizAssignmentScalarFieldEnum = {
   quizId: 'quizId',
   status: 'status',
   score: 'score',
+  answers: 'answers',
   createdAt: 'createdAt',
-  completedAt: 'completedAt'
+  attemptedAt: 'attemptedAt',
+  submittedAt: 'submittedAt',
+  completedAt: 'completedAt',
+  isLocked: 'isLocked'
 } as const
 
 export type QuizAssignmentScalarFieldEnum = (typeof QuizAssignmentScalarFieldEnum)[keyof typeof QuizAssignmentScalarFieldEnum]
@@ -305,10 +315,18 @@ export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typ
 
 export const CertificateScalarFieldEnum = {
   id: 'id',
+  certificateNumber: 'certificateNumber',
+  sequenceNumber: 'sequenceNumber',
   userId: 'userId',
   courseId: 'courseId',
+  courseName: 'courseName',
+  userName: 'userName',
+  predicate: 'predicate',
+  finalScore: 'finalScore',
+  completedAt: 'completedAt',
   issuedAt: 'issuedAt',
-  uniqueId: 'uniqueId'
+  pdfUrl: 'pdfUrl',
+  qrCodeData: 'qrCodeData'
 } as const
 
 export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
@@ -366,7 +384,8 @@ export const CourseOrderByRelevanceFieldEnum = {
   slug: 'slug',
   targetAudience: 'targetAudience',
   visibility: 'visibility',
-  whatYouLearn: 'whatYouLearn'
+  whatYouLearn: 'whatYouLearn',
+  courseCode: 'courseCode'
 } as const
 
 export type CourseOrderByRelevanceFieldEnum = (typeof CourseOrderByRelevanceFieldEnum)[keyof typeof CourseOrderByRelevanceFieldEnum]
@@ -421,7 +440,8 @@ export type QuestionOrderByRelevanceFieldEnum = (typeof QuestionOrderByRelevance
 export const EnrollmentOrderByRelevanceFieldEnum = {
   id: 'id',
   userId: 'userId',
-  courseId: 'courseId'
+  courseId: 'courseId',
+  finalPredicate: 'finalPredicate'
 } as const
 
 export type EnrollmentOrderByRelevanceFieldEnum = (typeof EnrollmentOrderByRelevanceFieldEnum)[keyof typeof EnrollmentOrderByRelevanceFieldEnum]
@@ -431,7 +451,8 @@ export const QuizAssignmentOrderByRelevanceFieldEnum = {
   id: 'id',
   userId: 'userId',
   quizId: 'quizId',
-  status: 'status'
+  status: 'status',
+  answers: 'answers'
 } as const
 
 export type QuizAssignmentOrderByRelevanceFieldEnum = (typeof QuizAssignmentOrderByRelevanceFieldEnum)[keyof typeof QuizAssignmentOrderByRelevanceFieldEnum]
@@ -505,9 +526,14 @@ export type PurchaseOrderByRelevanceFieldEnum = (typeof PurchaseOrderByRelevance
 
 export const CertificateOrderByRelevanceFieldEnum = {
   id: 'id',
+  certificateNumber: 'certificateNumber',
   userId: 'userId',
   courseId: 'courseId',
-  uniqueId: 'uniqueId'
+  courseName: 'courseName',
+  userName: 'userName',
+  predicate: 'predicate',
+  pdfUrl: 'pdfUrl',
+  qrCodeData: 'qrCodeData'
 } as const
 
 export type CertificateOrderByRelevanceFieldEnum = (typeof CertificateOrderByRelevanceFieldEnum)[keyof typeof CertificateOrderByRelevanceFieldEnum]

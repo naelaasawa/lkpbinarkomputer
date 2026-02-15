@@ -16,7 +16,7 @@ async function main() {
 
         console.log(`Generating certificate for: ${userName}, Course: ${courseName}`);
 
-        const pdfBuffer = await generateCertificate(userName, courseName);
+        const pdfBuffer = await generateCertificate(userName, courseName, "Sangat Memuaskan", "001/TEST/CERT/2026");
 
         const outputPath = path.join(process.cwd(), "test-certificate.pdf");
         fs.writeFileSync(outputPath, pdfBuffer);

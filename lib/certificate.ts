@@ -2,12 +2,18 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import fs from 'fs';
 import path from 'path';
 
-export async function generateCertificate(userName: string, courseName: string, date: Date = new Date()): Promise<Buffer> {
+export async function generateCertificate(
+    userName: string,
+    courseName: string,
+    predicate: string,
+    certificateNumber: string,
+    date: Date = new Date(),
+    qrCodeDataURL?: string
+): Promise<Buffer> {
     try {
         // 1. Load the template
-        const templatePath = path.join(process.cwd(), 'public', 'template-certificate.png');
+        const templatePath = path.join(process.cwd(), 'public', 'template-sertifikat.png.jpeg');
 
-        // Check if file exists
         if (!fs.existsSync(templatePath)) {
             console.error("Template not found at:", templatePath);
             throw new Error("Certificate template not found");
@@ -15,15 +21,14 @@ export async function generateCertificate(userName: string, courseName: string, 
 
         const templateBytes = fs.readFileSync(templatePath);
 
-        // 2. Create a new PDF and embed the image
+        // 2. Create PDF and embed template
         const pdfDoc = await PDFDocument.create();
-        const image = await pdfDoc.embedPng(templateBytes);
+        const image = await pdfDoc.embedJpg(templateBytes);
         const { width, height } = image.scale(1);
 
-        // Add a page matching the image dimensions
         const page = pdfDoc.addPage([width, height]);
 
-        // Draw the image as background
+        // Draw template as background
         page.drawImage(image, {
             x: 0,
             y: 0,
@@ -35,88 +40,199 @@ export async function generateCertificate(userName: string, courseName: string, 
         const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
         const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-        // 4. Helper: Draw Center
-        const drawCenteredText = (text: string, yFromTop: number, size: number, fontToUse: any, color = rgb(0.1, 0.2, 0.4)) => {
-            const textWidth = fontToUse.widthOfTextAtSize(text, size);
+        // === ABSOLUTE POSITIONING SYSTEM ===
+        // Template dimensions: 1600×1131 pixels
+        // PDF coordinates: (0,0) is at BOTTOM-LEFT corner
+        // Y-axis increases upward
+
+        // === COLOR PALETTE ===
+        const blackColor = rgb(0, 0, 0);
+        const blueColor = rgb(0.122, 0.306, 0.784); // #1f4ed8
+        const grayColor = rgb(0.4, 0.4, 0.4);
+
+        // Validation
+        if (!userName || userName.trim() === '') {
+            throw new Error('User name is required');
+        }
+
+        // === FIXED COORDINATE SYSTEM ===
+        // All Y coordinates are measured from BOTTOM of page
+
+        const COORDS = {
+            // Main content area (measured from bottom)
+            certificateNumber: { y: 900, size: 12 },
+            labelDiberiKepada: { y: 850, size: 11 },
+            userName: { y: 780, size: 48 },
+            labelProgramKursus: { y: 650, size: 11 },
+            courseName: { y: 590, size: 34 },
+            labelDiselenggarakan: { y: 500, size: 11 },
+            organizerName: { y: 470, size: 16 },
+
+            // Footer area
+            footer: {
+                predicateLabel: { x: 135, y: 150, size: 11 },
+                predicateValue: { x: 135, y: 120, size: 14 },
+                dateLabel: { y: 150, size: 11 },
+                dateValue: { y: 120, size: 14 },
+            }
+        };
+
+        // Helper function for centered text
+        const drawCenteredText = (text: string, y: number, size: number, font: any, color: any) => {
+            const textWidth = font.widthOfTextAtSize(text, size);
             page.drawText(text, {
                 x: (width - textWidth) / 2,
-                y: height - yFromTop,
+                y: y,
                 size,
-                font: fontToUse,
+                font,
                 color,
             });
         };
 
-        // Helper: Draw Left
-        const drawText = (text: string, x: number, yFromTop: number, size: number, fontToUse: any, color = rgb(0.1, 0.2, 0.4)) => {
-            page.drawText(text, {
-                x: x,
-                y: height - yFromTop,
-                size,
-                font: fontToUse,
-                color,
-            });
-        };
+        // === RENDER TEXT ELEMENTS WITH ABSOLUTE POSITIONING ===
 
-        // 5. Draw Content based on New Template (1024x682)
-        // Colors: Blueish for Name/Course to match template theme?
-        // Template uses dark blue for headers. Let's use RGB(0.06, 0.1, 0.2) approx for text.
-        const textColor = rgb(0.1, 0.1, 0.2);
-        const blueColor = rgb(0.1, 0.3, 0.6); // Lighter blue for Course Name maybe?
+        // 1. Certificate Number
+        drawCenteredText(
+            certificateNumber,
+            COORDS.certificateNumber.y,
+            COORDS.certificateNumber.size,
+            fontRegular,
+            grayColor
+        );
 
-        // USER NAME
-        // Dimension: 1024x682
-        // Target: ~38% down (approx 260px from top)
-        drawCenteredText(userName, 290, 48, fontBold, textColor);
+        // 2. "Diberikan kepada" label
+        drawCenteredText(
+            "Diberikan kepada",
+            COORDS.labelDiberiKepada.y,
+            COORDS.labelDiberiKepada.size,
+            fontRegular,
+            grayColor
+        );
 
-        // COURSE NAME
-        // Target: ~60% down (approx 415px from top)
-        drawCenteredText(courseName.toUpperCase(), 370, 32, fontBold, blueColor);
+        // 3. User Name (FOCAL POINT - bold, large)
+        drawCenteredText(
+            userName,
+            COORDS.userName.y,
+            COORDS.userName.size,
+            fontBold,
+            blackColor
+        );
 
-        // DATES
-        // Format: 'id-ID' for Indonesian format
-        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long' };
-        // "Periode: Januari 2026"
-        const periodStr = date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long' });
+        // 4. "Telah menyelesaikan program kursus" label
+        drawCenteredText(
+            "Telah menyelesaikan program kursus",
+            COORDS.labelProgramKursus.y,
+            COORDS.labelProgramKursus.size,
+            fontRegular,
+            grayColor
+        );
 
-        // "Tanggal Terbit: 31 Januari 2026"
-        const issueDateStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        // 5. Course Name (uppercase, blue, bold)
+        const courseNameUpper = courseName.toUpperCase();
+        drawCenteredText(
+            courseNameUpper,
+            COORDS.courseName.y,
+            COORDS.courseName.size,
+            fontBold,
+            blueColor
+        );
 
-        // Period (Left side)
-        // Target: ~82% down (approx 560px from top)
-        // X aligned with "Periode" label (approx 20% width?)
-        // Wait, drawCenteredText centers it on page. We need drawText for specific X.
+        // 6. "Diselenggarakan oleh" label
+        drawCenteredText(
+            "Diselenggarakan oleh",
+            COORDS.labelDiselenggarakan.y,
+            COORDS.labelDiselenggarakan.size,
+            fontRegular,
+            grayColor
+        );
 
-        // Issue Date (Right side)
-        // Target: ~82% down
-        // X aligned with "Tanggal Terbit" label (approx 80% width?)
-        // Let's use specific drawText for these columns to align them properly relative to their column headers.
+        // 7. Organizer name
+        drawCenteredText(
+            "LKP Binar Komputer",
+            COORDS.organizerName.y,
+            COORDS.organizerName.size,
+            fontBold,
+            blackColor
+        );
 
-        // Find rough X centers for columns
-        // Left Column Center: ~180px
-        const leftColCenter = 190;
-        const periodWidth = fontBold.widthOfTextAtSize(periodStr, 16);
-        page.drawText(periodStr, {
-            x: leftColCenter - (periodWidth / 2),
-            y: height - 565,
-            size: 16,
-            font: fontBold,
-            color: textColor
+        // === FOOTER SECTION (Absolute Positioning) ===
+
+        // Format date
+        const issueDateStr = date.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
         });
 
-        // Right Column Center: ~830px (1024 - 194 approx)
-        const rightColCenter = 834;
-        const issueWidth = fontBold.widthOfTextAtSize(issueDateStr, 16);
+        // LEFT: Predicate (label + value)
+        page.drawText("Predikat:", {
+            x: COORDS.footer.predicateLabel.x,
+            y: COORDS.footer.predicateLabel.y,
+            size: COORDS.footer.predicateLabel.size,
+            font: fontRegular,
+            color: grayColor
+        });
+
+        page.drawText(predicate, {
+            x: COORDS.footer.predicateValue.x,
+            y: COORDS.footer.predicateValue.y,
+            size: COORDS.footer.predicateValue.size,
+            font: fontBold,
+            color: blackColor
+        });
+
+        // RIGHT: Date (label + value, right-aligned)
+        const dateLabelText = "Tanggal Terbit:";
+        const dateLabelWidth = fontRegular.widthOfTextAtSize(dateLabelText, COORDS.footer.dateLabel.size);
+        const dateValueWidth = fontBold.widthOfTextAtSize(issueDateStr, COORDS.footer.dateValue.size);
+        const dateXBase = width - 200;
+
+        page.drawText(dateLabelText, {
+            x: dateXBase,
+            y: COORDS.footer.dateLabel.y,
+            size: COORDS.footer.dateLabel.size,
+            font: fontRegular,
+            color: grayColor
+        });
+
         page.drawText(issueDateStr, {
-            x: rightColCenter - (issueWidth / 2),
-            y: height - 565,
-            size: 16,
+            x: dateXBase,
+            y: COORDS.footer.dateValue.y,
+            size: COORDS.footer.dateValue.size,
             font: fontBold,
-            color: textColor
+            color: blackColor
         });
 
+        // QR CODE (bottom-right corner)
+        if (qrCodeDataURL) {
+            try {
+                const base64Data = qrCodeDataURL.split(',')[1];
+                const qrBuffer = Buffer.from(base64Data, 'base64');
+                const qrImage = await pdfDoc.embedPng(qrBuffer);
+                const qrSize = 75;
 
-        // 6. Serialize
+                page.drawImage(qrImage, {
+                    x: width - qrSize - 25,
+                    y: 25,
+                    width: qrSize,
+                    height: qrSize,
+                });
+
+                console.log('[CERTIFICATE] QR code added');
+            } catch (qrError) {
+                console.error('[CERTIFICATE] QR code error:', qrError);
+            }
+        }
+
+        // Logging
+        console.log('[CERTIFICATE] Absolute positioning system applied');
+        console.log(`  Template: ${width}×${height}px`);
+        console.log(`  Cert Number: ${certificateNumber}`);
+        console.log(`  User: ${userName}`);
+        console.log(`  Course: ${courseName}`);
+        console.log(`  Predicate: ${predicate}`);
+
+        // Serialize
         const pdfBytes = await pdfDoc.save();
         return Buffer.from(pdfBytes);
 

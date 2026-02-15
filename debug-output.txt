@@ -1,0 +1,54 @@
+﻿ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+≡ƒöî Database Connection Configuration:
+   Host: localhost:3306
+   User: root
+   Password: Γ£à SET (length: 6)
+   Database: lkp
+ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+Γ£à Prisma adapter initialized successfully
+
+=== DEBUGGING CERTIFICATE ACCESS ===
+
+≡ƒôè Total Users: 5
+
+
+≡ƒæñ User: utgeeewwwa@gmail.com
+   User ID: 29007e6d-0876-425c-8d74-2007f77c8ed4
+   Enrollments: 0
+
+≡ƒæñ User: mihyaeruu10@gmail.com
+   User ID: 3622ec89-5c60-4038-9710-2904d9657ef5
+   Enrollments: 2
+
+   ≡ƒôÜ Course: Microsoft Word
+      Progress: 100%
+      Final Predicate: NOT SET
+      Final Score: NOT SET
+      ≡ƒÅå Final Quiz: test word (c6f030ff-a6e7-47f2-b44d-e16b696fae9a)
+      Γ£à Quiz Attempt EXISTS
+         Status: completed
+         Score: 80%
+         Locked: true
+         Completed: Thu Feb 12 2026 11:36:30 GMT+0530 (India Standard Time)
+      ≡ƒÄô CERTIFICATE SHOULD BE AVAILABLE!
+
+   ≡ƒôÜ Course: Test 
+      Progress: 100%
+      Final Predicate: NOT SET
+      Final Score: NOT SET
+      ≡ƒÅå Final Quiz: test (94d1a850-41c8-44c5-bafd-fbf42297693f)
+      Γ¥î NO Quiz Attempt found
+      ΓÜá∩╕Å  User needs to complete final quiz
+
+≡ƒæñ User: naelasawa@gmail.com
+   User ID: 3e7ac9e9-fda7-4c39-b5cd-c7eaa49c2c9e
+   Enrollments: 0
+
+≡ƒæñ User: indriaprrrl@gmail.com
+   User ID: 81564191-1ab9-4800-940d-429104198f62
+   Enrollments: 0
+
+≡ƒæñ User: fbyulll27@gmail.com
+   User ID: bea4a644-b722-48c2-9d1d-514c0f5b116f
+   Enrollments: 0

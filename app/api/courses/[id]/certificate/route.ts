@@ -3,6 +3,8 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { sendCertificateEmail } from "@/lib/mail";
 import { generateCertificate } from "@/lib/certificate";
+import { generateCertificateNumber } from "@/lib/certificate-number";
+import { generateCertificateQR } from "@/lib/qrcode";
 
 export async function POST(
     req: Request,
@@ -25,18 +27,36 @@ export async function POST(
             return new NextResponse("User not found in database", { status: 404 });
         }
 
-        // Check if course is actually 100% completed
+        // Check if course is  completed and has predicate
         const enrollment = await prisma.enrollment.findUnique({
             where: {
                 userId_courseId: {
                     userId: loggedInUser.id,
                     courseId: id
                 }
+            },
+            select: {
+                progress: true,
+                finalPredicate: true,
+                finalScore: true,
+                courseCompletedAt: true
             }
         });
 
         if (!enrollment || enrollment.progress < 100) {
             return new NextResponse("Course not completed yet", { status: 400 });
+        }
+
+        if (!enrollment.finalPredicate) {
+            return new NextResponse(
+                JSON.stringify({
+                    error: "Certificate not available. Please complete the final quiz first."
+                }),
+                {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
         }
 
         const course = await prisma.course.findUnique({
@@ -47,19 +67,11 @@ export async function POST(
             return new NextResponse("Course not found", { status: 404 });
         }
 
-        // Generate Certificate
-        const fullName = user.fullName || "Student";
-        let certificateBuffer: Buffer;
-        try {
-            certificateBuffer = await generateCertificate(fullName, course.title);
-            console.log("✅ Certificate generated successfully");
-        } catch (certError) {
-            console.error("❌ Certificate generation failed:", certError);
-            return new NextResponse("Failed to generate certificate", { status: 500 });
-        }
+        // 1. Generate or Retrieve Certificate Number
+        let certificateNumber = "";
+        let sequenceNumber = 1;
 
-        // Save to Database
-        // Check if certificate already exists to avoid duplicates
+        // Check if certificate already exists
         let certificate = await prisma.certificate.findUnique({
             where: {
                 userId_courseId: {
@@ -69,17 +81,59 @@ export async function POST(
             }
         });
 
+        if (certificate) {
+            certificateNumber = certificate.certificateNumber;
+        } else {
+            // Generate new number
+            const certData = await generateCertificateNumber(course.title, new Date());
+            certificateNumber = certData.number;
+            sequenceNumber = certData.sequence;
+        }
+
+        // 2. Generate QR Code
+        const qrCodeData = await generateCertificateQR(certificateNumber);
+
+        // 3. Generate PDF
+        const fullName = user.fullName || loggedInUser.email.split('@')[0];
+        let certificateBuffer: Buffer;
+
+        try {
+            certificateBuffer = await generateCertificate(
+                fullName,
+                course.title,
+                enrollment.finalPredicate,
+                certificateNumber,
+                new Date(),
+                qrCodeData
+            );
+            console.log("✅ Certificate generated successfully");
+        } catch (certError) {
+            console.error("❌ Certificate generation failed:", certError);
+            return new NextResponse("Failed to generate certificate", { status: 500 });
+        }
+
+        // 4. Save/Update Database
         if (!certificate) {
-            const uniqueId = Math.random().toString(36).substring(2, 10).toUpperCase();
             certificate = await prisma.certificate.create({
                 data: {
                     userId: loggedInUser.id,
                     courseId: id,
-                    uniqueId: uniqueId
+                    certificateNumber: certificateNumber,
+                    sequenceNumber: sequenceNumber,
+                    courseName: course.title,
+                    userName: fullName,
+                    predicate: enrollment.finalPredicate,
+                    finalScore: enrollment.finalScore || 0,
+                    completedAt: enrollment.courseCompletedAt || new Date(),
+                    qrCodeData: qrCodeData
                 }
             });
+        } else {
+            // Update existing if needed (e.g. valid until?)
+            // For now, we keep original
         }
 
+        // 5. Send Email
         // Get email from body if provided, otherwise use login email
         let targetEmail = user.emailAddresses[0].emailAddress;
         try {
@@ -108,7 +162,7 @@ export async function POST(
         return NextResponse.json({
             success: true,
             email: targetEmail,
-            certificateId: certificate.uniqueId
+            certificateId: certificate.id
         });
 
     } catch (error) {

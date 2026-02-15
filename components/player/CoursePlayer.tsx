@@ -60,7 +60,10 @@ export default function CoursePlayer({ id }: { id: string }) {
     const [activeTab, setActiveTab] = useState("overview");
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
     const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+    const [completedQuizzes, setCompletedQuizzes] = useState<Set<string>>(new Set()); // Track completed quiz IDs
     const [isFocusMode, setIsFocusMode] = useState(false);
+    const [hasShownCompletion, setHasShownCompletion] = useState(false);
+    const [courseCompleted, setCourseCompleted] = useState(false);
 
     // Notes State
     const [noteContent, setNoteContent] = useState("");
@@ -84,39 +87,134 @@ export default function CoursePlayer({ id }: { id: string }) {
 
     // Lesson Completion Logic
     const markLessonComplete = async (lessonId: string) => {
-        // Safe check for course existence (though logic implies it exists if we are here)
-        if (!course) return;
+        // Safe check for course existence and user
+        if (!course || !user) return;
 
         if (completedLessons.has(lessonId)) return;
 
         // Optimistic update
         setCompletedLessons(prev => new Set(prev).add(lessonId));
+        attemptedCompletions.current.add(lessonId);
+
+        let attempt = 0;
+        const maxRetries = 3;
+        let savedSuccessfully = false;
+
+        while (attempt < maxRetries && !savedSuccessfully) {
+            try {
+                const res = await fetch(`/api/courses/${course.id}/lessons/${lessonId}/progress`, {
+                    method: "POST"
+                });
+
+                if (res.ok) {
+                    savedSuccessfully = true;
+                    // Restore notification as requested
+                    toast.success("Lesson Completed!");
+                } else {
+                    if (res.status === 401) {
+                        console.warn(`[CoursePlayer] 401 Unauthorized. Retrying... (${attempt + 1}/${maxRetries})`);
+                        await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
+                        attempt++;
+                    } else {
+                        const text = await res.text();
+                        throw new Error(`API Error: ${text}`);
+                    }
+                }
+            } catch (error) {
+                console.error(`[CoursePlayer] Attempt ${attempt + 1} failed:`, error);
+
+                if (attempt === maxRetries - 1) {
+                    // Final failure
+                    // @ts-ignore
+                    toast.error(`Gagal menyimpan progress: ${error.message || 'Unknown error'}`);
+
+                    // Revert optimistic update
+                    setCompletedLessons(prev => {
+                        const next = new Set(prev);
+                        next.delete(lessonId);
+                        return next;
+                    });
+                }
+
+                attempt++;
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
+    };
+
+
+    // Handle Quiz Completion (Only Final Quiz triggers course completion)
+    const handleQuizComplete = async (quizId: string, isFinalQuiz: boolean, score: number) => {
+        if (!course) return;
+
+        // Mark lesson as complete (silent, no notification)
+        const quizLesson = course.modules
+            .flatMap(m => m.lessons)
+            .find(l => l.contentType === 'quiz' && l.content === quizId);
+
+        if (quizLesson) {
+            await markLessonComplete(quizLesson.id);
+            // Also mark quiz as completed for checkmark display
+            setCompletedQuizzes(prev => new Set(prev).add(quizId));
+        }
+
+        // If not final quiz, return early (no completion notification)
+        if (!isFinalQuiz) {
+            return;
+        }
+
+        // Final quiz completed - check if already shown
+        if (hasShownCompletion || courseCompleted) {
+            console.log('[CoursePlayer] Completion already shown or course already completed');
+            return;
+        }
 
         try {
-            const res = await fetch(`/api/courses/${course.id}/lessons/${lessonId}/progress`, {
-                method: "POST"
-            });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`API Error: ${text}`);
+            // Check completion status from database
+            const statusRes = await fetch(`/api/courses/${course.id}/completion-status`);
+            if (statusRes.ok) {
+                const { completed } = await statusRes.json();
+                if (completed) {
+                    console.log('[CoursePlayer] Course already completed in database');
+                    setCourseCompleted(true);
+                    return;
+                }
             }
-            toast.success("Lesson Completed!");
-        } catch (error) {
-            console.error("Failed to save progress", error);
-            // @ts-ignore
-            toast.error(`Failed to save progress: ${error.message}`);
-            // Revert on failure
-            setCompletedLessons(prev => {
-                const next = new Set(prev);
-                next.delete(lessonId);
-                return next;
+
+            // Mark course as complete with score
+            console.log('[CoursePlayer] Marking course as complete with score:', score);
+            const completeRes = await fetch(`/api/courses/${course.id}/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ finalQuizScore: score })
             });
+
+            if (!completeRes.ok) {
+                throw new Error('Failed to save completion');
+            }
+
+            const { finalPredicate, certificateAvailable } = await completeRes.json();
+
+            // Show completion notification ONCE
+            setHasShownCompletion(true);
+            setCourseCompleted(true);
+
+            if (certificateAvailable && finalPredicate) {
+                toast.success(`Lesson Completed! Predikat: ${finalPredicate}`);
+            } else {
+                toast.error("Quiz completed, but score below passing threshold (50%)");
+            }
+
+            console.log('[CoursePlayer] Lesson Completed notification shown');
+        } catch (error) {
+            console.error("Failed to save course completion", error);
+            toast.error("Failed to save progress");
         }
     };
 
     // Load initial progress
     useEffect(() => {
-        if (!course) return;
+        if (!course || !user) return; // Wait for course and user
         const fetchProgress = async () => {
             try {
                 const res = await fetch(`/api/courses/${course.id}/progress`);
@@ -129,19 +227,28 @@ export default function CoursePlayer({ id }: { id: string }) {
             }
         };
         fetchProgress();
-    }, [course]);
+    }, [course, user]);
 
-    // Auto-complete lesson immediately when loaded
+    // Track attempted completions to prevent loops
+    const attemptedCompletions = useRef(new Set<string>());
+
+    // Auto-complete lesson immediately when loaded (EXCEPT quizzes)
     useEffect(() => {
-        if (!activeLesson || !course) return;
+        if (!activeLesson || !course || !user) return;
 
-        // If already completed, do nothing
-        if (completedLessons.has(activeLesson.id)) return;
+        // If already completed or attempted, do nothing
+        if (completedLessons.has(activeLesson.id) || attemptedCompletions.current.has(activeLesson.id)) return;
 
-        // Immediate completion
+        // Skip auto-completion for quizzes - they complete via onComplete callback
+        if (activeLesson.contentType === 'quiz') return;
+
+        // Track attempt
+        attemptedCompletions.current.add(activeLesson.id);
+
+        // Immediate completion for non-quiz content
         markLessonComplete(activeLesson.id);
 
-    }, [activeLesson, course, completedLessons]);
+    }, [activeLesson, course, completedLessons, user]);
 
     useEffect(() => {
         if (isLoaded && !user) {
@@ -200,8 +307,25 @@ export default function CoursePlayer({ id }: { id: string }) {
             }
         };
 
+        const fetchQuizStatuses = async () => {
+            try {
+                const res = await fetch(`/api/quiz-assignments?courseId=${id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    // Extract completed quiz IDs
+                    const completed = data
+                        .filter((assignment: any) => assignment.status === 'completed')
+                        .map((assignment: any) => assignment.quizId);
+                    setCompletedQuizzes(new Set(completed));
+                }
+            } catch (error) {
+                console.error("Failed to fetch quiz statuses", error);
+            }
+        };
+
         fetchCourse();
         fetchReviews();
+        fetchQuizStatuses();
     }, [id, isLoaded, user, searchParams, router]);
 
     // Fetch Note when active lesson changes
@@ -235,6 +359,28 @@ export default function CoursePlayer({ id }: { id: string }) {
             else next.add(moduleId);
             return next;
         });
+    };
+
+    // Certificate validation and navigation
+    const handleCertificateClick = async () => {
+        if (!course) return;
+
+        try {
+            const res = await fetch(`/api/courses/${course.id}/certificate/check`);
+            const data = await res.json();
+
+            if (!res.ok || !data.available) {
+                // Show error toast
+                toast.error(data.error || "Certificate not available. Please complete the final quiz.");
+                return;
+            }
+
+            // Certificate is available, navigate
+            router.push(`/certificate/${course.id}`);
+        } catch (error) {
+            console.error("Certificate validation error:", error);
+            toast.error("Unable to check certificate availability. Please try again.");
+        }
     };
 
     // Auto-save note logic (simple debounce implementation)
@@ -408,7 +554,8 @@ export default function CoursePlayer({ id }: { id: string }) {
                                 activeLesson.contentType === 'quiz' ? (
                                     <QuizPlayer
                                         quizId={activeLesson.content}
-                                        onComplete={() => markLessonComplete(activeLesson.id)}
+                                        courseId={course.id}
+                                        onComplete={handleQuizComplete}
                                     />
                                 ) : activeLesson.contentType === 'video' ? (
                                     activeLesson.content.includes('youtube') || activeLesson.content.includes('youtu.be') ? (
@@ -471,7 +618,7 @@ export default function CoursePlayer({ id }: { id: string }) {
 
                             {course && (completedLessons.size / (course.modules.reduce((acc, m) => acc + m.lessons.length, 0) || 1)) >= 1 && (
                                 <button
-                                    onClick={() => router.push(`/certificate/${course.id}`)}
+                                    onClick={handleCertificateClick}
                                     className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg shadow-sm transition-colors font-bold text-sm"
                                     title="Get Certificate"
                                 >
@@ -722,7 +869,13 @@ export default function CoursePlayer({ id }: { id: string }) {
                                         <div className="bg-white">
                                             {module.lessons.map((lesson, lIdx) => {
                                                 const isActive = activeLesson?.id === lesson.id;
-                                                const isCompleted = completedLessons.has(lesson.id);
+                                                // Check completion: for quizzes check completedQuizzes, for others check completedLessons
+                                                const isQuiz = lesson.contentType === 'quiz';
+                                                const quizId = isQuiz ? lesson.content : null;
+                                                const isCompleted = isQuiz
+                                                    ? (quizId ? completedQuizzes.has(quizId) : false)
+                                                    : completedLessons.has(lesson.id);
+
                                                 return (
                                                     <div
                                                         key={lesson.id}
@@ -769,7 +922,7 @@ export default function CoursePlayer({ id }: { id: string }) {
                     {course && (completedLessons.size / (course.modules.reduce((acc, m) => acc + m.lessons.length, 0) || 1)) >= 1 && (
                         <div className="p-4 border-t border-slate-200 bg-white">
                             <button
-                                onClick={() => router.push(`/certificate/${course.id}`)}
+                                onClick={handleCertificateClick}
                                 className="w-full flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg shadow-sm transition-colors font-bold text-sm"
                             >
                                 <Trophy size={18} />

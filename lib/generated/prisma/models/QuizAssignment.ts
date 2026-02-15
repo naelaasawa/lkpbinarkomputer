@@ -40,8 +40,12 @@ export type QuizAssignmentMinAggregateOutputType = {
   quizId: string | null
   status: string | null
   score: number | null
+  answers: string | null
   createdAt: Date | null
+  attemptedAt: Date | null
+  submittedAt: Date | null
   completedAt: Date | null
+  isLocked: boolean | null
 }
 
 export type QuizAssignmentMaxAggregateOutputType = {
@@ -50,8 +54,12 @@ export type QuizAssignmentMaxAggregateOutputType = {
   quizId: string | null
   status: string | null
   score: number | null
+  answers: string | null
   createdAt: Date | null
+  attemptedAt: Date | null
+  submittedAt: Date | null
   completedAt: Date | null
+  isLocked: boolean | null
 }
 
 export type QuizAssignmentCountAggregateOutputType = {
@@ -60,8 +68,12 @@ export type QuizAssignmentCountAggregateOutputType = {
   quizId: number
   status: number
   score: number
+  answers: number
   createdAt: number
+  attemptedAt: number
+  submittedAt: number
   completedAt: number
+  isLocked: number
   _all: number
 }
 
@@ -80,8 +92,12 @@ export type QuizAssignmentMinAggregateInputType = {
   quizId?: true
   status?: true
   score?: true
+  answers?: true
   createdAt?: true
+  attemptedAt?: true
+  submittedAt?: true
   completedAt?: true
+  isLocked?: true
 }
 
 export type QuizAssignmentMaxAggregateInputType = {
@@ -90,8 +106,12 @@ export type QuizAssignmentMaxAggregateInputType = {
   quizId?: true
   status?: true
   score?: true
+  answers?: true
   createdAt?: true
+  attemptedAt?: true
+  submittedAt?: true
   completedAt?: true
+  isLocked?: true
 }
 
 export type QuizAssignmentCountAggregateInputType = {
@@ -100,8 +120,12 @@ export type QuizAssignmentCountAggregateInputType = {
   quizId?: true
   status?: true
   score?: true
+  answers?: true
   createdAt?: true
+  attemptedAt?: true
+  submittedAt?: true
   completedAt?: true
+  isLocked?: true
   _all?: true
 }
 
@@ -197,8 +221,12 @@ export type QuizAssignmentGroupByOutputType = {
   quizId: string
   status: string
   score: number | null
+  answers: string | null
   createdAt: Date
+  attemptedAt: Date | null
+  submittedAt: Date | null
   completedAt: Date | null
+  isLocked: boolean
   _count: QuizAssignmentCountAggregateOutputType | null
   _avg: QuizAssignmentAvgAggregateOutputType | null
   _sum: QuizAssignmentSumAggregateOutputType | null
@@ -230,8 +258,12 @@ export type QuizAssignmentWhereInput = {
   quizId?: Prisma.StringFilter<"QuizAssignment"> | string
   status?: Prisma.StringFilter<"QuizAssignment"> | string
   score?: Prisma.IntNullableFilter<"QuizAssignment"> | number | null
+  answers?: Prisma.StringNullableFilter<"QuizAssignment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"QuizAssignment"> | Date | string
+  attemptedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
+  isLocked?: Prisma.BoolFilter<"QuizAssignment"> | boolean
   quiz?: Prisma.XOR<Prisma.QuizScalarRelationFilter, Prisma.QuizWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -242,8 +274,12 @@ export type QuizAssignmentOrderByWithRelationInput = {
   quizId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   score?: Prisma.SortOrderInput | Prisma.SortOrder
+  answers?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  attemptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isLocked?: Prisma.SortOrder
   quiz?: Prisma.QuizOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.QuizAssignmentOrderByRelevanceInput
@@ -259,8 +295,12 @@ export type QuizAssignmentWhereUniqueInput = Prisma.AtLeast<{
   quizId?: Prisma.StringFilter<"QuizAssignment"> | string
   status?: Prisma.StringFilter<"QuizAssignment"> | string
   score?: Prisma.IntNullableFilter<"QuizAssignment"> | number | null
+  answers?: Prisma.StringNullableFilter<"QuizAssignment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"QuizAssignment"> | Date | string
+  attemptedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
+  isLocked?: Prisma.BoolFilter<"QuizAssignment"> | boolean
   quiz?: Prisma.XOR<Prisma.QuizScalarRelationFilter, Prisma.QuizWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId_quizId">
@@ -271,8 +311,12 @@ export type QuizAssignmentOrderByWithAggregationInput = {
   quizId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   score?: Prisma.SortOrderInput | Prisma.SortOrder
+  answers?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  attemptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isLocked?: Prisma.SortOrder
   _count?: Prisma.QuizAssignmentCountOrderByAggregateInput
   _avg?: Prisma.QuizAssignmentAvgOrderByAggregateInput
   _max?: Prisma.QuizAssignmentMaxOrderByAggregateInput
@@ -289,16 +333,24 @@ export type QuizAssignmentScalarWhereWithAggregatesInput = {
   quizId?: Prisma.StringWithAggregatesFilter<"QuizAssignment"> | string
   status?: Prisma.StringWithAggregatesFilter<"QuizAssignment"> | string
   score?: Prisma.IntNullableWithAggregatesFilter<"QuizAssignment"> | number | null
+  answers?: Prisma.StringNullableWithAggregatesFilter<"QuizAssignment"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"QuizAssignment"> | Date | string
+  attemptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"QuizAssignment"> | Date | string | null
+  submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"QuizAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"QuizAssignment"> | Date | string | null
+  isLocked?: Prisma.BoolWithAggregatesFilter<"QuizAssignment"> | boolean
 }
 
 export type QuizAssignmentCreateInput = {
   id?: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
   quiz: Prisma.QuizCreateNestedOneWithoutAssignmentsInput
   user: Prisma.UserCreateNestedOneWithoutQuizAssignmentsInput
 }
@@ -309,16 +361,24 @@ export type QuizAssignmentUncheckedCreateInput = {
   quizId: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
 }
 
 export type QuizAssignmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quiz?: Prisma.QuizUpdateOneRequiredWithoutAssignmentsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutQuizAssignmentsNestedInput
 }
@@ -329,8 +389,12 @@ export type QuizAssignmentUncheckedUpdateInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type QuizAssignmentCreateManyInput = {
@@ -339,16 +403,24 @@ export type QuizAssignmentCreateManyInput = {
   quizId: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
 }
 
 export type QuizAssignmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type QuizAssignmentUncheckedUpdateManyInput = {
@@ -357,8 +429,12 @@ export type QuizAssignmentUncheckedUpdateManyInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type QuizAssignmentListRelationFilter = {
@@ -388,8 +464,12 @@ export type QuizAssignmentCountOrderByAggregateInput = {
   quizId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   score?: Prisma.SortOrder
+  answers?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  attemptedAt?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  isLocked?: Prisma.SortOrder
 }
 
 export type QuizAssignmentAvgOrderByAggregateInput = {
@@ -402,8 +482,12 @@ export type QuizAssignmentMaxOrderByAggregateInput = {
   quizId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   score?: Prisma.SortOrder
+  answers?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  attemptedAt?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  isLocked?: Prisma.SortOrder
 }
 
 export type QuizAssignmentMinOrderByAggregateInput = {
@@ -412,8 +496,12 @@ export type QuizAssignmentMinOrderByAggregateInput = {
   quizId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   score?: Prisma.SortOrder
+  answers?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  attemptedAt?: Prisma.SortOrder
+  submittedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  isLocked?: Prisma.SortOrder
 }
 
 export type QuizAssignmentSumOrderByAggregateInput = {
@@ -504,16 +592,16 @@ export type QuizAssignmentUncheckedUpdateManyWithoutQuizNestedInput = {
   deleteMany?: Prisma.QuizAssignmentScalarWhereInput | Prisma.QuizAssignmentScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type QuizAssignmentCreateWithoutUserInput = {
   id?: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
   quiz: Prisma.QuizCreateNestedOneWithoutAssignmentsInput
 }
 
@@ -522,8 +610,12 @@ export type QuizAssignmentUncheckedCreateWithoutUserInput = {
   quizId: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
 }
 
 export type QuizAssignmentCreateOrConnectWithoutUserInput = {
@@ -561,16 +653,24 @@ export type QuizAssignmentScalarWhereInput = {
   quizId?: Prisma.StringFilter<"QuizAssignment"> | string
   status?: Prisma.StringFilter<"QuizAssignment"> | string
   score?: Prisma.IntNullableFilter<"QuizAssignment"> | number | null
+  answers?: Prisma.StringNullableFilter<"QuizAssignment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"QuizAssignment"> | Date | string
+  attemptedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"QuizAssignment"> | Date | string | null
+  isLocked?: Prisma.BoolFilter<"QuizAssignment"> | boolean
 }
 
 export type QuizAssignmentCreateWithoutQuizInput = {
   id?: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
   user: Prisma.UserCreateNestedOneWithoutQuizAssignmentsInput
 }
 
@@ -579,8 +679,12 @@ export type QuizAssignmentUncheckedCreateWithoutQuizInput = {
   userId: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
 }
 
 export type QuizAssignmentCreateOrConnectWithoutQuizInput = {
@@ -614,16 +718,24 @@ export type QuizAssignmentCreateManyUserInput = {
   quizId: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
 }
 
 export type QuizAssignmentUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quiz?: Prisma.QuizUpdateOneRequiredWithoutAssignmentsNestedInput
 }
 
@@ -632,8 +744,12 @@ export type QuizAssignmentUncheckedUpdateWithoutUserInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type QuizAssignmentUncheckedUpdateManyWithoutUserInput = {
@@ -641,8 +757,12 @@ export type QuizAssignmentUncheckedUpdateManyWithoutUserInput = {
   quizId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type QuizAssignmentCreateManyQuizInput = {
@@ -650,16 +770,24 @@ export type QuizAssignmentCreateManyQuizInput = {
   userId: string
   status?: string
   score?: number | null
+  answers?: string | null
   createdAt?: Date | string
+  attemptedAt?: Date | string | null
+  submittedAt?: Date | string | null
   completedAt?: Date | string | null
+  isLocked?: boolean
 }
 
 export type QuizAssignmentUpdateWithoutQuizInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutQuizAssignmentsNestedInput
 }
 
@@ -668,8 +796,12 @@ export type QuizAssignmentUncheckedUpdateWithoutQuizInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type QuizAssignmentUncheckedUpdateManyWithoutQuizInput = {
@@ -677,8 +809,12 @@ export type QuizAssignmentUncheckedUpdateManyWithoutQuizInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  answers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attemptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -689,8 +825,12 @@ export type QuizAssignmentSelect<ExtArgs extends runtime.Types.Extensions.Intern
   quizId?: boolean
   status?: boolean
   score?: boolean
+  answers?: boolean
   createdAt?: boolean
+  attemptedAt?: boolean
+  submittedAt?: boolean
   completedAt?: boolean
+  isLocked?: boolean
   quiz?: boolean | Prisma.QuizDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["quizAssignment"]>
@@ -703,11 +843,15 @@ export type QuizAssignmentSelectScalar = {
   quizId?: boolean
   status?: boolean
   score?: boolean
+  answers?: boolean
   createdAt?: boolean
+  attemptedAt?: boolean
+  submittedAt?: boolean
   completedAt?: boolean
+  isLocked?: boolean
 }
 
-export type QuizAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "quizId" | "status" | "score" | "createdAt" | "completedAt", ExtArgs["result"]["quizAssignment"]>
+export type QuizAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "quizId" | "status" | "score" | "answers" | "createdAt" | "attemptedAt" | "submittedAt" | "completedAt" | "isLocked", ExtArgs["result"]["quizAssignment"]>
 export type QuizAssignmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   quiz?: boolean | Prisma.QuizDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -725,8 +869,12 @@ export type $QuizAssignmentPayload<ExtArgs extends runtime.Types.Extensions.Inte
     quizId: string
     status: string
     score: number | null
+    answers: string | null
     createdAt: Date
+    attemptedAt: Date | null
+    submittedAt: Date | null
     completedAt: Date | null
+    isLocked: boolean
   }, ExtArgs["result"]["quizAssignment"]>
   composites: {}
 }
@@ -1103,8 +1251,12 @@ export interface QuizAssignmentFieldRefs {
   readonly quizId: Prisma.FieldRef<"QuizAssignment", 'String'>
   readonly status: Prisma.FieldRef<"QuizAssignment", 'String'>
   readonly score: Prisma.FieldRef<"QuizAssignment", 'Int'>
+  readonly answers: Prisma.FieldRef<"QuizAssignment", 'String'>
   readonly createdAt: Prisma.FieldRef<"QuizAssignment", 'DateTime'>
+  readonly attemptedAt: Prisma.FieldRef<"QuizAssignment", 'DateTime'>
+  readonly submittedAt: Prisma.FieldRef<"QuizAssignment", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"QuizAssignment", 'DateTime'>
+  readonly isLocked: Prisma.FieldRef<"QuizAssignment", 'Boolean'>
 }
     
 
