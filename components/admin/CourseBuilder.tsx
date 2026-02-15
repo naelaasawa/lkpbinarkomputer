@@ -18,6 +18,7 @@ import {
     Upload,
     HelpCircle,
     Sparkles,
+    Download,
 } from "lucide-react";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -318,6 +319,30 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
         }
     };
 
+    const handleExport = async () => {
+        if (!initialData?.id) return;
+
+        try {
+            const res = await fetch(`/api/courses/${initialData.id}/export`);
+            if (!res.ok) throw new Error("Export failed");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `course_export_${initialData.slug || initialData.id}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            addToast({ type: "success", title: "Export berhasil!" });
+        } catch (error) {
+            console.error(error);
+            addToast({ type: "error", title: "Gagal mengexport course" });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
             {/* Header */}
@@ -361,6 +386,19 @@ function CourseBuilderContent({ mode, initialData }: CourseBuilderProps) {
                                 />
                                 <span className="text-sm font-medium text-slate-700">Quick Mode</span>
                             </label>
+
+                            {/* Export Button (only in edit mode) */}
+                            {mode === "edit" && initialData?.id && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleExport}
+                                    icon={<Download size={16} />}
+                                    title="Export Course"
+                                >
+                                    Export
+                                </Button>
+                            )}
 
                             {/* Save Draft */}
                             <Button
