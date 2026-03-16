@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { MobileContainer } from "@/components/MobileContainer";
 import { BottomNavigation } from "@/components/BottomNavigation";
@@ -12,8 +12,19 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const isLandingPage = pathname === "/";
     const isCourseLearnPage = pathname.includes('/learn') && pathname.includes('/courses');
+
+    // Before mount, render a plain wrapper to avoid SSR/client mismatch
+    if (!mounted) {
+        return <>{children}</>;
+    }
 
     if (isLandingPage) {
         return <main className="w-full min-h-screen bg-white">{children}</main>;

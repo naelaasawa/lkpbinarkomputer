@@ -7,15 +7,33 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { userId } = await auth();
+        const { userId: clerkUserId } = await auth();
 
-        if (!userId) {
+        if (!clerkUserId) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
         const { id: courseId } = await params;
         const body = await req.json();
         const finalQuizScore = body.finalQuizScore as number | undefined;
+
+        // Get or create user in database
+        let loggedInUser = await prisma.user.findUnique({
+            where: { clerkId: clerkUserId }
+        });
+
+        if (!loggedInUser) {
+            console.log(`[COURSE_COMPLETE] Creating new user for clerkId: ${clerkUserId}`);
+            loggedInUser = await prisma.user.create({
+                data: {
+                    clerkId: clerkUserId,
+                    email: `user_${clerkUserId}@temp.com`,
+                    role: 'student'
+                }
+            });
+        }
+
+        const userId = loggedInUser.id;
 
         // Calculate predicate if score is provided
         let predicate: string | null = null;

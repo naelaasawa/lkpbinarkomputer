@@ -1,3 +1,6 @@
+// NOTE: This script is kept for reference but is difficult to run directly with ts-node
+// Please use the API endpoint instead: http://localhost:3000/api/test-certificate?email=your@email.com
+
 import { generateCertificate } from "../lib/certificate";
 import { sendCertificateEmail } from "../lib/mail";
 import fs from "fs";

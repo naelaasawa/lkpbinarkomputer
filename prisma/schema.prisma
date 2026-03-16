@@ -54,6 +54,7 @@ model Course {
   targetAudience     String?       @db.Text
   visibility         String        @default("draft")
   whatYouLearn       String?       @db.LongText
+  courseCode         String? // PKD, PKA, PKO, DGD, etc. for certificate numbering
   certificates       Certificate[]
   category           Category      @relation(fields: [categoryId], references: [id])
   enrollments        Enrollment[]
@@ -108,6 +109,7 @@ model Quiz {
   passingScore Int              @default(70)
   randomize    Boolean          @default(false)
   status       String           @default("draft")
+  isFinalQuiz  Boolean          @default(false)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   lessons      Lesson[]
@@ -133,14 +135,18 @@ model Question {
 }
 
 model Enrollment {
-  id        String   @id @default(uuid())
-  userId    String
-  courseId  String
-  progress  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id])
+  id                String    @id @default(uuid())
+  userId            String
+  courseId          String
+  progress          Int       @default(0)
+  courseCompleted   Boolean   @default(false)
+  courseCompletedAt DateTime?
+  finalScore        Int?
+  finalPredicate    String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  course            Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id])
 
   @@unique([userId, courseId])
   @@index([courseId], map: "Enrollment_courseId_fkey")
@@ -150,10 +156,14 @@ model QuizAssignment {
   id          String    @id @default(uuid())
   userId      String
   quizId      String
-  status      String    @default("assigned")
+  status      String    @default("not_started") // not_started | in_progress | completed
   score       Int?
+  answers     String?   @db.LongText
   createdAt   DateTime  @default(now())
-  completedAt DateTime?
+  attemptedAt DateTime? // When user first opens quiz
+  submittedAt DateTime? // When quiz is submitted
+  completedAt DateTime? // Final completion timestamp
+  isLocked    Boolean   @default(false) // Explicit lock flag for one-try enforcement
   quiz        Quiz      @relation(fields: [quizId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
 
@@ -252,15 +262,34 @@ model Purchase {
 }
 
 model Certificate {
-  id       String   @id @default(uuid())
+  id                String @id @default(uuid())
+  certificateNumber String @unique // "023/BKOMP/PKO/I/2026"
+  sequenceNumber    Int // 23 (for tracking)
+
+  // Relations
   userId   String
   courseId String
-  issuedAt DateTime @default(now())
-  uniqueId String   @unique
-  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Snapshots (for historical accuracy)
+  courseName String // Snapshot of course.title
+  userName   String // Snapshot of user name
+
+  // Quiz data
+  predicate   String // "Sangat Memuaskan", "Memuaskan", etc.
+  finalScore  Int // Quiz score
+  completedAt DateTime // From quiz completion
+
+  // Metadata
+  issuedAt   DateTime @default(now())
+  pdfUrl     String? // Optional: store PDF path
+  qrCodeData String?  @db.Text // QR code data URL
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([certificateNumber])
 }

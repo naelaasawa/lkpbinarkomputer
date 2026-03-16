@@ -138,21 +138,88 @@ export async function POST(
 
         // Create quiz assignment with LOCK (create-only, never update to protect score)
         // Pre-check above ensures this only runs for first attempt
-        const attempt = await prisma.quizAssignment.create({
-            data: {
-                userId,
-                quizId,
-                status: "completed",
-                isLocked: true, // LOCK immediately on creation
-                score,
-                answers: JSON.stringify(answers),
-                attemptedAt: now,
-                submittedAt: now,
-                completedAt: now
-            }
-        });
+        // Create or Update quiz assignment
+        // If an unlocked attempt exists (from a revert/retake grant), update it.
+        // Otherwise create new.
+        let attempt;
+        if (existingAttempt) {
+            console.log(`[QUIZ_ATTEMPT_POST] Updating existing unlocked attempt ${existingAttempt.id}`);
+            attempt = await prisma.quizAssignment.update({
+                where: { id: existingAttempt.id },
+                data: {
+                    status: "completed",
+                    isLocked: true, // LOCK immediately on completion
+                    score,
+                    answers: JSON.stringify(answers),
+                    // attemptedAt: now, // Keep original attempt time? Or update? Let's update submittedAt
+                    submittedAt: now,
+                    completedAt: now
+                }
+            });
+        } else {
+            console.log(`[QUIZ_ATTEMPT_POST] Creating new attempt`);
+            attempt = await prisma.quizAssignment.create({
+                data: {
+                    userId,
+                    quizId,
+                    status: "completed",
+                    isLocked: true, // LOCK immediately on creation
+                    score,
+                    answers: JSON.stringify(answers),
+                    attemptedAt: now,
+                    submittedAt: now,
+                    completedAt: now
+                }
+            });
+        }
 
         console.log(`[QUIZ_ATTEMPT_POST] ✅ Quiz completed and locked: user ${userId}, quiz ${quizId}, score ${score}%`);
+
+        // If this is a final exam, update enrollment with predicate
+        if (quiz.isFinalQuiz === true) {
+            console.log(`[QUIZ_ATTEMPT_POST] Detected final exam completion (isFinalQuiz=true), updating enrollment...`);
+
+            // Calculate predicate
+            const { calculatePredicate } = await import("@/lib/utils/predicate");
+            const predicate = calculatePredicate(score);
+
+            // Find the course this quiz belongs to
+            const lesson = await prisma.lesson.findFirst({
+                where: {
+                    quizId: quizId
+                },
+                include: {
+                    module: true
+                }
+            });
+
+            if (lesson?.module?.courseId) {
+                const courseId = lesson.module.courseId;
+
+                // Update enrollment
+                await prisma.enrollment.upsert({
+                    where: {
+                        userId_courseId: {
+                            userId,
+                            courseId
+                        }
+                    },
+                    create: {
+                        userId,
+                        courseId,
+                        finalScore: score,
+                        finalPredicate: predicate
+                    },
+                    update: {
+                        finalScore: score,
+                        finalPredicate: predicate
+                    }
+                });
+
+                console.log(`[QUIZ_ATTEMPT_POST] ✅ Enrollment updated with finalScore: ${score}, finalPredicate: ${predicate}`);
+            }
+        }
+
 
         return NextResponse.json({
             id: attempt.id,

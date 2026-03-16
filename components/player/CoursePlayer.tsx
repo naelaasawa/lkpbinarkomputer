@@ -90,7 +90,9 @@ export default function CoursePlayer({ id }: { id: string }) {
         // Safe check for course existence and user
         if (!course || !user) return;
 
-        if (completedLessons.has(lessonId)) return;
+        if (completedLessons.has(lessonId)) {
+            return;
+        }
 
         // Optimistic update
         setCompletedLessons(prev => new Set(prev).add(lessonId));

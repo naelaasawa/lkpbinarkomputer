@@ -188,7 +188,9 @@ export default function QuizPlayer({ quizId, courseId, onComplete }: QuizPlayerP
     const handleSelectAnswer = (answer: string) => {
         // Block if quiz is completed or locked (ONE-TRY ENFORCEMENT)
         if (isReviewMode || isLocked || quizAttempt?.isLocked) {
-            toast.error("Lesson Complete");
+            toast("Quiz already completed - answers are locked", {
+                icon: '🔒',
+            });
             return;
         }
 
@@ -264,7 +266,9 @@ export default function QuizPlayer({ quizId, courseId, onComplete }: QuizPlayerP
             if (response.status === 403) {
                 // Quiz is locked - already completed
                 console.log('[QuizPlayer] Quiz is locked (403)');
-                toast.error("Lesson Complete");
+                toast("Quiz already completed - one try only", {
+                    icon: '🔒',
+                });
                 setIsLocked(true);
                 return;
             }

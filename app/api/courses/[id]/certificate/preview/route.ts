@@ -41,8 +41,72 @@ export async function GET(
         });
 
         if (!finalQuiz) {
-            console.log(`[CERTIFICATE_PREVIEW] No final quiz found for course ${id}`);
-            return new NextResponse("No final quiz configured", { status: 404 });
+            // Fallback: try any quiz in this course if no isFinalQuiz is set
+            const anyQuiz = await prisma.quiz.findFirst({
+                where: {
+                    lessons: {
+                        some: {
+                            module: {
+                                courseId: id
+                            }
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            if (!anyQuiz) {
+                console.log(`[CERTIFICATE_PREVIEW] No quiz found for course ${id}`);
+                return new NextResponse("No quiz configured for this course", { status: 404 });
+            }
+
+            console.log(`[CERTIFICATE_PREVIEW] No isFinalQuiz found, using last quiz as fallback: ${anyQuiz.id}`);
+            // Use anyQuiz as the final quiz for preview
+            const quizAttemptFallback = await prisma.quizAssignment.findUnique({
+                where: {
+                    userId_quizId: {
+                        userId: loggedInUser.id,
+                        quizId: anyQuiz.id
+                    }
+                }
+            });
+
+            if (!quizAttemptFallback || quizAttemptFallback.status !== 'completed') {
+                return new NextResponse(
+                    JSON.stringify({ error: "Certificate not available. Please complete the final quiz." }),
+                    { status: 400, headers: { 'Content-Type': 'application/json' } }
+                );
+            }
+
+            // Use fallback quiz attempt for preview
+            const course = await prisma.course.findUnique({ where: { id } });
+            if (!course) return new NextResponse("Course not found", { status: 404 });
+
+            const existingCertFallback = await prisma.certificate.findFirst({ where: { userId: loggedInUser.id, courseId: id } });
+            let certNum: string;
+            let qrData: string | undefined;
+
+            if (existingCertFallback) {
+                certNum = existingCertFallback.certificateNumber;
+                qrData = existingCertFallback.qrCodeData || undefined;
+            } else {
+                const { number } = await generateCertificateNumber(course.title, new Date());
+                certNum = number;
+                qrData = await generateCertificateQR(certNum);
+            }
+
+            const { calculatePredicate } = await import("@/lib/utils/predicate");
+            const scoreFallback = quizAttemptFallback.score ?? 0;
+            const predicateFallback = calculatePredicate(scoreFallback) || "Kurang";
+            const fullNameFallback = user.fullName || "Student";
+            const pdfFallback = await generateCertificate(fullNameFallback, course.title, predicateFallback, certNum, quizAttemptFallback.completedAt || new Date(), qrData);
+
+            return new NextResponse(pdfFallback as any, {
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': `inline; filename="Certificate-Preview-${id}.pdf"`
+                }
+            });
         }
 
         // Check if user completed final quiz
@@ -96,7 +160,7 @@ export async function GET(
             // Generate preview certificate number (with PREVIEW prefix)
             try {
                 const { number } = await generateCertificateNumber(course.title, new Date());
-                certificateNumber = `PREVIEW-${number}`;
+                certificateNumber = number; // Use generated number directly without PREVIEW prefix
                 console.log(`[CERTIFICATE_PREVIEW] Generated preview number: ${certificateNumber}`);
 
                 // Generate QR code for preview
@@ -114,11 +178,9 @@ export async function GET(
         }
 
         // Calculate predicate from quiz score
-        const score = quizAttempt.score ?? 0; // Default to 0 if null
-        let predicate = "Baik";
-        if (score >= 90) predicate = "Sangat Memuaskan";
-        else if (score >= 80) predicate = "Memuaskan";
-        else if (score >= 70) predicate = "Cukup";
+        const { calculatePredicate } = await import("@/lib/utils/predicate");
+        const score = quizAttempt.score ?? 0;
+        const predicate = calculatePredicate(score) || "Kurang";
 
         // Generate PDF
         const fullName = user.fullName || "Student";

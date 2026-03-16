@@ -38,7 +38,7 @@ export async function GET(
         // Find the final quiz for this course
         const finalQuiz = await prisma.quiz.findFirst({
             where: {
-                isFinalQuiz: true,
+                type: 'final_exam',
                 lessons: {
                     some: {
                         module: {

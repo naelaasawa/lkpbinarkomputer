@@ -19,15 +19,28 @@ export async function POST(
         }
 
         const { id } = await params;
+
+        console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🔍 [CERTIFICATE_CLAIM] DEBUG START');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`📝 Course ID: ${id}`);
+        console.log(`👤 Clerk User ID: ${clerkUserId}`);
+        console.log(`📧 Clerk Email: ${user.emailAddresses[0]?.emailAddress}`);
+
         const loggedInUser = await prisma.user.findUnique({
             where: { clerkId: clerkUserId }
         });
 
         if (!loggedInUser) {
+            console.log('❌ User not found in database');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
             return new NextResponse("User not found in database", { status: 404 });
         }
 
-        // Check if course is  completed and has predicate
+        console.log(`💾 DB User ID: ${loggedInUser.id}`);
+        console.log(`📧 DB Email: ${loggedInUser.email}`);
+
+        // Check if course is completed and has predicate
         const enrollment = await prisma.enrollment.findUnique({
             where: {
                 userId_courseId: {
@@ -36,28 +49,88 @@ export async function POST(
                 }
             },
             select: {
+                id: true,
                 progress: true,
                 finalPredicate: true,
                 finalScore: true,
+                courseCompleted: true,
                 courseCompletedAt: true
             }
         });
 
+        console.log('\n📊 Enrollment Data:', JSON.stringify(enrollment, null, 2));
+
         if (!enrollment || enrollment.progress < 100) {
+            console.log(`❌ Course not completed. Progress: ${enrollment?.progress || 0}%`);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
             return new NextResponse("Course not completed yet", { status: 400 });
         }
 
-        if (!enrollment.finalPredicate) {
-            return new NextResponse(
-                JSON.stringify({
-                    error: "Certificate not available. Please complete the final quiz first."
-                }),
-                {
-                    status: 400,
-                    headers: { 'Content-Type': 'application/json' }
+        // Self-heal: if finalPredicate is missing, calculate it from the user's quiz scores
+        let finalPredicate = enrollment.finalPredicate;
+        let finalScore = enrollment.finalScore;
+
+        if (!finalPredicate) {
+            console.log('⚠️ finalPredicate is missing — attempting self-heal from quiz scores...');
+
+            // Find all quizzes in this course
+            const courseQuizzes = await prisma.quiz.findMany({
+                where: {
+                    lessons: {
+                        some: {
+                            module: { courseId: id }
+                        }
+                    }
+                },
+                select: { id: true, isFinalQuiz: true }
+            });
+
+            const quizIds = courseQuizzes.map(q => q.id);
+            const finalQuizIds = courseQuizzes.filter(q => q.isFinalQuiz).map(q => q.id);
+
+            // Prefer final quiz score, fallback to best score among all quizzes
+            const lookupIds = finalQuizIds.length > 0 ? finalQuizIds : quizIds;
+
+            const bestAttempt = await prisma.quizAssignment.findFirst({
+                where: {
+                    userId: loggedInUser.id,
+                    quizId: { in: lookupIds },
+                    status: 'completed'
+                },
+                orderBy: { score: 'desc' }
+            });
+
+            if (!bestAttempt || bestAttempt.score === null) {
+                console.log('❌ No completed quiz found for this course');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+                return new NextResponse(
+                    JSON.stringify({ error: "Certificate not available. Please complete the final quiz first." }),
+                    { status: 400, headers: { 'Content-Type': 'application/json' } }
+                );
+            }
+
+            const { calculatePredicate } = await import("@/lib/utils/predicate");
+            finalScore = bestAttempt.score;
+            finalPredicate = calculatePredicate(finalScore);
+
+            console.log(`✅ Self-healed: score=${finalScore}, predicate=${finalPredicate}`);
+
+            // Save back to enrollment so future claims are instant
+            await prisma.enrollment.update({
+                where: { id: enrollment.id },
+                data: {
+                    finalScore,
+                    finalPredicate,
+                    courseCompleted: true,
+                    courseCompletedAt: enrollment.courseCompletedAt || new Date()
                 }
-            );
+            });
         }
+
+        console.log('✅ Validation passed!');
+        console.log(`   Final Score: ${finalScore}`);
+        console.log(`   Final Predicate: ${finalPredicate}`);
+
 
         const course = await prisma.course.findUnique({
             where: { id: id }
@@ -101,7 +174,7 @@ export async function POST(
             certificateBuffer = await generateCertificate(
                 fullName,
                 course.title,
-                enrollment.finalPredicate,
+                finalPredicate!,
                 certificateNumber,
                 new Date(),
                 qrCodeData
@@ -122,8 +195,8 @@ export async function POST(
                     sequenceNumber: sequenceNumber,
                     courseName: course.title,
                     userName: fullName,
-                    predicate: enrollment.finalPredicate,
-                    finalScore: enrollment.finalScore || 0,
+                    predicate: finalPredicate!,
+                    finalScore: finalScore || 0,
                     completedAt: enrollment.courseCompletedAt || new Date(),
                     qrCodeData: qrCodeData
                 }
