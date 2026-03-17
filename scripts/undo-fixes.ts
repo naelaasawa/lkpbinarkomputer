@@ -104,7 +104,7 @@ async function undoFixes() {
 
                 // Revert Certificate
                 const cert = await prisma.certificate.findFirst({
-                    where: { userId_courseId: { userId: user.id, courseId: courseWord.id } }
+                    where: { userId: user.id, courseId: courseWord.id }
                 });
                 if (cert) {
                     await prisma.certificate.update({

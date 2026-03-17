@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // Get MISSING lessons (lessons that exist in course but not in user progress)
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { userId } = await auth();
@@ -13,7 +13,7 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const courseId = params.id;
+        const { id: courseId } = await params;
 
         // Get user
         const user = await prisma.user.findUnique({

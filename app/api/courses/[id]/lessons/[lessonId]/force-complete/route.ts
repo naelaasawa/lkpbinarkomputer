@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // Force mark a quiz lesson as complete
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string; lessonId: string } }
+    { params }: { params: Promise<{ id: string; lessonId: string }> }
 ) {
     try {
         const { userId } = await auth();
@@ -13,8 +13,7 @@ export async function POST(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const courseId = params.id;
-        const lessonId = params.lessonId;
+        const { id: courseId, lessonId } = await params;
 
         console.log('[Force Complete] Course:', courseId, 'Lesson:', lessonId);
 

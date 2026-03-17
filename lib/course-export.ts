@@ -108,7 +108,6 @@ export async function exportCoursesToZip(courseIds: string[]): Promise<string> {
 
     // Process each course
     for (const course of courses) {
-        // @ts-expect-error - modifying course object in place
         course.imageUrl = processAsset(course.imageUrl);
 
         for (const module of course.modules) {
